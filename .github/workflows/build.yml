@@ -1,6 +1,9 @@
 name: build
 on: [push, pull_request, workflow_dispatch]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -20,3 +23,14 @@ jobs:
         with:
           name: diktatura
           path: build/libs/*.jar
+      # Свежая сборка из main всегда лежит в релизе "dev" (Releases → dev).
+      - name: Publish dev release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
+          gh release delete dev --yes --cleanup-tag || true
+          gh release create dev "$JAR" --prerelease --target "$GITHUB_SHA" \
+            --title "Dev build ${GITHUB_SHA::7}" \
+            --notes "Автоматическая сборка из main (коммит $GITHUB_SHA). Minecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API."
