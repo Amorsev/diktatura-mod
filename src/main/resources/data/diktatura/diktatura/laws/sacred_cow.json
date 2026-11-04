@@ -1,0 +1,27 @@
+{
+  "check": {
+    "type": "kill_entity",
+    "entities": [
+      "minecraft:cow",
+      "minecraft:mooshroom"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 2
+    },
+    {
+      "type": "loyalty",
+      "amount": -5
+    },
+    {
+      "type": "lightning"
+    }
+  ],
+  "cooldown_seconds": 1,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

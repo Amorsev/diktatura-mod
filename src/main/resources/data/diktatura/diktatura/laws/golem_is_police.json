@@ -1,0 +1,23 @@
+{
+  "check": {
+    "type": "kill_entity",
+    "entities": [
+      "minecraft:iron_golem"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "arrest",
+      "minutes": 5
+    },
+    {
+      "type": "loyalty",
+      "amount": -10
+    }
+  ],
+  "cooldown_seconds": 1,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}

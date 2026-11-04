@@ -1,0 +1,25 @@
+{
+  "check": {
+    "type": "have_item",
+    "items": [
+      "minecraft:tnt",
+      "minecraft:tnt_minecart",
+      "minecraft:end_crystal"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate",
+      "mode": "offending"
+    },
+    {
+      "type": "arrest",
+      "minutes": 3
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

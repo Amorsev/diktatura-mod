@@ -1,0 +1,22 @@
+{
+  "check": {
+    "type": "wealth",
+    "threshold": 12800,
+    "include_ender_chest": false
+  },
+  "punishments": [
+    {
+      "type": "arrest",
+      "minutes": 5
+    },
+    {
+      "type": "loyalty",
+      "amount": -5
+    }
+  ],
+  "cooldown_seconds": 900,
+  "prevent": false,
+  "enabled_by_default": true,
+  "permanent": true,
+  "weight": 10
+}

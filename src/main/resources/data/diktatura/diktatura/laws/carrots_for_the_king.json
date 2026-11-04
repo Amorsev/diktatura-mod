@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "use_item",
+    "items": [
+      "minecraft:carrot",
+      "minecraft:golden_carrot"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate",
+      "mode": "offending"
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

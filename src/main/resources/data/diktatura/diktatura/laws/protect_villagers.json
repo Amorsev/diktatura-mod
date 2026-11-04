@@ -1,0 +1,24 @@
+{
+  "check": {
+    "type": "kill_entity",
+    "entities": [
+      "minecraft:villager",
+      "minecraft:wandering_trader"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "arrest",
+      "minutes": 10
+    },
+    {
+      "type": "loyalty",
+      "amount": -20
+    }
+  ],
+  "cooldown_seconds": 1,
+  "prevent": false,
+  "enabled_by_default": true,
+  "permanent": true,
+  "weight": 10
+}

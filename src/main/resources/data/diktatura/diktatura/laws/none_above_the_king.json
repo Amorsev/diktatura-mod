@@ -1,0 +1,26 @@
+{
+  "check": {
+    "type": "altitude",
+    "above": 200
+  },
+  "punishments": [
+    {
+      "type": "lightning"
+    },
+    {
+      "type": "effect",
+      "effect": "minecraft:slow_falling",
+      "seconds": 10,
+      "amplifier": 0
+    },
+    {
+      "type": "loyalty",
+      "amount": -3
+    }
+  ],
+  "cooldown_seconds": 20,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

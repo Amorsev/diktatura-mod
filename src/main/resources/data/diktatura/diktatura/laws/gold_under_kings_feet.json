@@ -1,0 +1,24 @@
+{
+  "check": {
+    "type": "standing_on",
+    "blocks": [
+      "minecraft:gold_block",
+      "minecraft:raw_gold_block"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "damage",
+      "amount": 2
+    },
+    {
+      "type": "fine",
+      "amount": 1
+    }
+  ],
+  "cooldown_seconds": 10,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:dirt",
+    "#minecraft:base_stone_overworld",
+    "#minecraft:base_stone_nether",
+    "#minecraft:sand",
+    "#minecraft:terracotta",
+    "minecraft:gravel",
+    "minecraft:clay",
+    "minecraft:end_stone",
+    "minecraft:bedrock",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:snow_block",
+    "minecraft:ice",
+    "minecraft:packed_ice",
+    "minecraft:blue_ice",
+    "minecraft:obsidian",
+    {
+      "id": "#minecraft:snow",
+      "required": false
+    }
+  ]
+}

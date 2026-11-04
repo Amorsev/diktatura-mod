@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "outside_at_night"
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 1
+    },
+    {
+      "type": "loyalty",
+      "amount": -2
+    }
+  ],
+  "cooldown_seconds": 60,
+  "prevent": false,
+  "enabled_by_default": true,
+  "permanent": false,
+  "weight": 10
+}

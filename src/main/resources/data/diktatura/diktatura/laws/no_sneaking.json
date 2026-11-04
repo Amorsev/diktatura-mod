@@ -1,0 +1,25 @@
+{
+  "check": {
+    "type": "sneaking"
+  },
+  "punishments": [
+    {
+      "type": "warning"
+    },
+    {
+      "type": "effect",
+      "effect": "minecraft:glowing",
+      "seconds": 30,
+      "amplifier": 0
+    },
+    {
+      "type": "loyalty",
+      "amount": -2
+    }
+  ],
+  "cooldown_seconds": 30,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

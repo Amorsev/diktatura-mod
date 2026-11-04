@@ -1,0 +1,19 @@
+{
+  "check": {
+    "type": "attack_entity",
+    "entities": [
+      "minecraft:chicken"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "timeout",
+      "seconds": 20
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

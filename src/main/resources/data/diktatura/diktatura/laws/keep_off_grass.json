@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "block_break",
+    "blocks": [
+      "minecraft:grass_block",
+      "minecraft:dirt"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "loyalty",
+      "amount": -1
+    }
+  ],
+  "cooldown_seconds": 10,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 4
+}

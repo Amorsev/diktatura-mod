@@ -1,0 +1,24 @@
+{
+  "check": {
+    "type": "dimension",
+    "dimensions": [
+      "minecraft:the_nether",
+      "minecraft:the_end"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "arrest",
+      "minutes": 3
+    },
+    {
+      "type": "loyalty",
+      "amount": -5
+    }
+  ],
+  "cooldown_seconds": 60,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 6
+}

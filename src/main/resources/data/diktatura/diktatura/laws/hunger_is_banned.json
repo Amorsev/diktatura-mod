@@ -1,0 +1,23 @@
+{
+  "check": {
+    "type": "hunger",
+    "max_food": 6
+  },
+  "punishments": [
+    {
+      "type": "effect",
+      "effect": "minecraft:nausea",
+      "seconds": 8,
+      "amplifier": 0
+    },
+    {
+      "type": "loyalty",
+      "amount": -1
+    }
+  ],
+  "cooldown_seconds": 60,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

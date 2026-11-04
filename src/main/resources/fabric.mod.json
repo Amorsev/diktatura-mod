@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "diktatura",
+	"version": "${version}",
+	"name": "Diktatura",
+	"description": "Мир под властью диктатора: законы, наказания, тюрьма у спавна, лояльность и указы. / A dictator rules your world: laws, punishments, a prison at spawn, loyalty and decrees.",
+	"authors": ["Amorsev"],
+	"contact": {
+		"sources": "https://github.com/Amorsev/diktatura-mod"
+	},
+	"icon": "assets/diktatura/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.diktatura.Diktatura"],
+		"client": ["com.diktatura.client.DiktaturaClient"]
+	},
+	"mixins": ["diktatura.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

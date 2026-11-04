@@ -1,0 +1,25 @@
+{
+  "check": {
+    "type": "use_item",
+    "items": [
+      "minecraft:bow",
+      "minecraft:crossbow",
+      "minecraft:trident"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate",
+      "mode": "held"
+    },
+    {
+      "type": "loyalty",
+      "amount": -3
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

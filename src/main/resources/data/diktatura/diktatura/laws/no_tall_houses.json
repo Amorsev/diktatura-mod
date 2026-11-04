@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "block_place",
+    "max_build_height": 3
+  },
+  "punishments": [
+    {
+      "type": "warning"
+    },
+    {
+      "type": "loyalty",
+      "amount": -1
+    }
+  ],
+  "cooldown_seconds": 10,
+  "prevent": true,
+  "enabled_by_default": true,
+  "permanent": false,
+  "weight": 10
+}

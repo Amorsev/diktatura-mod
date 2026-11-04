@@ -1,0 +1,24 @@
+{
+  "check": {
+    "type": "hold_item",
+    "items": [
+      "minecraft:diamond",
+      "minecraft:diamond_block"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate",
+      "mode": "offending"
+    },
+    {
+      "type": "loyalty",
+      "amount": -3
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10
+}

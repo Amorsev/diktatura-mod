@@ -1,0 +1,23 @@
+{
+  "check": {
+    "type": "look_up",
+    "min_angle": 60
+  },
+  "punishments": [
+    {
+      "type": "effect",
+      "effect": "minecraft:blindness",
+      "seconds": 5,
+      "amplifier": 0
+    },
+    {
+      "type": "loyalty",
+      "amount": -2
+    }
+  ],
+  "cooldown_seconds": 15,
+  "prevent": false,
+  "enabled_by_default": true,
+  "permanent": false,
+  "weight": 10
+}

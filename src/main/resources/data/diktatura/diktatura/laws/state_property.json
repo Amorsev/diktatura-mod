@@ -1,0 +1,21 @@
+{
+  "check": {
+    "type": "block_break",
+    "spawn_radius": 64
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 1
+    },
+    {
+      "type": "loyalty",
+      "amount": -2
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": true,
+  "enabled_by_default": true,
+  "permanent": true,
+  "weight": 10
+}

@@ -1,0 +1,31 @@
+{
+  "check": {
+    "type": "chat",
+    "words": [
+      "долой",
+      "революц",
+      "свергнуть",
+      "диктатор дурак",
+      "тиран",
+      "down with",
+      "revolution",
+      "overthrow",
+      "tyrant"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "arrest",
+      "minutes": 3
+    },
+    {
+      "type": "loyalty",
+      "amount": -10
+    }
+  ],
+  "cooldown_seconds": 1,
+  "prevent": true,
+  "enabled_by_default": true,
+  "permanent": true,
+  "weight": 10
+}
