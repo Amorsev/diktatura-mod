@@ -1,0 +1,53 @@
+name: release
+# Ручная сборка релиза для любой версии: указать тег (v0.1.0) и коммит этой версии.
+# Обычно не нужен: build.yml сам создаёт релиз, когда в main появляется новая mod_version.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег версии, например v0.1.0'
+        required: true
+      ref:
+        description: 'Коммит (SHA) этой версии; пусто — существующий тег'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || inputs.tag }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
+      - name: Build
+        run: gradle build --stacktrace -Pmod_version="${TAG#v}"
+      - name: Release notes from CHANGELOG (main)
+        run: |
+          VERSION="${TAG#v}"
+          gh api "repos/${GITHUB_REPOSITORY}/contents/CHANGELOG.md?ref=main" -q .content | base64 -d > CHANGELOG.main.md || true
+          awk -v v="$VERSION" '/^## \[/ { p = index($0, "[" v "]") > 0; next } p { print }' CHANGELOG.main.md > notes.md || true
+          if [ ! -s notes.md ]; then echo "Версия $VERSION." > notes.md; fi
+          printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API.\n' >> notes.md
+      - name: Publish release
+        run: |
+          VERSION="${TAG#v}"
+          SHA=$(git rev-parse HEAD)
+          JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$JAR" --clobber
+            gh release edit "$TAG" --title "Diktatura $VERSION" --notes-file notes.md
+          else
+            gh release create "$TAG" "$JAR" --target "$SHA" --title "Diktatura $VERSION" --notes-file notes.md --latest=false
+          fi
