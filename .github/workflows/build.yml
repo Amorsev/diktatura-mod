@@ -38,3 +38,20 @@ jobs:
           gh release create dev "$JAR" --prerelease --latest=false --target "$GITHUB_SHA" \
             --title "Dev build ${GITHUB_SHA::7}" \
             --notes "Автоматическая сборка из main (коммит $GITHUB_SHA). Minecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API."
+      # Новая версия (mod_version, для которой ещё нет релиза) → тег vX.Y.Z и релиз с jar.
+      - name: Publish version release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(grep '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Релиз $TAG уже есть — новая версия не объявлена, пропускаю."
+            exit 0
+          fi
+          awk -v v="$VERSION" '/^## \[/ { p = index($0, "[" v "]") > 0; next } p { print }' CHANGELOG.md > notes.md || true
+          if [ ! -s notes.md ]; then echo "Версия $VERSION." > notes.md; fi
+          printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API.\n' >> notes.md
+          JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
+          gh release create "$TAG" "$JAR" --target "$GITHUB_SHA" --title "Diktatura $VERSION" --notes-file notes.md --latest
