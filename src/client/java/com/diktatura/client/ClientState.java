@@ -14,6 +14,9 @@ public final class ClientState {
 	public static int timeoutSeconds;
 	public static int decreeSeconds;
 	public static boolean rebellion;
+	public static int minigame = -1;
+	public static int progress;
+	public static int goal;
 	public static List<String> laws = List.of();
 
 	private ClientState() {
@@ -28,6 +31,9 @@ public final class ClientState {
 		timeoutSeconds = p.timeoutSeconds();
 		decreeSeconds = p.decreeSeconds();
 		rebellion = p.rebellion();
+		minigame = p.minigame();
+		progress = p.progress();
+		goal = p.goal();
 		laws = List.copyOf(p.laws());
 	}
 

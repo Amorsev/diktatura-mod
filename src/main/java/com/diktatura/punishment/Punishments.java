@@ -43,7 +43,7 @@ public final class Punishments {
 			case "warning" -> new Warning();
 			case "fine" -> new Fine(item(Json.s(o, "item", "minecraft:emerald")), Json.i(o, "amount", 1));
 			case "confiscate" -> new Confiscate(Json.s(o, "mode", "offending").toLowerCase(Locale.ROOT));
-			case "arrest" -> new Arrest(Json.d(o, "minutes", 3));
+			case "arrest" -> new Arrest(Json.i(o, "seconds", -1), Json.i(o, "min_seconds", -1), Json.i(o, "max_seconds", -1));
 			case "timeout" -> new Timeout(Json.i(o, "seconds", 30));
 			case "effect" -> new Effect(effect(Json.s(o, "effect", "minecraft:slowness")),
 				Json.i(o, "seconds", 10), Json.i(o, "amplifier", 0));
@@ -187,16 +187,35 @@ public final class Punishments {
 		}
 	}
 
+	/**
+	 * Арест: отработка (мини-игра), затем срок в камере.
+	 * "seconds" — фиксированный срок; иначе случайный от "min_seconds" до "max_seconds"
+	 * (по умолчанию из конфига: 10–60 секунд).
+	 */
 	static final class Arrest implements Punishment {
-		private final double minutes;
+		private final int seconds;
+		private final int min;
+		private final int max;
 
-		Arrest(double minutes) {
-			this.minutes = minutes;
+		Arrest(int seconds, int min, int max) {
+			this.seconds = seconds;
+			this.min = min;
+			this.max = max;
 		}
 
 		@Override
 		public void apply(ServerPlayerEntity p, Law law, LawContext ctx) {
-			PrisonSystem.arrest(p, (int) Math.round(minutes * 1200), law.name());
+			PrisonSystem.arrest(p, sentenceSeconds(p) * 20, law.name());
+		}
+
+		private int sentenceSeconds(ServerPlayerEntity p) {
+			if (seconds > 0) {
+				return seconds;
+			}
+			var cfg = com.diktatura.config.DiktaturaConfig.get();
+			int lo = min > 0 ? min : cfg.minSentenceSeconds;
+			int hi = Math.max(lo, max > 0 ? max : cfg.maxSentenceSeconds);
+			return lo + p.getRandom().nextInt(hi - lo + 1);
 		}
 
 		@Override

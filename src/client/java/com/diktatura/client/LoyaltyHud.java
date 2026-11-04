@@ -36,6 +36,27 @@ public final class LoyaltyHud {
 				ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.to_prison"), x, y, 0xFF5555);
 				y += 10;
 			}
+			case 4 -> {
+				String key = switch (ClientState.minigame) {
+					case 0 -> "parkour";
+					case 1 -> "quarry";
+					default -> "maze";
+				};
+				ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.minigame",
+					Text.translatable("diktatura.minigame." + key)), x, y, 0xFFAA00);
+				y += 10;
+				if (ClientState.minigame == 1) {
+					ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.quarry",
+						ClientState.progress, ClientState.goal), x, y, 0xFFD27F);
+					y += 10;
+				} else if (ClientState.minigame == 0 && ClientState.progress > 0) {
+					ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.checkpoint"), x, y, 0x55FF55);
+					y += 10;
+				}
+				ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.then_sentence",
+					ClientState.time(ClientState.sentenceSeconds)), x, y, 0xB0B0B0);
+				y += 10;
+			}
 			case 2 -> {
 				ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.sentence",
 					ClientState.time(ClientState.sentenceSeconds)), x, y, 0xFF5555);

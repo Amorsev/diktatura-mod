@@ -9,7 +9,7 @@
   "punishments": [
     {
       "type": "arrest",
-      "minutes": 10
+      "seconds": 60
     },
     {
       "type": "loyalty",

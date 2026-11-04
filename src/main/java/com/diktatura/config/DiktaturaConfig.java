@@ -16,10 +16,13 @@ public final class DiktaturaConfig {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static DiktaturaConfig instance = new DiktaturaConfig();
 
+	/** Версия файла настроек (для переноса старых значений). */
+	public int configVersion = 0;
+
 	/** Как часто (в тиках) проверяются «постоянные» законы: взгляд, ночь, бег и т. п. */
 	public int checkIntervalTicks = 20;
 	/** Через сколько минут диктатор издаёт новый указ. */
-	public int decreeIntervalMinutes = 20;
+	public int decreeIntervalMinutes = 5;
 	/** Минимум и максимум одновременно действующих законов. */
 	public int minActiveLaws = 6;
 	public int maxActiveLaws = 12;
@@ -37,8 +40,11 @@ public final class DiktaturaConfig {
 	public int rebellionMinutes = 5;
 	public int rebellionCooldownMinutes = 30;
 
-	/** Срок ареста «врага государства» (лояльность 0) в минутах. */
-	public int defaultArrestMinutes = 3;
+	/** Срок в камере после отработки, секунды: от и до (если закон не задал своё). */
+	public int minSentenceSeconds = 10;
+	public int maxSentenceSeconds = 60;
+	/** Срок «врага государства» (лояльность 0) в секундах. */
+	public int defaultArrestSeconds = 30;
 	/** Смещение тюрьмы от точки спавна мира. */
 	public int prisonOffsetX = 40;
 	public int prisonOffsetZ = 0;
@@ -80,10 +86,29 @@ public final class DiktaturaConfig {
 					}
 				}
 			}
+			migrate(instance);
 			save();
 		} catch (Exception e) {
 			Diktatura.LOGGER.error("Не удалось прочитать {}, используются значения по умолчанию", file, e);
 		}
+	}
+
+	private static final int CURRENT_VERSION = 2;
+
+	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах. */
+	private static void migrate(DiktaturaConfig c) {
+		if (c.configVersion < 2) {
+			if (c.decreeIntervalMinutes == 20) {
+				c.decreeIntervalMinutes = 5;
+			}
+		}
+		if (c.minSentenceSeconds < 1) {
+			c.minSentenceSeconds = 10;
+		}
+		if (c.maxSentenceSeconds < c.minSentenceSeconds) {
+			c.maxSentenceSeconds = c.minSentenceSeconds;
+		}
+		c.configVersion = CURRENT_VERSION;
 	}
 
 	public static void save() {

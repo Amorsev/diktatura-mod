@@ -1,6 +1,8 @@
 package com.diktatura.state;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 
 /** Состояние одного игрока: лояльность, страх, срок, точка задержания. */
 public final class PlayerRecord {
@@ -11,6 +13,14 @@ public final class PlayerRecord {
 	public Stage stage = Stage.FREE;
 	public int sentenceTicks;
 	public int cell = -1;
+	/** Мини-игра отработки ({@link com.diktatura.minigame.MinigameType}), -1 — нет. */
+	public int minigame = -1;
+	/** Прогресс отработки: добытый камень или пройденная контрольная точка паркура. */
+	public int progress;
+	/** Помилован (амнистия) во время отработки. */
+	public boolean pardoned;
+	/** Вещи, изъятые на время ареста. null — ничего не изъято. */
+	public NbtList stash;
 
 	public String detentionDim = "";
 	public double detX, detY, detZ;
@@ -49,6 +59,12 @@ public final class PlayerRecord {
 		n.putInt("clean", cleanTicks);
 		n.putInt("reward", rewardTicks);
 		n.putBoolean("gotBook", gotBook);
+		n.putInt("minigame", minigame);
+		n.putInt("progress", progress);
+		n.putBoolean("pardoned", pardoned);
+		if (stash != null) {
+			n.put("stash", stash);
+		}
 		return n;
 	}
 
@@ -70,6 +86,12 @@ public final class PlayerRecord {
 		r.cleanTicks = n.getInt("clean");
 		r.rewardTicks = n.getInt("reward");
 		r.gotBook = n.getBoolean("gotBook");
+		r.minigame = n.contains("minigame") ? n.getInt("minigame") : -1;
+		r.progress = n.getInt("progress");
+		r.pardoned = n.getBoolean("pardoned");
+		if (n.contains("stash")) {
+			r.stash = n.getList("stash", NbtElement.COMPOUND_TYPE);
+		}
 		return r;
 	}
 }

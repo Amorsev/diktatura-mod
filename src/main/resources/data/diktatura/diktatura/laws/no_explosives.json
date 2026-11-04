@@ -14,7 +14,7 @@
     },
     {
       "type": "arrest",
-      "minutes": 3
+      "seconds": 30
     }
   ],
   "cooldown_seconds": 5,

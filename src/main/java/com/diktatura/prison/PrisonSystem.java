@@ -4,6 +4,7 @@ import com.diktatura.util.Teleports;
 import com.diktatura.Diktatura;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.law.LawEngine;
+import com.diktatura.minigame.MinigameSystem;
 import com.diktatura.state.DiktaturaState;
 import com.diktatura.state.PlayerRecord;
 import com.diktatura.state.Stage;
@@ -164,7 +165,10 @@ public final class PrisonSystem {
 		return Vec3d.ofBottomCenter(origin(server).add(PrisonLayout.ARRIVAL));
 	}
 
-	/** Арестовать игрока: запомнить точку задержания и отправить повозку в тюрьму. */
+	/**
+	 * Арестовать игрока: запомнить точку задержания и отправить повозку в зону отработки.
+	 * Срок ({@code ticks}) начнёт идти только после прохождения мини-игры.
+	 */
 	public static void arrest(ServerPlayerEntity player, int ticks, Text reason) {
 		MinecraftServer server = player.getServer();
 		if (server == null) {
@@ -173,12 +177,12 @@ public final class PrisonSystem {
 		ensureGenerated(server);
 		DiktaturaState state = DiktaturaState.get(server);
 		PlayerRecord rec = state.player(player);
-		int minutes = Math.max(1, Math.round(ticks / 1200f));
+		int seconds = Math.max(1, Math.round(ticks / 20f));
 
-		if (rec.stage == Stage.IMPRISONED || rec.stage == Stage.TO_PRISON) {
+		if (rec.stage.isArrested()) {
 			rec.sentenceTicks += ticks;
 			state.markDirty();
-			player.sendMessage(Text.translatable("diktatura.arrest.extended", minutes).formatted(Formatting.RED), false);
+			player.sendMessage(Text.translatable("diktatura.arrest.extended", seconds).formatted(Formatting.RED), false);
 			return;
 		}
 		if (rec.stage == Stage.RETURNING) {
@@ -196,11 +200,11 @@ public final class PrisonSystem {
 		state.markDirty();
 
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.arrest.broadcast",
-			player.getDisplayName(), reason, minutes).formatted(Formatting.DARK_RED), false);
-		TransportSystem.send(player, World.OVERWORLD, arrivalPoint(server), PrisonSystem::admit);
+			player.getDisplayName(), reason, seconds).formatted(Formatting.DARK_RED), false);
+		TransportSystem.send(player, World.OVERWORLD, MinigameSystem.prepare(player), MinigameSystem::begin);
 	}
 
-	/** Повозка доехала до тюрьмы: посадить в камеру. */
+	/** Отработка пройдена: посадить в камеру, с этого момента идёт срок. */
 	public static void admit(ServerPlayerEntity player) {
 		MinecraftServer server = player.getServer();
 		if (server == null) {
@@ -266,6 +270,9 @@ public final class PrisonSystem {
 		PlayerRecord rec = state.player(player);
 		rec.stage = Stage.RETURNING;
 		rec.sentenceTicks = 0;
+		rec.minigame = -1;
+		rec.progress = 0;
+		rec.pardoned = false;
 		state.markDirty();
 		player.sendMessage(Text.translatable("diktatura.prison.released").formatted(Formatting.GREEN), false);
 
@@ -282,7 +289,7 @@ public final class PrisonSystem {
 		}
 		PlayerRecord rec = DiktaturaState.get(server).player(player);
 		switch (rec.stage) {
-			case IMPRISONED -> release(player);
+			case IMPRISONED, MINIGAME -> release(player);
 			case TO_PRISON -> {
 				TransportSystem.cancel(player);
 				teleportHome(server, player, rec);
@@ -306,6 +313,7 @@ public final class PrisonSystem {
 		GameMode mode = GameMode.byName(rec.prevGameMode, GameMode.SURVIVAL);
 		player.changeGameMode(mode);
 		rec.prevGameMode = "";
+		MinigameSystem.restoreInventory(player, rec);
 		state.markDirty();
 		// Пять минут передышки от «постоянных» законов (богатство, взгляд и т. п.).
 		LawEngine.grace(player.getUuid(), 20 * 60 * 5);
@@ -377,10 +385,12 @@ public final class PrisonSystem {
 		}
 		switch (rec.stage) {
 			case TO_PRISON -> {
-				Vec3d a = arrivalPoint(server);
-				Teleports.to(player, server.getOverworld(), a.x, a.y, a.z, player.getYaw(), player.getPitch());
-				admit(player);
+				if (rec.minigame < 0) {
+					MinigameSystem.prepare(player);
+				}
+				MinigameSystem.begin(player);
 			}
+			case MINIGAME -> MinigameSystem.resume(player);
 			case RETURNING -> {
 				teleportHome(server, player, rec);
 				finishReturn(player);
@@ -394,13 +404,14 @@ public final class PrisonSystem {
 		}
 	}
 
-	/** Амнистия: всех заключённых (и тех, кто офлайн) освобождают при следующем тике/входе. */
+	/** Амнистия: всех заключённых и отрабатывающих (и тех, кто офлайн) освобождают при следующем тике/входе. */
 	public static int amnesty(MinecraftServer server) {
 		DiktaturaState state = DiktaturaState.get(server);
 		int n = 0;
 		for (PlayerRecord rec : state.players.values()) {
-			if (rec.stage == Stage.IMPRISONED || rec.stage == Stage.TO_PRISON) {
+			if (rec.stage.isArrested()) {
 				rec.sentenceTicks = Math.min(rec.sentenceTicks, 1);
+				rec.pardoned = true;
 				n++;
 			}
 		}

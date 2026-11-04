@@ -30,6 +30,7 @@ public final class DiktaturaState extends PersistentState {
 
 	public boolean prisonGenerated;
 	public BlockPos prisonOrigin = BlockPos.ORIGIN;
+	public boolean minigamesGenerated;
 
 	public UUID dictator;
 	public int ticksToDecree = -1;
@@ -66,6 +67,7 @@ public final class DiktaturaState extends PersistentState {
 
 		nbt.putBoolean("prisonGenerated", prisonGenerated);
 		nbt.putLong("prisonOrigin", prisonOrigin.asLong());
+		nbt.putBoolean("minigamesGenerated", minigamesGenerated);
 		if (dictator != null) {
 			nbt.putUuid("dictator", dictator);
 		}
@@ -92,6 +94,7 @@ public final class DiktaturaState extends PersistentState {
 		s.lawsInitialized = nbt.getBoolean("lawsInitialized");
 		s.prisonGenerated = nbt.getBoolean("prisonGenerated");
 		s.prisonOrigin = BlockPos.fromLong(nbt.getLong("prisonOrigin"));
+		s.minigamesGenerated = nbt.getBoolean("minigamesGenerated");
 		if (nbt.containsUuid("dictator")) {
 			s.dictator = nbt.getUuid("dictator");
 		}

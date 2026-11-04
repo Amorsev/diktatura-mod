@@ -142,9 +142,18 @@ public final class LawEngine {
 			}
 		});
 
-		// Пассажир повозки неуязвим: повозка летит сквозь блоки.
-		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
-			!(entity instanceof ServerPlayerEntity sp && TransportSystem.isTraveling(sp.getUuid())));
+		// Пассажир повозки и арестованные неуязвимы: повозка летит сквозь блоки,
+		// а отработка в небе не должна убивать.
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+			if (!(entity instanceof ServerPlayerEntity sp)) {
+				return true;
+			}
+			if (TransportSystem.isTraveling(sp.getUuid())) {
+				return false;
+			}
+			MinecraftServer server = sp.getServer();
+			return server == null || !DiktaturaState.get(server).player(sp).stage.isArrested();
+		});
 	}
 
 	/** Действуют ли законы на игрока прямо сейчас. */

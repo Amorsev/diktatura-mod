@@ -77,7 +77,7 @@ public final class Dictator {
 
 	public static void tick(MinecraftServer server) {
 		DiktaturaState state = DiktaturaState.get(server);
-		if (state.ticksToDecree < 0) {
+		if (state.ticksToDecree < 0 || state.ticksToDecree > intervalTicks()) {
 			state.ticksToDecree = intervalTicks();
 		}
 		if (--state.ticksToDecree <= 0) {

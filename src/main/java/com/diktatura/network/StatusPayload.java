@@ -10,7 +10,8 @@ import java.util.List;
 
 /** Сервер → клиент: всё, что нужно HUD и книге законов. Логики на клиенте нет. */
 public record StatusPayload(int loyalty, int fear, int stage, int sentenceSeconds, int timeoutSeconds,
-                            int decreeSeconds, boolean rebellion, List<String> laws) implements CustomPayload {
+                            int decreeSeconds, boolean rebellion, int minigame, int progress, int goal,
+                            List<String> laws) implements CustomPayload {
 	public static final Id<StatusPayload> ID = new Id<>(Diktatura.id("status"));
 	public static final PacketCodec<RegistryByteBuf, StatusPayload> CODEC = PacketCodec.of(StatusPayload::write, StatusPayload::read);
 
@@ -22,6 +23,9 @@ public record StatusPayload(int loyalty, int fear, int stage, int sentenceSecond
 		buf.writeVarInt(timeoutSeconds);
 		buf.writeVarInt(decreeSeconds);
 		buf.writeBoolean(rebellion);
+		buf.writeVarInt(minigame + 1);
+		buf.writeVarInt(progress);
+		buf.writeVarInt(goal);
 		buf.writeVarInt(laws.size());
 		for (String l : laws) {
 			buf.writeString(l);
@@ -36,12 +40,15 @@ public record StatusPayload(int loyalty, int fear, int stage, int sentenceSecond
 		int timeout = buf.readVarInt();
 		int decree = buf.readVarInt();
 		boolean rebellion = buf.readBoolean();
+		int minigame = buf.readVarInt() - 1;
+		int progress = buf.readVarInt();
+		int goal = buf.readVarInt();
 		int n = buf.readVarInt();
 		List<String> laws = new ArrayList<>(n);
 		for (int i = 0; i < n; i++) {
 			laws.add(buf.readString());
 		}
-		return new StatusPayload(loyalty, fear, stage, sentence, timeout, decree, rebellion, laws);
+		return new StatusPayload(loyalty, fear, stage, sentence, timeout, decree, rebellion, minigame, progress, goal, laws);
 	}
 
 	@Override

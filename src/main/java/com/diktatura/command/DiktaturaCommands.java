@@ -5,6 +5,9 @@ import com.diktatura.dictator.Dictator;
 import com.diktatura.law.Law;
 import com.diktatura.law.LawEngine;
 import com.diktatura.law.LawRegistry;
+import com.diktatura.minigame.MinigameSystem;
+import com.diktatura.minigame.MinigameType;
+import com.diktatura.minigame.MinigameZones;
 import com.diktatura.network.Network;
 import com.diktatura.prison.PrisonSystem;
 import com.diktatura.state.DiktaturaState;
@@ -71,10 +74,10 @@ public final class DiktaturaCommands {
 					.then(literal("celebration").executes(c -> decree(c.getSource(), Dictator.DecreeType.CELEBRATION))))
 				.then(literal("arrest").requires(s -> s.hasPermissionLevel(2))
 					.then(argument("player", EntityArgumentType.player())
-						.then(argument("minutes", IntegerArgumentType.integer(1, 1440))
+						.then(argument("seconds", IntegerArgumentType.integer(1, 86400))
 							.executes(c -> {
 								ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
-								PrisonSystem.arrest(p, IntegerArgumentType.getInteger(c, "minutes") * 1200,
+								PrisonSystem.arrest(p, IntegerArgumentType.getInteger(c, "seconds") * 20,
 									Text.translatable("diktatura.reason.command"));
 								return 1;
 							}))))
@@ -102,9 +105,25 @@ public final class DiktaturaCommands {
 						Teleports.to(p, c.getSource().getServer().getOverworld(), a.x, a.y, a.z, p.getYaw(), p.getPitch());
 						return 1;
 					}))
+					.then(literal("minigame").then(argument("type", com.mojang.brigadier.arguments.StringArgumentType.word())
+						.suggests((ctx, b) -> CommandSource.suggestMatching(java.util.Arrays.stream(MinigameType.values()).map(MinigameType::key), b))
+						.executes(c -> {
+							String key = com.mojang.brigadier.arguments.StringArgumentType.getString(c, "type");
+							MinigameType type = java.util.Arrays.stream(MinigameType.values())
+								.filter(t -> t.key().equals(key)).findFirst().orElse(null);
+							if (type == null) {
+								c.getSource().sendError(Text.literal(key));
+								return 0;
+							}
+							ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+							Vec3d s = Vec3d.ofBottomCenter(MinigameSystem.base(c.getSource().getServer()).add(MinigameZones.start(type)));
+							Teleports.to(p, c.getSource().getServer().getOverworld(), s.x, s.y, s.z, -90.0f, 0.0f);
+							return 1;
+						})))
 					.then(literal("rebuild").executes(c -> {
 						MinecraftServer server = c.getSource().getServer();
 						PrisonSystem.build(server, server.getOverworld(), PrisonSystem.origin(server));
+						MinigameSystem.build(server);
 						Dictator.ensureNpc(server);
 						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.rebuilt"), true);
 						return 1;

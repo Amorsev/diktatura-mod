@@ -4,6 +4,8 @@ import com.diktatura.Diktatura;
 import com.diktatura.dictator.Dictator;
 import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
+import com.diktatura.minigame.MinigameSystem;
+import com.diktatura.minigame.MinigameType;
 import com.diktatura.state.DiktaturaState;
 import com.diktatura.state.PlayerRecord;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -37,8 +39,10 @@ public final class Network {
 		DiktaturaState state = DiktaturaState.get(server);
 		PlayerRecord rec = state.player(p);
 		List<String> laws = state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).toList();
+		int goal = rec.minigame == MinigameType.QUARRY.ordinal() ? MinigameSystem.QUARRY_GOAL
+			: rec.minigame == MinigameType.PARKOUR.ordinal() ? 2 : 1;
 		ServerPlayNetworking.send(p, new StatusPayload(rec.loyalty, rec.fear, rec.stage.ordinal(),
 			rec.sentenceTicks / 20, rec.timeoutTicks / 20, Dictator.secondsToDecree(server),
-			LoyaltySystem.isRebellion(server), laws));
+			LoyaltySystem.isRebellion(server), rec.minigame, rec.progress, goal, laws));
 	}
 }

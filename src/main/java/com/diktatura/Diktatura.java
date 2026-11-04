@@ -7,6 +7,7 @@ import com.diktatura.item.ModItems;
 import com.diktatura.law.LawEngine;
 import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
+import com.diktatura.minigame.MinigameSystem;
 import com.diktatura.network.Network;
 import com.diktatura.prison.PrisonSystem;
 import com.diktatura.state.DiktaturaState;
@@ -58,6 +59,7 @@ public class Diktatura implements ModInitializer {
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		LawEngine.registerEvents();
 		Dictator.registerEvents();
+		MinigameSystem.registerEvents();
 		DiktaturaCommands.register();
 		UpgraderBridge.init();
 
@@ -66,6 +68,7 @@ public class Diktatura implements ModInitializer {
 			ticks = 0;
 			LawEngine.initLaws(s);
 			PrisonSystem.ensureGenerated(s);
+			MinigameSystem.ensureGenerated(s);
 			Dictator.ensureNpc(s);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(s -> {
@@ -85,6 +88,7 @@ public class Diktatura implements ModInitializer {
 		ticks++;
 		LawEngine.tick(s);
 		TransportSystem.tick(s);
+		MinigameSystem.tick(s);
 		PrisonSystem.tick(s);
 		LoyaltySystem.tick(s);
 		Dictator.tick(s);
@@ -98,7 +102,7 @@ public class Diktatura implements ModInitializer {
 		}
 		DiktaturaState state = DiktaturaState.get(s);
 		PlayerRecord rec = state.player(player);
-		if (!rec.gotBook && DiktaturaConfig.get().giveLawBook) {
+		if (!rec.gotBook && DiktaturaConfig.get().giveLawBook && rec.stage == com.diktatura.state.Stage.FREE) {
 			rec.gotBook = true;
 			player.getInventory().offerOrDrop(new ItemStack(ModItems.LAW_BOOK));
 			state.markDirty();
