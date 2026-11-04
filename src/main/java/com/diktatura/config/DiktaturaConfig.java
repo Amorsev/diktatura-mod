@@ -23,6 +23,13 @@ public final class DiktaturaConfig {
 	public int checkIntervalTicks = 20;
 	/** Через сколько минут диктатор издаёт новый указ. */
 	public int decreeIntervalMinutes = 5;
+	/** События (амнистия, подарки, конфискация, «один глаз», невесомость) — случайно, раз в N–M минут. */
+	public int eventMinMinutes = 3;
+	public int eventMaxMinutes = 8;
+	/** Сколько раз за событие «невесомость» отключается гравитация (по 5 секунд). */
+	public int gravityPulsesMin = 3;
+	public int gravityPulsesMax = 5;
+
 	/** Минимум и максимум одновременно действующих законов. */
 	public int minActiveLaws = 6;
 	public int maxActiveLaws = 12;
@@ -101,6 +108,12 @@ public final class DiktaturaConfig {
 			if (c.decreeIntervalMinutes == 20) {
 				c.decreeIntervalMinutes = 5;
 			}
+		}
+		if (c.eventMinMinutes < 1) {
+			c.eventMinMinutes = 3;
+		}
+		if (c.eventMaxMinutes < c.eventMinMinutes) {
+			c.eventMaxMinutes = c.eventMinMinutes;
 		}
 		if (c.minSentenceSeconds < 1) {
 			c.minSentenceSeconds = 10;

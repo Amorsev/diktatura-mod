@@ -78,6 +78,13 @@ public final class LoyaltyHud {
 			ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.rebellion"), x, y, 0xFF2222);
 			y += 10;
 		}
+		if (ClientState.event >= 0) {
+			String[] keys = {"amnesty", "gifts", "confiscation", "blind_eye", "no_gravity"};
+			String key = ClientState.event < keys.length ? keys[ClientState.event] : "unknown";
+			ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.event",
+				Text.translatable("diktatura.event." + key), ClientState.time(ClientState.eventSeconds)), x, y, 0x55FFFF);
+			y += 10;
+		}
 		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.decree",
 			ClientState.time(ClientState.decreeSeconds), ClientState.laws.size()), x, y, 0x909090);
 	}

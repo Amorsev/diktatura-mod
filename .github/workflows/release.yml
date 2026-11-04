@@ -1,0 +1,55 @@
+name: release
+# Релиз версии: тег vX.Y.Z → jar diktatura-X.Y.Z.jar в релизе "Diktatura X.Y.Z".
+# Можно запустить вручную для уже существующего тега (workflow_dispatch).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег версии, например v0.1.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
+      - name: Build
+        run: gradle build --stacktrace -Pmod_version="${TAG#v}"
+      - name: Release notes from CHANGELOG (main)
+        run: |
+          VERSION="${TAG#v}"
+          gh api "repos/${GITHUB_REPOSITORY}/contents/CHANGELOG.md?ref=main" -q .content | base64 -d > CHANGELOG.main.md || true
+          awk -v v="$VERSION" '
+            /^## \[/ { p = index($0, "[" v "]") > 0; next }
+            p { print }
+          ' CHANGELOG.main.md > notes.md || true
+          if [ ! -s notes.md ]; then echo "Версия $VERSION." > notes.md; fi
+          printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API.\n' >> notes.md
+          cat notes.md
+      - name: Publish release
+        run: |
+          VERSION="${TAG#v}"
+          JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$JAR" --clobber
+            gh release edit "$TAG" --title "Diktatura $VERSION" --notes-file notes.md
+          else
+            gh release create "$TAG" "$JAR" --title "Diktatura $VERSION" --notes-file notes.md --verify-tag
+          fi

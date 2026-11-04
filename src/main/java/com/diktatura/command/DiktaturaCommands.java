@@ -2,6 +2,8 @@ package com.diktatura.command;
 
 import com.diktatura.util.Teleports;
 import com.diktatura.dictator.Dictator;
+import com.diktatura.event.EventSystem;
+import com.diktatura.event.EventType;
 import com.diktatura.law.Law;
 import com.diktatura.law.LawEngine;
 import com.diktatura.law.LawRegistry;
@@ -68,10 +70,19 @@ public final class DiktaturaCommands {
 					.executes(c -> decree(c.getSource(), null))
 					.then(literal("new_law").executes(c -> decree(c.getSource(), Dictator.DecreeType.NEW_LAW)))
 					.then(literal("repeal").executes(c -> decree(c.getSource(), Dictator.DecreeType.REPEAL)))
-					.then(literal("swap").executes(c -> decree(c.getSource(), Dictator.DecreeType.SWAP)))
-					.then(literal("amnesty").executes(c -> decree(c.getSource(), Dictator.DecreeType.AMNESTY)))
-					.then(literal("tax").executes(c -> decree(c.getSource(), Dictator.DecreeType.TAX)))
-					.then(literal("celebration").executes(c -> decree(c.getSource(), Dictator.DecreeType.CELEBRATION))))
+					.then(literal("swap").executes(c -> decree(c.getSource(), Dictator.DecreeType.SWAP))))
+				.then(literal("event").requires(s -> s.hasPermissionLevel(2))
+					.executes(c -> event(c.getSource(), null))
+					.then(literal("stop").executes(c -> {
+						EventSystem.stop(c.getSource().getServer());
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.event_stopped"), true);
+						return 1;
+					}))
+					.then(literal("amnesty").executes(c -> event(c.getSource(), EventType.AMNESTY)))
+					.then(literal("gifts").executes(c -> event(c.getSource(), EventType.GIFTS)))
+					.then(literal("confiscation").executes(c -> event(c.getSource(), EventType.CONFISCATION)))
+					.then(literal("blind_eye").executes(c -> event(c.getSource(), EventType.BLIND_EYE)))
+					.then(literal("no_gravity").executes(c -> event(c.getSource(), EventType.NO_GRAVITY))))
 				.then(literal("arrest").requires(s -> s.hasPermissionLevel(2))
 					.then(argument("player", EntityArgumentType.player())
 						.then(argument("seconds", IntegerArgumentType.integer(1, 86400))
@@ -170,6 +181,15 @@ public final class DiktaturaCommands {
 		LawEngine.setActive(c.getSource().getServer(), id, on);
 		c.getSource().sendFeedback(() -> Text.translatable(on ? "diktatura.cmd.law_on" : "diktatura.cmd.law_off",
 			law.name()), true);
+		return 1;
+	}
+
+	private static int event(ServerCommandSource src, EventType type) {
+		if (!EventSystem.start(src.getServer(), type)) {
+			src.sendError(Text.translatable("diktatura.cmd.event_busy",
+				Text.translatable("diktatura.event." + EventSystem.active().key())));
+			return 0;
+		}
 		return 1;
 	}
 

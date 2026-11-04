@@ -2,6 +2,8 @@ package com.diktatura.network;
 
 import com.diktatura.Diktatura;
 import com.diktatura.dictator.Dictator;
+import com.diktatura.event.EventSystem;
+import com.diktatura.event.EventType;
 import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.minigame.MinigameSystem;
@@ -39,10 +41,12 @@ public final class Network {
 		DiktaturaState state = DiktaturaState.get(server);
 		PlayerRecord rec = state.player(p);
 		List<String> laws = state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).toList();
+		EventType event = EventSystem.active();
 		int goal = rec.minigame == MinigameType.QUARRY.ordinal() ? MinigameSystem.QUARRY_GOAL
 			: rec.minigame == MinigameType.PARKOUR.ordinal() ? 2 : 1;
 		ServerPlayNetworking.send(p, new StatusPayload(rec.loyalty, rec.fear, rec.stage.ordinal(),
 			rec.sentenceTicks / 20, rec.timeoutTicks / 20, Dictator.secondsToDecree(server),
-			LoyaltySystem.isRebellion(server), rec.minigame, rec.progress, goal, laws));
+			LoyaltySystem.isRebellion(server), rec.minigame, rec.progress, goal,
+			event == null ? -1 : event.ordinal(), EventSystem.activeSeconds(), EventSystem.blindSide(p.getUuid()), laws));
 	}
 }

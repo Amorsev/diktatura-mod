@@ -39,14 +39,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Диктатор — NPC на троне в тюрьме, один на сервер. По таймеру издаёт указы:
- * вводит и отменяет законы, объявляет амнистию, налог или праздник.
+ * Диктатор — NPC на троне в тюрьме, один на сервер. По фиксированному таймеру издаёт
+ * указы: вводит, отменяет или заменяет законы.
  */
 public final class Dictator {
 	public static final String TAG = "diktatura_dictator";
 	private static final int PHRASES = 8;
 
-	public enum DecreeType { NEW_LAW, REPEAL, SWAP, AMNESTY, TAX, CELEBRATION }
+	/** Указы меняют только законы. Амнистия, подарки и прочее — события ({@link com.diktatura.event.EventSystem}). */
+	public enum DecreeType { NEW_LAW, REPEAL, SWAP }
 
 	private Dictator() {
 	}
@@ -185,26 +186,17 @@ public final class Dictator {
 				type = DecreeType.REPEAL;
 			} else {
 				int r = rnd.nextInt(100);
-				if (r < 40) {
-					type = DecreeType.NEW_LAW;
-				} else if (r < 60) {
-					type = DecreeType.REPEAL;
-				} else if (r < 82) {
-					type = DecreeType.SWAP;
-				} else if (r < 88) {
-					type = DecreeType.AMNESTY;
-				} else if (r < 94) {
-					type = DecreeType.TAX;
-				} else {
-					type = DecreeType.CELEBRATION;
-				}
+				type = r < 45 ? DecreeType.NEW_LAW : r < 70 ? DecreeType.REPEAL : DecreeType.SWAP;
 			}
 		}
 		if ((type == DecreeType.NEW_LAW || type == DecreeType.SWAP) && inactive.isEmpty()) {
-			type = repealable.isEmpty() ? DecreeType.CELEBRATION : DecreeType.REPEAL;
+			type = DecreeType.REPEAL;
 		}
 		if ((type == DecreeType.REPEAL || type == DecreeType.SWAP) && repealable.isEmpty()) {
-			type = inactive.isEmpty() ? DecreeType.CELEBRATION : DecreeType.NEW_LAW;
+			type = DecreeType.NEW_LAW;
+		}
+		if ((type == DecreeType.NEW_LAW && inactive.isEmpty()) || (type == DecreeType.REPEAL && repealable.isEmpty())) {
+			return; // менять нечего
 		}
 
 		state.decreeCount++;
@@ -229,29 +221,6 @@ public final class Dictator {
 				lines.add(Text.translatable("diktatura.decree.repeal", out.name().formatted(Formatting.GREEN)));
 				lines.add(Text.translatable("diktatura.decree.new_law", in.name().formatted(Formatting.RED)));
 				lines.add(in.description().formatted(Formatting.GRAY));
-			}
-			case AMNESTY -> {
-				int n = PrisonSystem.amnesty(server);
-				lines.add(Text.translatable("diktatura.decree.amnesty", n));
-			}
-			case TAX -> {
-				for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-					if (state.player(p).stage != Stage.FREE) {
-						continue;
-					}
-					boolean paid = Punishments.take(p, Items.EMERALD, 1) > 0;
-					if (!paid) {
-						LoyaltySystem.change(p, -3);
-					}
-				}
-				lines.add(Text.translatable("diktatura.decree.tax"));
-			}
-			case CELEBRATION -> {
-				for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-					LoyaltySystem.change(p, 5);
-					p.addStatusEffect(new StatusEffectInstance(StatusEffects.HERO_OF_THE_VILLAGE, 20 * 60, 0));
-				}
-				lines.add(Text.translatable("diktatura.decree.celebration"));
 			}
 		}
 		state.markDirty();

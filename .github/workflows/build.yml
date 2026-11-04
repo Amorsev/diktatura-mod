@@ -1,5 +1,9 @@
 name: build
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -31,6 +35,6 @@ jobs:
         run: |
           JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
           gh release delete dev --yes --cleanup-tag || true
-          gh release create dev "$JAR" --prerelease --target "$GITHUB_SHA" \
+          gh release create dev "$JAR" --prerelease --latest=false --target "$GITHUB_SHA" \
             --title "Dev build ${GITHUB_SHA::7}" \
             --notes "Автоматическая сборка из main (коммит $GITHUB_SHA). Minecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API."

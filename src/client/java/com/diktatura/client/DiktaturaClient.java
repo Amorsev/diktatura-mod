@@ -5,6 +5,7 @@ import com.diktatura.network.StatusPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -26,6 +27,12 @@ public class DiktaturaClient implements ClientModInitializer {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientState.reset());
 
 		HudRenderCallback.EVENT.register(LoyaltyHud::render);
+		HudRenderCallback.EVENT.register((ctx, tick) -> BlindOverlay.draw(ctx,
+			ctx.getScaledWindowWidth(), ctx.getScaledWindowHeight()));
+		// Закрытый глаз закрывает половину экрана и в меню (инвентарь, сундуки).
+		ScreenEvents.AFTER_INIT.register((client, screen, w, h) ->
+			ScreenEvents.afterRender(screen).register((s, ctx, mouseX, mouseY, delta) ->
+				BlindOverlay.draw(ctx, s.width, s.height)));
 
 		openLaws = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.diktatura.laws",
 			InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_L, "category.diktatura"));

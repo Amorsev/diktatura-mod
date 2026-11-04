@@ -17,6 +17,10 @@ public final class ClientState {
 	public static int minigame = -1;
 	public static int progress;
 	public static int goal;
+	public static int event = -1;
+	public static int eventSeconds;
+	/** 0 — видно всё, 1 — закрыт левый глаз, 2 — правый. */
+	public static int blindSide;
 	public static List<String> laws = List.of();
 
 	private ClientState() {
@@ -34,11 +38,16 @@ public final class ClientState {
 		minigame = p.minigame();
 		progress = p.progress();
 		goal = p.goal();
+		event = p.event();
+		eventSeconds = p.eventSeconds();
+		blindSide = p.blindSide();
 		laws = List.copyOf(p.laws());
 	}
 
 	static void reset() {
 		received = false;
+		blindSide = 0;
+		event = -1;
 		laws = List.of();
 	}
 

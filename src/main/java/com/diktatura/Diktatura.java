@@ -3,6 +3,7 @@ package com.diktatura;
 import com.diktatura.command.DiktaturaCommands;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.dictator.Dictator;
+import com.diktatura.event.EventSystem;
 import com.diktatura.item.ModItems;
 import com.diktatura.law.LawEngine;
 import com.diktatura.law.LawRegistry;
@@ -60,6 +61,7 @@ public class Diktatura implements ModInitializer {
 		LawEngine.registerEvents();
 		Dictator.registerEvents();
 		MinigameSystem.registerEvents();
+		EventSystem.registerEvents();
 		DiktaturaCommands.register();
 		UpgraderBridge.init();
 
@@ -72,6 +74,7 @@ public class Diktatura implements ModInitializer {
 			Dictator.ensureNpc(s);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(s -> {
+			EventSystem.stop(s);
 			TransportSystem.shutdown(s);
 			LawEngine.clear();
 		});
@@ -92,6 +95,7 @@ public class Diktatura implements ModInitializer {
 		PrisonSystem.tick(s);
 		LoyaltySystem.tick(s);
 		Dictator.tick(s);
+		EventSystem.tick(s);
 		Network.tick(s);
 	}
 
@@ -107,6 +111,7 @@ public class Diktatura implements ModInitializer {
 			player.getInventory().offerOrDrop(new ItemStack(ModItems.LAW_BOOK));
 			state.markDirty();
 		}
+		EventSystem.onJoin(player);
 		PrisonSystem.onJoin(s, player);
 		Network.sendStatus(s, player);
 	}

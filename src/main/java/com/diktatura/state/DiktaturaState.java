@@ -35,6 +35,9 @@ public final class DiktaturaState extends PersistentState {
 	public UUID dictator;
 	public int ticksToDecree = -1;
 	public int decreeCount;
+	/** Отдельный случайный таймер событий. */
+	public int ticksToEvent = -1;
+	public int eventCount;
 
 	public int rebellionTicks;
 	public int rebellionCooldown;
@@ -73,6 +76,8 @@ public final class DiktaturaState extends PersistentState {
 		}
 		nbt.putInt("ticksToDecree", ticksToDecree);
 		nbt.putInt("decreeCount", decreeCount);
+		nbt.putInt("ticksToEvent", ticksToEvent);
+		nbt.putInt("eventCount", eventCount);
 		nbt.putInt("rebellionTicks", rebellionTicks);
 		nbt.putInt("rebellionCooldown", rebellionCooldown);
 		return nbt;
@@ -100,6 +105,8 @@ public final class DiktaturaState extends PersistentState {
 		}
 		s.ticksToDecree = nbt.contains("ticksToDecree") ? nbt.getInt("ticksToDecree") : -1;
 		s.decreeCount = nbt.getInt("decreeCount");
+		s.ticksToEvent = nbt.contains("ticksToEvent") ? nbt.getInt("ticksToEvent") : -1;
+		s.eventCount = nbt.getInt("eventCount");
 		s.rebellionTicks = nbt.getInt("rebellionTicks");
 		s.rebellionCooldown = nbt.getInt("rebellionCooldown");
 		return s;
