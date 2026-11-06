@@ -29,3 +29,6 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# служебные файлы компилятора
+javac.*.args
