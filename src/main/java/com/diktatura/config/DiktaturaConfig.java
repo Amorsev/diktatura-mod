@@ -75,6 +75,18 @@ public final class DiktaturaConfig {
 	public int officeClosedMinMinutes = 8;
 	public int officeClosedMaxMinutes = 15;
 
+	/** Ведомства-визитёры (налоговик, курьер): каждому игроку раз в столько минут. */
+	public int visitMinMinutes = 10;
+	public int visitMaxMinutes = 18;
+	/** Госреклама на 13 секунд: раз в столько минут (0 — выключить). */
+	public int adMinMinutes = 15;
+	public int adMaxMinutes = 25;
+	/** Ведомство погоды (коровопад, наковальнепад, гуманитарная помощь): раз в столько минут. */
+	public int weatherMinMinutes = 20;
+	public int weatherMaxMinutes = 35;
+	/** Пропаганда по радио в чате: раз в столько минут (0 — выключить). */
+	public int propagandaMinutes = 7;
+
 	/** Пытаться брать ценность предметов из мода Upgrader. */
 	public boolean useUpgrader = true;
 	/** Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически. */

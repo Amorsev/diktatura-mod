@@ -112,6 +112,14 @@ public class DiktaturaClient implements ClientModInitializer {
 			(payload, context) -> context.client().execute(() -> ClientState.updateLaws(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.LicenseList.ID,
 			(payload, context) -> context.client().execute(() -> ClientState.updateLicenses(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Ad.ID,
+			(payload, context) -> context.client().execute(() -> {
+				MinecraftClient mc = context.client();
+				// Реклама не перебивает другие окна (книгу, сундук, окно НПС) — подождёт до следующего раза.
+				if (mc.currentScreen == null && mc.player != null) {
+					mc.setScreen(new AdScreen(payload.ad(), payload.seconds()));
+				}
+			}));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Alert.ID,
 			(payload, context) -> context.client().execute(() -> Alerts.push(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Headline.ID,

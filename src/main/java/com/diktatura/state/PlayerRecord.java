@@ -40,6 +40,9 @@ public final class PlayerRecord {
 	/** Казино: начало текущего часа (мс) и сколько ставок в нём сделано. */
 	public long casinoHourStart;
 	public int casinoBets;
+	/** Таймеры ведомств (тики, идут только онлайн): следующий визит и следующая реклама. */
+	public int visitTicks = -1;
+	public int adTicks = -1;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -75,6 +78,8 @@ public final class PlayerRecord {
 		n.put("licenses", licenses);
 		n.putLong("casinoHourStart", casinoHourStart);
 		n.putInt("casinoBets", casinoBets);
+		n.putInt("visitTicks", visitTicks);
+		n.putInt("adTicks", adTicks);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -110,6 +115,8 @@ public final class PlayerRecord {
 		r.licenses = n.getCompound("licenses");
 		r.casinoHourStart = n.getLong("casinoHourStart");
 		r.casinoBets = n.getInt("casinoBets");
+		r.visitTicks = n.contains("visitTicks") ? n.getInt("visitTicks") : -1;
+		r.adTicks = n.contains("adTicks") ? n.getInt("adTicks") : -1;
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}

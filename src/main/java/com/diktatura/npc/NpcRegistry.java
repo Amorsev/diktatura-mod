@@ -40,10 +40,11 @@ public final class NpcRegistry {
 	 * @param sound       звук реплики (может быть null)
 	 * @param scale       масштаб модели (1.0 — как игрок)
 	 * @param heldItem    предмет в руке (может быть null)
+	 * @param speed       скорость ходьбы (0 — стоит на месте)
 	 *                    Текстура всегда assets/&lt;ns&gt;/textures/entity/npc/&lt;id&gt;.png (модель игрока 64×64).
 	 */
 	public record NpcData(String id, String name, String role, int accent, String phrasePrefix, int phraseCount,
-	                      Identifier sound, float pitch, float scale, Identifier heldItem) {
+	                      Identifier sound, float pitch, float scale, Identifier heldItem, float speed) {
 
 		public Text displayName() {
 			return Text.translatable(name);
@@ -83,6 +84,11 @@ public final class NpcRegistry {
 		if (scale != null) {
 			scale.setBaseValue(d.scale());
 		}
+		// Ходячие НПС (визитёры ведомств): скорость из JSON, у остальных 0 — стоят на посту.
+		EntityAttributeInstance speed = npc.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		if (speed != null) {
+			speed.setBaseValue(d.speed());
+		}
 		if (d.heldItem() != null) {
 			Item item = Registries.ITEM.get(d.heldItem());
 			npc.equipStack(EquipmentSlot.MAINHAND, new ItemStack(item));
@@ -106,7 +112,8 @@ public final class NpcRegistry {
 			sound.isEmpty() ? null : Identifier.tryParse(sound),
 			(float) Json.d(o, "pitch", 1.0),
 			(float) Math.max(0.3, Math.min(3.0, Json.d(o, "scale", 1.0))),
-			held.isEmpty() ? null : Identifier.tryParse(held));
+			held.isEmpty() ? null : Identifier.tryParse(held),
+			(float) Math.max(0.0, Math.min(0.6, Json.d(o, "speed", 0.0))));
 	}
 
 	public static final class ReloadListener implements SimpleSynchronousResourceReloadListener {

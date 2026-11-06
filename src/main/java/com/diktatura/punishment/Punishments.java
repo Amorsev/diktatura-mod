@@ -41,7 +41,9 @@ public final class Punishments {
 		String type = Json.s(o, "type", "");
 		return switch (type) {
 			case "warning" -> new Warning();
-			case "fine" -> new Fine(item(Json.s(o, "item", "minecraft:emerald")), Json.i(o, "amount", 1));
+			// Без "item" штраф берётся в трудоднях (с 0.2.0), с "item" — предметами, как раньше.
+			case "fine" -> o.has("item") ? new Fine(item(Json.s(o, "item", "minecraft:emerald")), Json.i(o, "amount", 1))
+				: new MoneyFine(Json.i(o, "amount", 5));
 			case "confiscate" -> new Confiscate(Json.s(o, "mode", "offending").toLowerCase(Locale.ROOT));
 			case "arrest" -> new Arrest(Json.i(o, "seconds", -1), Json.i(o, "min_seconds", -1), Json.i(o, "max_seconds", -1));
 			case "timeout" -> new Timeout(Json.i(o, "seconds", 30));
@@ -121,6 +123,28 @@ public final class Punishments {
 				tell(p, Text.translatable("diktatura.punish.fine_unpaid", paid, amount, name, debt * 3)
 					.formatted(Formatting.RED));
 			}
+		}
+
+		@Override
+		public int fear() {
+			return 3;
+		}
+	}
+
+	/** Штраф в трудоднях. Денег нет — записывается в долг (баланс уходит в минус). */
+	static final class MoneyFine implements Punishment {
+		private final int amount;
+
+		MoneyFine(int amount) {
+			this.amount = Math.max(0, amount);
+		}
+
+		@Override
+		public void apply(ServerPlayerEntity p, Law law, LawContext ctx) {
+			com.diktatura.economy.Economy.add(p, -amount, "diktatura.money.reason.fine", Law.translationKey(law.key()), false);
+			int balance = com.diktatura.economy.Economy.balance(p);
+			tell(p, (balance < 0 ? Text.translatable("diktatura.punish.fine_debt", amount, balance)
+				: Text.translatable("diktatura.punish.fine_trudodni", amount)).formatted(Formatting.GOLD));
 		}
 
 		@Override

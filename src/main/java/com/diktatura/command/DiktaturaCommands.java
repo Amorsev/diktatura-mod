@@ -147,6 +147,17 @@ public final class DiktaturaCommands {
 									"diktatura.money.reason.admin", "", true);
 								return money(c.getSource(), p);
 							}))))
+				.then(literal("bureau").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("tax").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.TAX)))
+					.then(literal("courier").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.COURIER)))
+					.then(literal("ad").executes(c -> {
+						com.diktatura.bureau.Propaganda.showAd(c.getSource().getPlayerOrThrow(),
+							c.getSource().getWorld().getRandom().nextInt(com.diktatura.bureau.Propaganda.ADS));
+						return 1;
+					}))
+					.then(literal("cows").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.COWS)))
+					.then(literal("anvils").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.ANVILS)))
+					.then(literal("aid").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.AID))))
 				.then(literal("casino").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tp").executes(c -> {
 						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
@@ -499,6 +510,16 @@ public final class DiktaturaCommands {
 		com.diktatura.office.Offices.setOpen(c.getSource().getServer(), o, open, true);
 		Text line = com.diktatura.office.Offices.status(c.getSource().getServer(), o);
 		c.getSource().sendFeedback(() -> line, true);
+		return 1;
+	}
+
+	private static int bureauVisit(CommandContext<ServerCommandSource> c, com.diktatura.bureau.Visits.Kind kind)
+		throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		return com.diktatura.bureau.Visits.start(c.getSource().getPlayerOrThrow(), kind) ? 1 : 0;
+	}
+
+	private static int bureauWeather(CommandContext<ServerCommandSource> c, com.diktatura.bureau.Weather.Kind kind) {
+		com.diktatura.bureau.Weather.start(c.getSource().getServer(), kind);
 		return 1;
 	}
 }

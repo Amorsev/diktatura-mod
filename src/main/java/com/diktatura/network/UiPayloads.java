@@ -174,6 +174,28 @@ public final class UiPayloads {
 		}
 	}
 
+	// ------------------------------------------------------------------ госреклама
+
+	/** Сервер → клиент: показать рекламный плакат N на заданное число секунд. */
+	public record Ad(int ad, int seconds) implements CustomPayload {
+		public static final Id<Ad> ID = new Id<>(Diktatura.id("ad"));
+		public static final PacketCodec<RegistryByteBuf, Ad> CODEC = PacketCodec.of(Ad::write, Ad::read);
+
+		private void write(RegistryByteBuf buf) {
+			buf.writeVarInt(ad);
+			buf.writeVarInt(seconds);
+		}
+
+		private static Ad read(RegistryByteBuf buf) {
+			return new Ad(buf.readVarInt(), buf.readVarInt());
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
+	}
+
 	// ------------------------------------------------------------------ лицензии
 
 	/** Действующая лицензия игрока: название, описание, сколько осталось (с), какие законы снимает. */

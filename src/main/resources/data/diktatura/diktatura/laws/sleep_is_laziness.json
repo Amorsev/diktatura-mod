@@ -7,6 +7,10 @@
       "type": "warning"
     },
     {
+      "type": "fine",
+      "amount": 5
+    },
+    {
       "type": "effect",
       "effect": "minecraft:mining_fatigue",
       "seconds": 60,

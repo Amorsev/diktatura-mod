@@ -198,6 +198,16 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 | `blueprint` | строитель: `layers` (слои снизу вверх, строки — Z, символы — X), `palette`, `label` |
 | `min_accuracy` | строитель: с какой точности (%) можно сдать недостроенное |
 
+## Ведомства-события
+
+- **Налоговик** и **почтальон** приходят к игроку сами (`visitMinMinutes`–`visitMaxMinutes`):
+  налог 13% трудодней (квитанция об уплате спасает от одной проверки), посылка-сюрприз.
+- **Реклама** на 13 секунд (`adMinMinutes`–`adMaxMinutes`, 0 — выключить) и **госрадио** в чате
+  (`propagandaMinutes`).
+- **Ведомство погоды** (`weatherMinMinutes`–`weatherMaxMinutes`): коровопад, наковальнепад,
+  гуманитарная помощь.
+- Штраф в законе (`"type": "fine"`) без `item` списывает трудодни (`amount`), с `item` — предметы.
+
 ## Госказино
 
 К северу от дома госучреждений — госказино, крупье товарищ Фортунов работает круглосуточно.
@@ -257,6 +267,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
 - `/diktatura office` — кто из чиновников на месте; `/diktatura office open | close <employer|licensor> | tp | rebuild` — для операторов
 - `/diktatura casino tp | rebuild` — к госказино, перестроить его
+- `/diktatura bureau tax | courier | ad | cows | anvils | aid` — вызвать ведомство прямо сейчас
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 

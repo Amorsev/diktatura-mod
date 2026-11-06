@@ -37,6 +37,7 @@ public final class Network {
 		PayloadTypeRegistry.playS2C().register(UiPayloads.LawList.ID, UiPayloads.LawList.CODEC);
 		PayloadTypeRegistry.playS2C().register(UiPayloads.NpcScreen.ID, UiPayloads.NpcScreen.CODEC);
 		PayloadTypeRegistry.playS2C().register(UiPayloads.LicenseList.ID, UiPayloads.LicenseList.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.Ad.ID, UiPayloads.Ad.CODEC);
 		PayloadTypeRegistry.playC2S().register(UiPayloads.NpcClick.ID, UiPayloads.NpcClick.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(UiPayloads.NpcClick.ID, (payload, context) ->
 			context.server().execute(() -> NpcInteractions.onClick(context.player(), payload)));

@@ -6,7 +6,7 @@
   "punishments": [
     {
       "type": "fine",
-      "amount": 1
+      "amount": 5
     },
     {
       "type": "loyalty",

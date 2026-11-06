@@ -59,6 +59,10 @@ public final class DiktaturaState extends PersistentState {
 	public int ticksToEvent = -1;
 	public int eventCount;
 
+	/** Ведомство погоды и пропаганда: тики до следующего раза (-1 — назначить). */
+	public int weatherTicks = -1;
+	public int propagandaTicks = -1;
+
 	public int rebellionTicks;
 	public int rebellionCooldown;
 
@@ -120,6 +124,8 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putInt("ticksToEvent", ticksToEvent);
 		nbt.putInt("eventCount", eventCount);
 		nbt.putInt("rebellionTicks", rebellionTicks);
+		nbt.putInt("weatherTicks", weatherTicks);
+		nbt.putInt("propagandaTicks", propagandaTicks);
 		nbt.putInt("rebellionCooldown", rebellionCooldown);
 		return nbt;
 	}
@@ -174,6 +180,8 @@ public final class DiktaturaState extends PersistentState {
 		s.ticksToEvent = nbt.contains("ticksToEvent") ? nbt.getInt("ticksToEvent") : -1;
 		s.eventCount = nbt.getInt("eventCount");
 		s.rebellionTicks = nbt.getInt("rebellionTicks");
+		s.weatherTicks = nbt.contains("weatherTicks") ? nbt.getInt("weatherTicks") : -1;
+		s.propagandaTicks = nbt.contains("propagandaTicks") ? nbt.getInt("propagandaTicks") : -1;
 		s.rebellionCooldown = nbt.getInt("rebellionCooldown");
 		return s;
 	}

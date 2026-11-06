@@ -1,0 +1,12 @@
+{
+  "name": "npc.diktatura.courier",
+  "role": "npc.diktatura.courier.role",
+  "accent": "#E07A1F",
+  "phrase_prefix": "npc.diktatura.courier.say.",
+  "phrase_count": 4,
+  "sound": "minecraft:entity.villager.celebrate",
+  "pitch": 1.2,
+  "scale": 1.0,
+  "held_item": "diktatura:mystery_parcel",
+  "speed": 0.38
+}

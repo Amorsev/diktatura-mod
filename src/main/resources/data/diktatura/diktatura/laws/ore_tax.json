@@ -6,7 +6,7 @@
   "punishments": [
     {
       "type": "fine",
-      "amount": 1
+      "amount": 5
     }
   ],
   "cooldown_seconds": 3,
