@@ -43,7 +43,18 @@ public final class ThroneHall {
 
 	/** Точка, где стоит вождь (в мире). */
 	public static BlockPos throne(MinecraftServer server) {
-		return DiktaturaState.get(server).throneOrigin.add(THRONE);
+		DiktaturaState state = DiktaturaState.get(server);
+		return state.throneOrigin.add(state.throneVersion >= 2 ? GrandThroneHall.THRONE : THRONE);
+	}
+
+	/** Перестроить зал той версии, что стоит в этом мире. */
+	public static void rebuild(MinecraftServer server) {
+		DiktaturaState state = DiktaturaState.get(server);
+		if (state.throneVersion >= 2) {
+			GrandThroneHall.build(server.getOverworld(), state.throneOrigin);
+		} else {
+			build(server.getOverworld(), state.throneOrigin);
+		}
 	}
 
 	/** Построить зал, если его ещё нет. Нужна уже построенная тюрьма. */

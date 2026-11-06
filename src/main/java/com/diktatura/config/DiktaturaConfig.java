@@ -55,6 +55,8 @@ public final class DiktaturaConfig {
 	/** Смещение тюрьмы от точки спавна мира. */
 	public int prisonOffsetX = 40;
 	public int prisonOffsetZ = 0;
+	/** В новом мире строить столицу горой: тюрьма внутри, зал, кабинеты и казино на вершине. */
+	public boolean capitalMountain = true;
 
 	/** Скорость повозки в блоках за тик. */
 	public double transportSpeed = 1.2;

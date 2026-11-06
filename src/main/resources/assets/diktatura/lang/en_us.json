@@ -539,5 +539,9 @@
   "diktatura.ad.4.fine": "The weather office is not liable for bruises.",
   "diktatura.ad.5.title": "STATE POST",
   "diktatura.ad.5.text": "We deliver anything, to anyone, whenever we remember! A mystery parcel for every citizen.",
-  "diktatura.ad.5.fine": "Parcel contents may fall on your head."
+  "diktatura.ad.5.fine": "Parcel contents may fall on your head.",
+  "diktatura.capital.sign.prison.0": "PRISON",
+  "diktatura.capital.sign.prison.1": "Free entry",
+  "diktatura.capital.sign.prison.2": "Exit by the",
+  "diktatura.capital.sign.prison.3": "Leader's decision"
 }

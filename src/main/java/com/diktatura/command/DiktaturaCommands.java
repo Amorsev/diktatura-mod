@@ -241,7 +241,9 @@ public final class DiktaturaCommands {
 						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
 						MinecraftServer server = c.getSource().getServer();
 						ThroneHall.ensureGenerated(server);
-						BlockPos door = DiktaturaState.get(server).throneOrigin.add(-2, 1, 6);
+						DiktaturaState st = DiktaturaState.get(server);
+						BlockPos door = st.throneOrigin.add(st.throneVersion >= 2
+							? new BlockPos(-6, 1, com.diktatura.dictator.GrandThroneHall.DOOR_Z) : new BlockPos(-2, 1, 6));
 						Teleports.to(p, server.getOverworld(), door.getX() + 0.5, door.getY(), door.getZ() + 0.5, -90.0f, 0.0f);
 						return 1;
 					}))
@@ -249,7 +251,7 @@ public final class DiktaturaCommands {
 						MinecraftServer server = c.getSource().getServer();
 						DiktaturaState state = DiktaturaState.get(server);
 						if (state.throneGenerated) {
-							ThroneHall.build(server.getOverworld(), state.throneOrigin);
+							ThroneHall.rebuild(server);
 						} else {
 							ThroneHall.ensureGenerated(server);
 						}

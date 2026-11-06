@@ -34,6 +34,13 @@ public final class StateStructures {
 			com.diktatura.casino.CasinoBuilding.SIZE_Y, com.diktatura.casino.CasinoBuilding.SIZE_Z).contains(pos)) {
 			return true;
 		}
+		if (state.capitalGenerated && com.diktatura.world.Capital.tunnelBox(state).contains(pos)) {
+			return true;
+		}
+		if (state.throneVersion >= 2) {
+			return state.throneGenerated && box(state.throneOrigin, -6, -1, -3, com.diktatura.dictator.GrandThroneHall.SIZE_X + 2,
+				com.diktatura.dictator.GrandThroneHall.SIZE_Y, com.diktatura.dictator.GrandThroneHall.SIZE_Z + 2).contains(pos);
+		}
 		return state.throneGenerated && box(state.throneOrigin, -5, -1, -1,
 			ThroneHall.SIZE_X, ThroneHall.SIZE_Y, ThroneHall.SIZE_Z).contains(pos);
 	}

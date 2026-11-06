@@ -87,6 +87,7 @@ public class Diktatura implements ModInitializer {
 			server = s;
 			ticks = 0;
 			LawEngine.initLaws(s);
+			com.diktatura.world.Capital.ensureGenerated(s);
 			PrisonSystem.ensureGenerated(s);
 			com.diktatura.dictator.ThroneHall.ensureGenerated(s);
 			MinigameSystem.ensureGenerated(s);

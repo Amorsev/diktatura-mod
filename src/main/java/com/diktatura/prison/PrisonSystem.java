@@ -79,14 +79,27 @@ public final class PrisonSystem {
 
 	/** Поставить постройку (из NBT, а если её нет — упрощённую коробку), фундамент и площадку. */
 	public static void build(MinecraftServer server, ServerWorld world, BlockPos origin) {
+		build(server, world, origin, DiktaturaState.get(server).capitalGenerated);
+	}
+
+	/**
+	 * @param inMountain тюрьма внутри горы-столицы: расчищается только сама коробка тюрьмы
+	 *                   (порода над ней остаётся), площадку перед входом заменяет тоннель.
+	 */
+	public static void build(MinecraftServer server, ServerWorld world, BlockPos origin, boolean inMountain) {
 		int flags = Block.NOTIFY_LISTENERS;
 		BlockState air = Blocks.AIR.getDefaultState();
 		BlockState foundation = Blocks.STONE_BRICKS.getDefaultState();
 
-		// Расчистить место над тюрьмой и перед входом.
-		for (int x = -6; x < PrisonLayout.SIZE_X + 1; x++) {
-			for (int z = -1; z < PrisonLayout.SIZE_Z + 1; z++) {
-				for (int y = 1; y < PrisonLayout.SIZE_Y + 12; y++) {
+		// Расчистить место над тюрьмой и перед входом (в горе — только внутри тюрьмы).
+		int minX = inMountain ? 0 : -6;
+		int maxX = inMountain ? PrisonLayout.SIZE_X : PrisonLayout.SIZE_X + 1;
+		int minZ = inMountain ? 0 : -1;
+		int maxZ = inMountain ? PrisonLayout.SIZE_Z : PrisonLayout.SIZE_Z + 1;
+		int maxY = inMountain ? PrisonLayout.SIZE_Y - 1 : PrisonLayout.SIZE_Y + 12;
+		for (int x = minX; x < maxX; x++) {
+			for (int z = minZ; z < maxZ; z++) {
+				for (int y = 1; y < maxY; y++) {
 					BlockPos p = origin.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
 						world.setBlockState(p, air, flags);
@@ -104,6 +117,9 @@ public final class PrisonSystem {
 			buildFallback(world, origin);
 		}
 
+		if (inMountain) {
+			return;
+		}
 		// Площадка у входа и фундамент до земли.
 		for (int x = -6; x < PrisonLayout.SIZE_X; x++) {
 			for (int z = 0; z < PrisonLayout.SIZE_Z; z++) {

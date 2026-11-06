@@ -539,5 +539,9 @@
   "diktatura.ad.4.fine": "Ведомство погоды за ушибы ответственности не несёт.",
   "diktatura.ad.5.title": "ГОСПОЧТА",
   "diktatura.ad.5.text": "Доставим что угодно, кому угодно, когда вспомним! Посылка-сюрприз — каждому гражданину.",
-  "diktatura.ad.5.fine": "Содержимое посылки может упасть вам на голову."
+  "diktatura.ad.5.fine": "Содержимое посылки может упасть вам на голову.",
+  "diktatura.capital.sign.prison.0": "ТЮРЬМА",
+  "diktatura.capital.sign.prison.1": "Вход свободный",
+  "diktatura.capital.sign.prison.2": "Выход — по",
+  "diktatura.capital.sign.prison.3": "решению вождя"
 }
