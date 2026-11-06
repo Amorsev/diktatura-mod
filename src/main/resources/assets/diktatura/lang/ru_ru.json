@@ -3,8 +3,8 @@
   "law.diktatura.richer_than_king.desc": "Если ваше имущество в инвентаре дороже 12800 (по оценке Upgrader) — арест: отработка и 60 с в камере.",
   "law.diktatura.protect_villagers": "Мирные жители неприкосновенны",
   "law.diktatura.protect_villagers.desc": "Убийство жителя или странствующего торговца — арест (отработка и 60 с в камере) и −20 лояльности.",
-  "law.diktatura.state_property": "Земля у столицы — собственность государства",
-  "law.diktatura.state_property.desc": "В радиусе 64 блоков от спавна ломать блоки запрещено. Действие отменяется, штраф 1 изумруд.",
+  "law.diktatura.state_property": "Госпостройки неприкосновенны",
+  "law.diktatura.state_property.desc": "Ломать тюрьму, тронный зал и их площадки запрещено. Действие отменяется, штраф 1 изумруд. Остальной мир — ломайте на здоровье.",
   "law.diktatura.no_sedition": "Крамола запрещена",
   "law.diktatura.no_sedition.desc": "Призывы к свержению и оскорбления вождя в чате караются арестом: отработка и 30 с в камере.",
   "law.diktatura.no_look_up": "Запрещено смотреть вверх",
@@ -312,5 +312,7 @@
   "npc.diktatura.recipient.no_parcel": "А посылка где? Без посылки вы просто человек, который пришёл в поле.",
   "npc.diktatura.recipient.thanks": "Спасибо! А что это? Впрочем, неважно — раз государство прислало, значит нужно.",
   "diktatura.cmd.job.cancelled": "Работа игрока %s отменена.",
-  "diktatura.cmd.npc.employer": "Служащий биржи на месте и уже скучает."
+  "diktatura.cmd.npc.employer": "Служащий биржи на месте и уже скучает.",
+  "law.diktatura.state_property_build": "Госпостройки не достраивать",
+  "law.diktatura.state_property_build.desc": "Ставить блоки в тюрьме, тронном зале и на их площадках запрещено. Архитектор у нас один, и он на троне."
 }

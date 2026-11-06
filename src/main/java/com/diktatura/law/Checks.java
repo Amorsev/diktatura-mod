@@ -52,9 +52,9 @@ public final class Checks {
 				Json.b(o, "required", true), Matchers.items(o), o.has("items") || o.has("tag"));
 			case "dimension" -> new Dimension(new HashSet<>(Json.list(o, "dimensions")));
 			case "standing_on" -> new StandingOn(Matchers.blocks(o));
-			case "block_break" -> new BlockBreak(Matchers.blocks(o), Json.i(o, "spawn_radius", -1));
+			case "block_break" -> new BlockBreak(Matchers.blocks(o), Json.b(o, "state_structures", false));
 			case "block_place" -> new BlockPlace(Matchers.blocks(o), Json.i(o, "max_build_height", -1),
-				Json.i(o, "spawn_radius", -1));
+				Json.b(o, "state_structures", false));
 			case "chat" -> new Chat(Json.list(o, "words"), Json.s(o, "regex", ""), Json.d(o, "caps_ratio", -1),
 				Json.i(o, "min_length", 1), Json.b(o, "any", false));
 			case "kill_entity" -> new EntityEvent(LawEvent.KILL, Matchers.entities(o));
@@ -65,17 +65,9 @@ public final class Checks {
 		};
 	}
 
-	static boolean nearSpawn(World world, BlockPos pos, int radius) {
-		if (radius < 0) {
-			return true;
-		}
-		if (world.getRegistryKey() != World.OVERWORLD) {
-			return false;
-		}
-		BlockPos spawn = world.getSpawnPos();
-		long dx = pos.getX() - spawn.getX();
-		long dz = pos.getZ() - spawn.getZ();
-		return dx * dx + dz * dz <= (long) radius * radius;
+	/** Если onlyStructures — срабатывает только внутри построек мода (тюрьма, тронный зал). */
+	static boolean inScope(World world, BlockPos pos, boolean onlyStructures) {
+		return !onlyStructures || StateStructures.contains(world, pos);
 	}
 
 	/** Периодические проверки состояния игрока. */
@@ -314,11 +306,11 @@ public final class Checks {
 
 	static final class BlockBreak implements LawCheck {
 		private final Predicate<BlockState> blocks;
-		private final int spawnRadius;
+		private final boolean onlyStructures;
 
-		BlockBreak(Predicate<BlockState> blocks, int spawnRadius) {
+		BlockBreak(Predicate<BlockState> blocks, boolean onlyStructures) {
 			this.blocks = blocks;
-			this.spawnRadius = spawnRadius;
+			this.onlyStructures = onlyStructures;
 		}
 
 		@Override
@@ -328,7 +320,7 @@ public final class Checks {
 
 		@Override
 		public boolean test(LawContext ctx) {
-			return blocks.test(ctx.state) && nearSpawn(ctx.player.getWorld(), ctx.pos, spawnRadius);
+			return blocks.test(ctx.state) && inScope(ctx.player.getWorld(), ctx.pos, onlyStructures);
 		}
 	}
 
@@ -336,12 +328,12 @@ public final class Checks {
 	static final class BlockPlace implements LawCheck {
 		private final Predicate<BlockState> blocks;
 		private final int maxHeight;
-		private final int spawnRadius;
+		private final boolean onlyStructures;
 
-		BlockPlace(Predicate<BlockState> blocks, int maxHeight, int spawnRadius) {
+		BlockPlace(Predicate<BlockState> blocks, int maxHeight, boolean onlyStructures) {
 			this.blocks = blocks;
 			this.maxHeight = maxHeight;
-			this.spawnRadius = spawnRadius;
+			this.onlyStructures = onlyStructures;
 		}
 
 		@Override
@@ -358,7 +350,7 @@ public final class Checks {
 				return false;
 			}
 			World w = ctx.player.getWorld();
-			if (!nearSpawn(w, ctx.pos, spawnRadius)) {
+			if (!inScope(w, ctx.pos, onlyStructures)) {
 				return false;
 			}
 			return maxHeight <= 0 || columnHeight(w, ctx.pos) > maxHeight;

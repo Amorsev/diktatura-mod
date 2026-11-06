@@ -155,8 +155,8 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 | `equipment` | `slot`, `required`, `items`, `tag` | Нет обязательного или есть запрещённый предмет в слоте |
 | `dimension` | `dimensions` | Находится в измерении |
 | `standing_on` | `blocks`, `tag` | Стоит на блоке |
-| `block_break` | `blocks`, `tag`, `spawn_radius` | Ломает блок (около спавна) |
-| `block_place` | `blocks`, `tag`, `max_build_height`, `spawn_radius` | Ставит блок, постройка выше N |
+| `block_break` | `blocks`, `tag`, `state_structures` | Ломает блок (`state_structures: true` — только в постройках мода: тюрьма, тронный зал) |
+| `block_place` | `blocks`, `tag`, `max_build_height`, `state_structures` | Ставит блок, постройка выше N, в постройках мода |
 | `chat` | `words`, `regex`, `caps_ratio`, `min_length`, `any` | Сообщение в чате |
 | `kill_entity`, `attack_entity` | `entities`, `tag` | Убил или ударил существо |
 | `use_item` | `items`, `tag` | Использует предмет |

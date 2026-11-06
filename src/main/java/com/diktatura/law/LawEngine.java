@@ -1,5 +1,7 @@
 package com.diktatura.law;
 
+import com.diktatura.network.Network;
+
 import com.diktatura.Diktatura;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.loyalty.LoyaltySystem;
@@ -275,6 +277,13 @@ public final class LawEngine {
 			}
 			state.lawsInitialized = true;
 			state.markDirty();
+		}
+		// Постоянные законы действуют всегда — в том числе добавленные в новых версиях мода.
+		for (Law law : LawRegistry.all()) {
+			if (law.permanent() && law.enabledByDefault() && state.activeLaws.add(law.key())) {
+				state.markDirty();
+				Network.lawsChanged();
+			}
 		}
 	}
 

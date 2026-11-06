@@ -3,8 +3,8 @@
   "law.diktatura.richer_than_king.desc": "If your inventory is worth more than 12800 (Upgrader value): arrest, hard labour and 60 s in a cell.",
   "law.diktatura.protect_villagers": "Villagers are sacred",
   "law.diktatura.protect_villagers.desc": "Killing a villager or wandering trader: arrest (hard labour and 60 s in a cell) and −20 loyalty.",
-  "law.diktatura.state_property": "Land near the capital belongs to the State",
-  "law.diktatura.state_property.desc": "Breaking blocks within 64 blocks of spawn is forbidden. The action is cancelled, fine: 1 emerald.",
+  "law.diktatura.state_property": "State buildings are untouchable",
+  "law.diktatura.state_property.desc": "Breaking the prison, the throne hall or their forecourts is forbidden. The action is cancelled, fine: 1 emerald. The rest of the world — break away.",
   "law.diktatura.no_sedition": "Sedition is forbidden",
   "law.diktatura.no_sedition.desc": "Calls to overthrow the Leader or insults in chat: arrest, hard labour and 30 s in a cell.",
   "law.diktatura.no_look_up": "Looking up is forbidden",
@@ -312,5 +312,7 @@
   "npc.diktatura.recipient.no_parcel": "Where's the parcel? Without a parcel you're just a person who walked into a field.",
   "npc.diktatura.recipient.thanks": "Thank you! What is it? Never mind — if the state sent it, I must need it.",
   "diktatura.cmd.job.cancelled": "Job of %s cancelled.",
-  "diktatura.cmd.npc.employer": "The exchange clerk is in place and already bored."
+  "diktatura.cmd.npc.employer": "The exchange clerk is in place and already bored.",
+  "law.diktatura.state_property_build": "No additions to state buildings",
+  "law.diktatura.state_property_build.desc": "Placing blocks in the prison, the throne hall or their forecourts is forbidden. There is only one architect, and he is on the throne."
 }

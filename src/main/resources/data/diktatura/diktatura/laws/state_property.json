@@ -1,7 +1,7 @@
 {
   "check": {
     "type": "block_break",
-    "spawn_radius": 64
+    "state_structures": true
   },
   "punishments": [
     {
