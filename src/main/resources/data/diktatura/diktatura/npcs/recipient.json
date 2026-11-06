@@ -1,0 +1,10 @@
+{
+  "name": "npc.diktatura.recipient",
+  "role": "npc.diktatura.recipient.role",
+  "accent": "#2F5E9E",
+  "phrase_prefix": "npc.diktatura.recipient.say.",
+  "phrase_count": 4,
+  "sound": "minecraft:entity.villager.ambient",
+  "pitch": 1.1,
+  "scale": 1.0
+}

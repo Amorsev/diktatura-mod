@@ -131,6 +131,8 @@ public class LawBookScreen extends Screen {
 		int y = listTop - scroll;
 		int start = y;
 		if (tab == Tab.LICENSES) {
+			ctx.drawTextWithShadow(textRenderer, Text.translatable("diktatura.hud.balance", ClientState.balance), left, y, 0xFFFFD27F);
+			y += 14;
 			for (OrderedText line : textRenderer.wrapLines(Text.translatable("diktatura.book.licenses.empty"), boxW)) {
 				ctx.drawTextWithShadow(textRenderer, line, left, y, 0xC0C0C0);
 				y += 10;

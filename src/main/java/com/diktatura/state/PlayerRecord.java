@@ -31,6 +31,12 @@ public final class PlayerRecord {
 	public int cleanTicks;
 	public int rewardTicks;
 	public boolean gotBook;
+	/** Трудодни — виртуальная валюта (не предмет: не теряется при смерти, не конфискуется). */
+	public int trudodni;
+	/** Последние операции с трудоднями: {a: сумма, r: ключ причины, x: аргумент, t: время мс}. */
+	public NbtList moneyLog = new NbtList();
+	/** Текущая работа с биржи (null — без работы). */
+	public NbtCompound job;
 
 	public PlayerRecord(int loyalty) {
 		this.loyalty = loyalty;
@@ -59,6 +65,11 @@ public final class PlayerRecord {
 		n.putInt("clean", cleanTicks);
 		n.putInt("reward", rewardTicks);
 		n.putBoolean("gotBook", gotBook);
+		n.putInt("trudodni", trudodni);
+		n.put("moneyLog", moneyLog);
+		if (job != null) {
+			n.put("job", job);
+		}
 		n.putInt("minigame", minigame);
 		n.putInt("progress", progress);
 		n.putBoolean("pardoned", pardoned);
@@ -86,6 +97,11 @@ public final class PlayerRecord {
 		r.cleanTicks = n.getInt("clean");
 		r.rewardTicks = n.getInt("reward");
 		r.gotBook = n.getBoolean("gotBook");
+		r.trudodni = n.getInt("trudodni");
+		r.moneyLog = n.getList("moneyLog", NbtElement.COMPOUND_TYPE);
+		if (n.contains("job")) {
+			r.job = n.getCompound("job");
+		}
 		r.minigame = n.contains("minigame") ? n.getInt("minigame") : -1;
 		r.progress = n.getInt("progress");
 		r.pardoned = n.getBoolean("pardoned");

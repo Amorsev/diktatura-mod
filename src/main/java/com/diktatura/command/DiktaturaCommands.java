@@ -92,6 +92,11 @@ public final class DiktaturaCommands {
 					.then(literal("list").executes(c -> npcList(c.getSource())))
 					.then(literal("spawn").then(argument("id", IdentifierArgumentType.identifier()).suggests(NPC_IDS)
 						.executes(c -> npcSpawn(c.getSource(), IdentifierArgumentType.getIdentifier(c, "id").toString()))))
+					.then(literal("employer").executes(c -> {
+						com.diktatura.job.Jobs.ensureEmployer(c.getSource().getServer());
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.npc.employer"), true);
+						return 1;
+					}))
 					.then(literal("dictator").executes(c -> {
 						Dictator.ensureNpc(c.getSource().getServer());
 						Dictator.refresh(c.getSource().getServer());
@@ -129,6 +134,27 @@ public final class DiktaturaCommands {
 								Network.sendStatus(c.getSource().getServer(), p);
 								return status(c.getSource(), p);
 							}))))
+				.then(literal("money")
+					.executes(c -> money(c.getSource(), c.getSource().getPlayerOrThrow()))
+					.then(literal("reset").requires(s -> s.hasPermissionLevel(2)).executes(c -> moneyReset(c.getSource())))
+					.then(argument("player", EntityArgumentType.player()).requires(s -> s.hasPermissionLevel(2))
+						.executes(c -> money(c.getSource(), EntityArgumentType.getPlayer(c, "player")))
+						.then(argument("amount", IntegerArgumentType.integer(-1_000_000, 1_000_000))
+							.executes(c -> {
+								ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+								com.diktatura.economy.Economy.add(p, IntegerArgumentType.getInteger(c, "amount"),
+									"diktatura.money.reason.admin", "", true);
+								return money(c.getSource(), p);
+							}))))
+				.then(literal("job")
+					.executes(c -> jobInfo(c.getSource(), c.getSource().getPlayerOrThrow()))
+					.then(literal("cancel").requires(s -> s.hasPermissionLevel(2))
+						.then(argument("player", EntityArgumentType.player()).executes(c -> {
+							ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+							com.diktatura.job.Jobs.clear(p, DiktaturaState.get(c.getSource().getServer()).player(p));
+							c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.job.cancelled", p.getDisplayName()), true);
+							return 1;
+						}))))
 				.then(literal("throne").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tp").executes(c -> {
 						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
@@ -306,6 +332,53 @@ public final class DiktaturaCommands {
 		com.diktatura.npc.NpcRegistry.apply(npc);
 		p.getServerWorld().spawnEntity(npc);
 		src.sendFeedback(() -> Text.translatable("diktatura.cmd.npc.spawned", id), true);
+		return 1;
+	}
+
+	/** Баланс трудодней и последние операции. */
+	private static int money(ServerCommandSource src, ServerPlayerEntity p) {
+		PlayerRecord rec = DiktaturaState.get(src.getServer()).player(p);
+		src.sendFeedback(() -> Text.translatable("diktatura.money.balance", p.getDisplayName(), rec.trudodni)
+			.formatted(Formatting.GOLD), false);
+		int n = Math.min(5, rec.moneyLog.size());
+		for (int i = 0; i < n; i++) {
+			net.minecraft.nbt.NbtCompound e = rec.moneyLog.getCompound(i);
+			int a = e.getInt("a");
+			Text line = Text.literal((a > 0 ? " +" : " ") + a + " — ")
+				.append(com.diktatura.economy.Economy.reason(e.getString("r"), e.getString("x")))
+				.formatted(a > 0 ? Formatting.GREEN : Formatting.RED);
+			src.sendFeedback(() -> line, false);
+		}
+		return rec.trudodni;
+	}
+
+	private static int moneyReset(ServerCommandSource src) {
+		DiktaturaState state = DiktaturaState.get(src.getServer());
+		state.players.values().forEach(r -> {
+			r.trudodni = 0;
+			r.moneyLog.clear();
+		});
+		state.markDirty();
+		src.sendFeedback(() -> Text.translatable("diktatura.money.reset"), true);
+		return 1;
+	}
+
+	private static int jobInfo(ServerCommandSource src, ServerPlayerEntity p) {
+		PlayerRecord rec = DiktaturaState.get(src.getServer()).player(p);
+		var def = com.diktatura.job.Jobs.def(rec);
+		if (def == null) {
+			src.sendFeedback(() -> Text.translatable("diktatura.job.none"), false);
+			return 0;
+		}
+		int sec = com.diktatura.job.Jobs.secondsLeft(rec);
+		src.sendFeedback(() -> Text.translatable("diktatura.job.current", com.diktatura.job.Jobs.title(def, rec.job.getInt("v")))
+			.formatted(Formatting.GOLD), false);
+		src.sendFeedback(() -> Text.translatable("diktatura.job.status", com.diktatura.job.Jobs.progress(rec),
+			com.diktatura.job.Jobs.goal(rec), String.format("%d:%02d", sec / 60, sec % 60)), false);
+		var t = com.diktatura.job.Jobs.target(rec);
+		if (t != null && def.type() == com.diktatura.job.JobRegistry.Type.COURIER) {
+			src.sendFeedback(() -> Text.translatable("diktatura.job.address", t.getX(), t.getZ()), false);
+		}
 		return 1;
 	}
 }

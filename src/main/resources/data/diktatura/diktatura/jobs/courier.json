@@ -1,0 +1,10 @@
+{
+  "type": "courier",
+  "name": "diktatura.job.courier",
+  "order": 1,
+  "minutes": 6,
+  "reward": 25,
+  "late_fine": 10,
+  "min_distance": 80,
+  "max_distance": 180
+}

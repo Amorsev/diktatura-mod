@@ -1,0 +1,13 @@
+{
+  "type": "miner",
+  "name": "diktatura.job.miner",
+  "order": 3,
+  "minutes": 10,
+  "reward": 25,
+  "late_fine": 8,
+  "variants": [
+    { "label": "diktatura.job.miner.coal", "goal": 16, "reward": 20, "blocks": ["#minecraft:coal_ores"] },
+    { "label": "diktatura.job.miner.copper", "goal": 16, "reward": 25, "blocks": ["#minecraft:copper_ores"] },
+    { "label": "diktatura.job.miner.iron", "goal": 10, "reward": 35, "blocks": ["#minecraft:iron_ores"] }
+  ]
+}

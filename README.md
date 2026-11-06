@@ -168,6 +168,27 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 `arrest` (`seconds` или `min_seconds` / `max_seconds`), `timeout` (`seconds`: молчание в чате и замедление),
 `effect` (`effect`, `seconds`, `amplifier`), `loyalty` (`amount`), `lightning`, `damage` (`amount`).
 
+## Трудодни и работы
+
+Трудодни — виртуальная валюта (не предмет). Зарабатываются на работах у товарища Кадрова
+(трудовая биржа, площадка у входа в тронный зал), видны в HUD, `/diktatura money`.
+
+Работа — файл `data/<namespace>/diktatura/jobs/<id>.json`:
+
+| Поле | Что значит |
+| --- | --- |
+| `type` | `courier`, `cleaner`, `miner`, `lumberjack`, `builder` |
+| `name` | ключ перевода названия |
+| `order` | порядок в списке вакансий |
+| `minutes` | срок |
+| `reward` | оплата за выполнение |
+| `unit_reward` | оплата за каждую единицу (платится и при опоздании) |
+| `late_fine` | штраф за опоздание |
+| `variants` | для счётных работ: `label`, `goal`, `blocks` (id или `#тег`), необязательный `reward` |
+| `min_distance`, `max_distance` | доставщик: на каком расстоянии от биржи ждёт получатель |
+| `blueprint` | строитель: `layers` (слои снизу вверх, строки — Z, символы — X), `palette`, `label` |
+| `min_accuracy` | строитель: с какой точности (%) можно сдать недостроенное |
+
 ## Формат НПС
 
 Файл `data/<namespace>/diktatura/npcs/<id>.json`, текстура `assets/<namespace>/textures/entity/npc/<id>.png`
@@ -206,7 +227,9 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura prison tp | rebuild | minigame <parkour|quarry|maze>` (последняя — посмотреть зону)
 - `/diktatura ui alert | headline | speech | wanted` — проверить новый интерфейс (показывает только себе)
 - `/diktatura throne tp | rebuild` — к тронному залу, перестроить зал
-- `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
+- `/diktatura money` — свой счёт и последние операции; `/diktatura job` — текущая работа
+- `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
+- `/diktatura npc list | spawn <id> | dictator | employer` — список НПС, поставить НПС на своё место, проверить вождя на троне
 
 ## Настройки
 

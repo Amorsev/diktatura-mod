@@ -1,0 +1,11 @@
+{
+  "name": "npc.diktatura.employer",
+  "role": "npc.diktatura.employer.role",
+  "accent": "#5E6670",
+  "phrase_prefix": "npc.diktatura.employer.say.",
+  "phrase_count": 6,
+  "sound": "minecraft:entity.villager.work_cartographer",
+  "pitch": 0.9,
+  "scale": 1.0,
+  "held_item": "minecraft:paper"
+}

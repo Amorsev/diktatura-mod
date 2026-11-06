@@ -3,6 +3,8 @@ package com.diktatura.client;
 import com.diktatura.network.StatusPayload;
 import com.diktatura.network.UiPayloads;
 
+import net.minecraft.text.Text;
+
 import java.util.List;
 
 /** Последние данные от сервера. Только отображение, никакой логики. */
@@ -23,6 +25,15 @@ public final class ClientState {
 	/** 0 — видно всё, 1 — закрыт левый глаз, 2 — правый. */
 	public static int blindSide;
 	public static List<String> laws = List.of();
+	public static int balance;
+	/** Текущая работа: пустой заголовок — работы нет. */
+	public static Text jobTitle = Text.empty();
+	public static int jobProgress;
+	public static int jobGoal;
+	public static int jobSeconds;
+	public static boolean jobHasTarget;
+	public static int jobX;
+	public static int jobZ;
 	/** Все загруженные законы и отменённые указами (пакет LawList). */
 	public static List<String> allLaws = List.of();
 	public static List<String> repealedLaws = List.of();
@@ -46,6 +57,14 @@ public final class ClientState {
 		eventSeconds = p.eventSeconds();
 		blindSide = p.blindSide();
 		laws = List.copyOf(p.laws());
+		balance = p.balance();
+		jobTitle = p.jobTitle();
+		jobProgress = p.jobProgress();
+		jobGoal = p.jobGoal();
+		jobSeconds = p.jobSeconds();
+		jobHasTarget = p.jobHasTarget();
+		jobX = p.jobX();
+		jobZ = p.jobZ();
 	}
 
 	static void updateLaws(UiPayloads.LawList p) {
@@ -55,6 +74,7 @@ public final class ClientState {
 
 	static void reset() {
 		received = false;
+		jobTitle = Text.empty();
 		allLaws = List.of();
 		repealedLaws = List.of();
 		blindSide = 0;

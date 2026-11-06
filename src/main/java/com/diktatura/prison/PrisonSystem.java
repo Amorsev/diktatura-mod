@@ -190,6 +190,7 @@ public final class PrisonSystem {
 				Text.translatable("diktatura.arrest.extended", seconds), 6);
 			return;
 		}
+		com.diktatura.job.Jobs.onArrest(player);
 		if (rec.stage == Stage.RETURNING) {
 			TransportSystem.cancel(player);
 		} else {

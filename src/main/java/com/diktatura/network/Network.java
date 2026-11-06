@@ -4,6 +4,8 @@ import com.diktatura.Diktatura;
 import com.diktatura.dictator.Dictator;
 import com.diktatura.event.EventSystem;
 import com.diktatura.event.EventType;
+import com.diktatura.job.JobRegistry;
+import com.diktatura.job.Jobs;
 import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.minigame.MinigameSystem;
@@ -78,11 +80,18 @@ public final class Network {
 		PlayerRecord rec = state.player(p);
 		List<String> laws = state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).toList();
 		EventType event = EventSystem.active();
+		JobRegistry.JobDef jobDef = Jobs.def(rec);
+		net.minecraft.text.Text jobTitle = jobDef == null ? net.minecraft.text.Text.empty()
+			: Jobs.title(jobDef, rec.job.getInt("v"));
+		net.minecraft.util.math.BlockPos jobTarget = Jobs.target(rec);
 		int goal = rec.minigame == MinigameType.QUARRY.ordinal() ? MinigameSystem.QUARRY_GOAL
 			: rec.minigame == MinigameType.PARKOUR.ordinal() ? 2 : 1;
 		ServerPlayNetworking.send(p, new StatusPayload(rec.loyalty, rec.fear, rec.stage.ordinal(),
 			rec.sentenceTicks / 20, rec.timeoutTicks / 20, Dictator.secondsToDecree(server),
 			LoyaltySystem.isRebellion(server), rec.minigame, rec.progress, goal,
-			event == null ? -1 : event.ordinal(), EventSystem.activeSeconds(), EventSystem.blindSide(p.getUuid()), laws));
+			event == null ? -1 : event.ordinal(), EventSystem.activeSeconds(), EventSystem.blindSide(p.getUuid()), laws,
+			rec.trudodni, jobTitle, Jobs.progress(rec), Jobs.goal(rec), Jobs.secondsLeft(rec),
+			jobTarget != null && jobDef != null && jobDef.type() == JobRegistry.Type.COURIER,
+			jobTarget == null ? 0 : jobTarget.getX(), jobTarget == null ? 0 : jobTarget.getZ()));
 	}
 }

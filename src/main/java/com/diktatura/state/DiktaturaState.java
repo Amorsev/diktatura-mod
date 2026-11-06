@@ -38,6 +38,8 @@ public final class DiktaturaState extends PersistentState {
 	public BlockPos throneOrigin = BlockPos.ORIGIN;
 
 	public UUID dictator;
+	/** Служащий трудовой биржи у тронного зала. */
+	public UUID employer;
 	/** 2 — вождь уже переведён с жителя на НПС (версия 0.1.5). */
 	public int npcVersion;
 	public int ticksToDecree = -1;
@@ -86,6 +88,9 @@ public final class DiktaturaState extends PersistentState {
 		if (dictator != null) {
 			nbt.putUuid("dictator", dictator);
 		}
+		if (employer != null) {
+			nbt.putUuid("employer", employer);
+		}
 		nbt.putInt("npcVersion", npcVersion);
 		nbt.putInt("ticksToDecree", ticksToDecree);
 		nbt.putInt("decreeCount", decreeCount);
@@ -121,6 +126,9 @@ public final class DiktaturaState extends PersistentState {
 		s.throneOrigin = BlockPos.fromLong(nbt.getLong("throneOrigin"));
 		if (nbt.containsUuid("dictator")) {
 			s.dictator = nbt.getUuid("dictator");
+		}
+		if (nbt.containsUuid("employer")) {
+			s.employer = nbt.getUuid("employer");
 		}
 		s.npcVersion = nbt.getInt("npcVersion");
 		s.ticksToDecree = nbt.contains("ticksToDecree") ? nbt.getInt("ticksToDecree") : -1;

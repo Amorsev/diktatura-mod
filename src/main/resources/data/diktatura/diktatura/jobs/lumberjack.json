@@ -1,0 +1,11 @@
+{
+  "type": "lumberjack",
+  "name": "diktatura.job.lumberjack",
+  "order": 4,
+  "minutes": 8,
+  "reward": 20,
+  "late_fine": 6,
+  "variants": [
+    { "label": "diktatura.job.lumberjack.logs", "goal": 24, "blocks": ["#minecraft:logs"] }
+  ]
+}

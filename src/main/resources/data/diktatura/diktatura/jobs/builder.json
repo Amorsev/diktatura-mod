@@ -1,0 +1,23 @@
+{
+  "type": "builder",
+  "name": "diktatura.job.builder",
+  "order": 5,
+  "minutes": 12,
+  "reward": 40,
+  "late_fine": 8,
+  "min_accuracy": 50,
+  "blueprint": {
+    "label": "diktatura.job.builder.gazebo",
+    "layers": [
+      ["CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC"],
+      ["P...P", ".....", ".....", ".....", "P...P"],
+      ["P...P", ".....", ".....", ".....", "P...P"],
+      ["SSSSS", "S...S", "S...S", "S...S", "SSSSS"]
+    ],
+    "palette": {
+      "C": "minecraft:cobblestone",
+      "P": "minecraft:oak_log",
+      "S": "minecraft:stone_brick_slab"
+    }
+  }
+}

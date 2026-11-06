@@ -1,0 +1,17 @@
+{
+  "type": "cleaner",
+  "name": "diktatura.job.cleaner",
+  "order": 2,
+  "minutes": 5,
+  "reward": 5,
+  "unit_reward": 1,
+  "late_fine": 0,
+  "variants": [
+    {
+      "label": "diktatura.job.cleaner.weeds",
+      "goal": 24,
+      "blocks": ["minecraft:short_grass", "minecraft:tall_grass", "minecraft:fern", "minecraft:large_fern",
+        "minecraft:dead_bush", "minecraft:seagrass", "minecraft:tall_seagrass", "minecraft:vine"]
+    }
+  ]
+}

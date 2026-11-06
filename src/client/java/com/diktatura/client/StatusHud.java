@@ -34,7 +34,7 @@ public final class StatusHud {
 		int y = 4;
 
 		// --- Гражданин
-		int ph = 44;
+		int ph = 55;
 		Ui.panel(ctx, x, y, W, ph, loyaltyColor(ClientState.loyalty));
 		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.ui.panel.citizen"), x + PAD + 2, y + 4, Ui.MUTED);
 		int ly = y + 15;
@@ -43,6 +43,9 @@ public final class StatusHud {
 		ly += 15;
 		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.fear", ClientState.fear), x + PAD + 2, ly, 0xFFB8B0C0);
 		Ui.bar(ctx, x + PAD + 2, ly + 9, W - PAD * 2 - 4, 3, ClientState.fear, Ui.PURPLE);
+		ly += 15;
+		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.balance", ClientState.balance), x + PAD + 2, ly,
+			ClientState.balance < 0 ? 0xFFFF7070 : 0xFFFFD27F);
 		y += ph + 3;
 
 		// --- Статус (только если есть что показать)
@@ -95,6 +98,18 @@ public final class StatusHud {
 			case 2 -> out.add(new Line(Text.translatable("diktatura.hud.sentence", Ui.time(ClientState.sentenceSeconds)), 0xFFFF5555));
 			case 3 -> out.add(new Line(Text.translatable("diktatura.hud.returning"), 0xFF55FF55));
 			default -> {
+			}
+		}
+		if (!ClientState.jobTitle.getString().isEmpty()) {
+			out.add(new Line(Text.translatable("diktatura.hud.job", ClientState.jobTitle), 0xFFFFD27F));
+			out.add(new Line(Text.translatable("diktatura.hud.job.status", ClientState.jobProgress, ClientState.jobGoal,
+				Ui.time(ClientState.jobSeconds)), ClientState.jobSeconds <= 30 ? 0xFFFF7070 : 0xFFC8C8C8));
+			if (ClientState.jobHasTarget) {
+				MinecraftClient mc = MinecraftClient.getInstance();
+				int dist = mc.player == null ? 0 : (int) Math.sqrt(mc.player.squaredDistanceTo(
+					ClientState.jobX + 0.5, mc.player.getY(), ClientState.jobZ + 0.5));
+				out.add(new Line(Text.translatable("diktatura.hud.job.address", ClientState.jobX, ClientState.jobZ, dist),
+					0xFF8FD0FF));
 			}
 		}
 		if (ClientState.timeoutSeconds > 0) {
