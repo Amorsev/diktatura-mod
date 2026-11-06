@@ -9,7 +9,10 @@ import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.network.UiPayloads;
 import com.diktatura.network.UiPayloads.AlertKind;
 import com.diktatura.network.UiPayloads.HeadlineStyle;
+import com.diktatura.npc.ModEntities;
+import com.diktatura.npc.NpcEntity;
 import com.diktatura.npc.NpcInteractions;
+import com.diktatura.npc.NpcRegistry;
 import com.diktatura.ui.Hud;
 import com.diktatura.ui.Voice;
 import com.diktatura.prison.PrisonLayout;
@@ -64,21 +67,19 @@ public final class Dictator {
 	/** Цвет полосы ведомства «Администрация вождя». */
 	public static final int ACCENT = 0xFFD4A017;
 
+	/** Идентификатор вождя в реестре НПС (data/diktatura/diktatura/npcs/dictator.json). */
+	public static final String NPC_ID = "diktatura:dictator";
+
 	public static void registerEvents() {
-		UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
-			if (!isDictator(entity)) {
-				return ActionResult.PASS;
-			}
-			if (!world.isClient && hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity sp) {
-				newPhrase(sp, entity);
-				NpcInteractions.open(sp, entity);
-			}
-			return ActionResult.SUCCESS;
-		});
 		NpcInteractions.register("dictator", new NpcInteractions.Handler() {
 			@Override
 			public boolean matches(Entity entity) {
 				return isDictator(entity);
+			}
+
+			@Override
+			public void onOpen(ServerPlayerEntity player, Entity npc) {
+				newPhrase(player, npc);
 			}
 
 			@Override
@@ -102,15 +103,31 @@ public final class Dictator {
 		});
 	}
 
+	private static NpcRegistry.NpcData data() {
+		return NpcRegistry.get(NPC_ID);
+	}
+
 	private static Text name() {
-		return Text.translatable("entity.diktatura.dictator");
+		NpcRegistry.NpcData d = data();
+		return d != null ? d.displayName() : Text.translatable("entity.diktatura.dictator");
+	}
+
+	private static int phraseCount() {
+		NpcRegistry.NpcData d = data();
+		return d != null ? d.phraseCount() : PHRASES;
+	}
+
+	private static Text phrase(int i) {
+		NpcRegistry.NpcData d = data();
+		return d != null ? d.phrase(i) : Text.translatable("diktatura.dictator.say." + Math.floorMod(i, PHRASES));
 	}
 
 	private static void newPhrase(ServerPlayerEntity player, Entity npc) {
-		int phrase = player.getRandom().nextInt(PHRASES);
+		int phrase = player.getRandom().nextInt(phraseCount());
 		LAST_PHRASE.put(player.getUuid(), phrase);
-		Voice.say(npc, name(), Text.translatable("diktatura.dictator.say." + phrase),
-			SoundEvents.ENTITY_VILLAGER_AMBIENT, 0.6f);
+		NpcRegistry.NpcData d = data();
+		Voice.say(npc, name(), phrase(phrase),
+			d != null ? d.soundEvent() : SoundEvents.ENTITY_VILLAGER_AMBIENT, d != null ? d.pitch() : 0.6f);
 	}
 
 	/** Окно вождя: реплика, сводка, кнопки. */
@@ -133,12 +150,18 @@ public final class Dictator {
 			new UiPayloads.NpcAction("client:laws", Text.translatable("diktatura.npc.laws"), true),
 			new UiPayloads.NpcAction("petition", Text.translatable("diktatura.npc.dictator.petition"), false),
 			new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
+		NpcRegistry.NpcData d = data();
 		return new UiPayloads.NpcScreen("dictator", npc.getId(), name(),
-			Text.translatable("diktatura.npc.dictator.role"),
-			Text.translatable("diktatura.dictator.say." + phrase), info, actions, ACCENT);
+			d != null ? Text.translatable(d.role()) : Text.translatable("diktatura.npc.dictator.role"),
+			phrase(phrase), info, actions, d != null ? d.accent() : ACCENT);
 	}
 
 	public static boolean isDictator(Entity e) {
+		return e instanceof NpcEntity n && NPC_ID.equals(n.npcId());
+	}
+
+	/** Вождь из версий до 0.1.5 — житель с тегом. Нужен только для замены. */
+	private static boolean isLegacyDictator(Entity e) {
 		return e instanceof VillagerEntity && e.getCommandTags().contains(TAG);
 	}
 
@@ -179,10 +202,25 @@ public final class Dictator {
 		if (!world.isChunkLoaded(throne.getX() >> 4, throne.getZ() >> 4)) {
 			return;
 		}
+		Box area = new Box(throne).expand(48);
+
+		// Миграция: старого вождя-жителя заменяем новым НПС (один раз на мир).
+		List<VillagerEntity> legacy = world.getEntitiesByClass(VillagerEntity.class, area, Dictator::isLegacyDictator);
+		if (!legacy.isEmpty()) {
+			legacy.forEach(Entity::discard);
+			if (state.npcVersion < 2) {
+				Diktatura.LOGGER.info("Миграция мира: старый вождь-житель ({} шт.) заменён на НПС {}", legacy.size(), NPC_ID);
+			}
+			state.dictator = null;
+		}
+		if (state.npcVersion < 2) {
+			state.npcVersion = 2;
+			state.markDirty();
+		}
+
 		Entity npc = state.dictator == null ? null : world.getEntity(state.dictator);
-		if (npc == null || npc.isRemoved()) {
-			List<VillagerEntity> found = world.getEntitiesByClass(VillagerEntity.class,
-				new Box(throne).expand(48), Dictator::isDictator);
+		if (!(npc instanceof NpcEntity) || npc.isRemoved()) {
+			List<NpcEntity> found = world.getEntitiesByClass(NpcEntity.class, area, Dictator::isDictator);
 			if (!found.isEmpty()) {
 				npc = found.get(0);
 				for (int i = 1; i < found.size(); i++) {
@@ -201,22 +239,31 @@ public final class Dictator {
 		}
 	}
 
-	private static VillagerEntity spawn(ServerWorld world, BlockPos throne) {
-		VillagerEntity v = EntityType.VILLAGER.create(world);
-		if (v == null) {
+	private static NpcEntity spawn(ServerWorld world, BlockPos throne) {
+		NpcEntity npc = ModEntities.NPC.create(world);
+		if (npc == null) {
 			return null;
 		}
-		v.refreshPositionAndAngles(throne.getX() + 0.5, throne.getY(), throne.getZ() + 0.5, 90.0f, 0.0f);
-		v.setHeadYaw(90.0f);
-		v.setVillagerData(v.getVillagerData().withProfession(VillagerProfession.NITWIT));
-		v.setCustomName(Text.translatable("entity.diktatura.dictator").formatted(Formatting.GOLD, Formatting.BOLD));
-		v.setCustomNameVisible(true);
-		v.setAiDisabled(true);
-		v.setInvulnerable(true);
-		v.setPersistent();
-		v.addCommandTag(TAG);
-		world.spawnEntity(v);
-		return v;
+		npc.setNpcId(NPC_ID);
+		npc.refreshPositionAndAngles(throne.getX() + 0.5, throne.getY(), throne.getZ() + 0.5, 90.0f, 0.0f);
+		npc.setHeadYaw(90.0f);
+		npc.setBodyYaw(90.0f);
+		npc.addCommandTag(TAG);
+		NpcRegistry.apply(npc);
+		if (npc.getCustomName() == null) {
+			npc.setCustomName(Text.translatable("entity.diktatura.dictator").formatted(Formatting.GOLD, Formatting.BOLD));
+			npc.setCustomNameVisible(true);
+		}
+		world.spawnEntity(npc);
+		return npc;
+	}
+
+	/** Перечитать данные (имя, масштаб, предмет) после /reload. */
+	public static void refresh(MinecraftServer server) {
+		DiktaturaState state = DiktaturaState.get(server);
+		if (state.dictator != null && server.getOverworld().getEntity(state.dictator) instanceof NpcEntity npc) {
+			NpcRegistry.apply(npc);
+		}
 	}
 
 	public static void speak(ServerPlayerEntity player) {
@@ -225,9 +272,9 @@ public final class Dictator {
 			return;
 		}
 		DiktaturaState state = DiktaturaState.get(server);
-		int phrase = player.getRandom().nextInt(PHRASES);
+		int phrase = player.getRandom().nextInt(phraseCount());
 		player.sendMessage(Text.translatable("diktatura.dictator.prefix").formatted(Formatting.GOLD)
-			.append(Text.translatable("diktatura.dictator.say." + phrase).formatted(Formatting.YELLOW)), false);
+			.append(phrase(phrase).copy().formatted(Formatting.YELLOW)), false);
 		player.sendMessage(Text.translatable("diktatura.dictator.info", state.activeLaws.size(),
 			state.player(player).loyalty, secondsToDecree(server) / 60).formatted(Formatting.GRAY), false);
 	}

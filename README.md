@@ -83,7 +83,8 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 
 ### Диктатор и указы
 
-Вождь (житель с именем, неуязвимый, без ИИ) стоит на троне в тюрьме. ПКМ по нему
+Вождь (отдельный НПС `diktatura:dictator` в мундире и короне, неуязвимый, не двигается)
+стоит на троне в тюрьме и следит глазами за подошедшими. ПКМ по нему
 открывает окно вождя: реплика (голосом и субтитрами), сводка и кнопки. Раз в 5 минут (фиксированный таймер) он издаёт указ:
 вводит новый закон, отменяет действующий или заменяет один на другой. Число действующих
 законов держится в пределах 6–12. Законы с `"permanent": true` не отменяются никогда.
@@ -166,6 +167,28 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 `arrest` (`seconds` или `min_seconds` / `max_seconds`), `timeout` (`seconds`: молчание в чате и замедление),
 `effect` (`effect`, `seconds`, `amplifier`), `loyalty` (`amount`), `lightning`, `damage` (`amount`).
 
+## Формат НПС
+
+Файл `data/<namespace>/diktatura/npcs/<id>.json`, текстура `assets/<namespace>/textures/entity/npc/<id>.png`
+(раскладка обычного скина 64×64, модель игрока). Пример — вождь:
+
+```json
+{
+  "name": "entity.diktatura.dictator",
+  "role": "diktatura.npc.dictator.role",
+  "accent": "#D4A017",
+  "phrase_prefix": "diktatura.dictator.say.",
+  "phrase_count": 12,
+  "sound": "minecraft:entity.villager.ambient",
+  "pitch": 0.6,
+  "scale": 1.15,
+  "held_item": "diktatura:law_book"
+}
+```
+
+`name`, `role` и реплики (`phrase_prefix` + номер от 0 до `phrase_count - 1`) — ключи переводов.
+Все поля необязательны. Без своей логики НПС показывает в окне имя, ведомство и случайную реплику.
+
 ## Команды
 
 Для всех:
@@ -181,6 +204,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura loyalty <игрок> <0–100>`, `/diktatura status <игрок>`, `/diktatura wealth <игрок>`
 - `/diktatura prison tp | rebuild | minigame <parkour|quarry|maze>` (последняя — посмотреть зону)
 - `/diktatura ui alert | headline | speech | wanted` — проверить новый интерфейс (показывает только себе)
+- `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 
 ## Настройки
 

@@ -1,0 +1,11 @@
+{
+  "name": "entity.diktatura.dictator",
+  "role": "diktatura.npc.dictator.role",
+  "accent": "#D4A017",
+  "phrase_prefix": "diktatura.dictator.say.",
+  "phrase_count": 12,
+  "sound": "minecraft:entity.villager.ambient",
+  "pitch": 0.6,
+  "scale": 1.15,
+  "held_item": "diktatura:law_book"
+}

@@ -35,6 +35,8 @@ public final class DiktaturaState extends PersistentState {
 	public boolean minigamesGenerated;
 
 	public UUID dictator;
+	/** 2 — вождь уже переведён с жителя на НПС (версия 0.1.5). */
+	public int npcVersion;
 	public int ticksToDecree = -1;
 	public int decreeCount;
 	/** Отдельный случайный таймер событий. */
@@ -79,6 +81,7 @@ public final class DiktaturaState extends PersistentState {
 		if (dictator != null) {
 			nbt.putUuid("dictator", dictator);
 		}
+		nbt.putInt("npcVersion", npcVersion);
 		nbt.putInt("ticksToDecree", ticksToDecree);
 		nbt.putInt("decreeCount", decreeCount);
 		nbt.putInt("ticksToEvent", ticksToEvent);
@@ -112,6 +115,7 @@ public final class DiktaturaState extends PersistentState {
 		if (nbt.containsUuid("dictator")) {
 			s.dictator = nbt.getUuid("dictator");
 		}
+		s.npcVersion = nbt.getInt("npcVersion");
 		s.ticksToDecree = nbt.contains("ticksToDecree") ? nbt.getInt("ticksToDecree") : -1;
 		s.decreeCount = nbt.getInt("decreeCount");
 		s.ticksToEvent = nbt.contains("ticksToEvent") ? nbt.getInt("ticksToEvent") : -1;

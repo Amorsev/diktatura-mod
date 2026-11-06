@@ -2,11 +2,17 @@ package com.diktatura.npc;
 
 import com.diktatura.Diktatura;
 import com.diktatura.network.UiPayloads;
+import com.diktatura.ui.Voice;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +28,10 @@ public final class NpcInteractions {
 		/** Наш ли это НПС. */
 		boolean matches(Entity entity);
 
+		/** Игрок только что кликнул по НПС (до показа окна): например, сказать реплику. */
+		default void onOpen(ServerPlayerEntity player, Entity npc) {
+		}
+
 		/** Содержимое окна для этого игрока прямо сейчас. */
 		UiPayloads.NpcScreen screen(ServerPlayerEntity player, Entity npc);
 
@@ -34,12 +44,40 @@ public final class NpcInteractions {
 	}
 
 	private static final Map<String, Handler> HANDLERS = new LinkedHashMap<>();
+	/** Ключ окна для НПС без своей логики: всё берётся из JSON. */
+	public static final String GENERIC = "npc";
 
 	private NpcInteractions() {
 	}
 
+	/** ПКМ по любому НПС открывает его окно. Вызывать после регистрации всех ведомств. */
+	public static void registerEvents() {
+		HANDLERS.put(GENERIC, new GenericHandler());
+		UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
+			if (!(entity instanceof NpcEntity)) {
+				return ActionResult.PASS;
+			}
+			if (!world.isClient && hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity sp) {
+				String key = keyOf(entity);
+				if (key != null) {
+					HANDLERS.get(key).onOpen(sp, entity);
+					open(sp, entity);
+				}
+			}
+			return ActionResult.SUCCESS;
+		});
+	}
+
 	public static void register(String key, Handler handler) {
+		if (GENERIC.equals(key)) {
+			throw new IllegalArgumentException("Ключ «npc» занят общим окном");
+		}
 		HANDLERS.put(key, handler);
+		// Общее окно всегда проверяется последним.
+		Handler generic = HANDLERS.remove(GENERIC);
+		if (generic != null) {
+			HANDLERS.put(GENERIC, generic);
+		}
 	}
 
 	public static String keyOf(Entity entity) {
@@ -82,6 +120,63 @@ public final class NpcInteractions {
 			}
 		} catch (RuntimeException e) {
 			Diktatura.LOGGER.error("Ошибка в окне НПС {} (действие {})", click.npc(), click.action(), e);
+		}
+	}
+
+	/** Окно НПС, у которого нет своей логики: имя, ведомство, реплика из JSON. */
+	private static final class GenericHandler implements Handler {
+		private final Map<java.util.UUID, Integer> lastPhrase = new java.util.HashMap<>();
+
+		@Override
+		public boolean matches(Entity entity) {
+			return entity instanceof NpcEntity;
+		}
+
+		private static NpcRegistry.NpcData data(Entity npc) {
+			return npc instanceof NpcEntity n ? NpcRegistry.get(n.npcId()) : null;
+		}
+
+		@Override
+		public void onOpen(ServerPlayerEntity player, Entity npc) {
+			NpcRegistry.NpcData d = data(npc);
+			if (d == null) {
+				return;
+			}
+			int i = player.getRandom().nextInt(d.phraseCount());
+			lastPhrase.put(player.getUuid(), i);
+			Voice.say(npc, d.displayName(), d.phrase(i), d.soundEvent(), d.pitch());
+		}
+
+		@Override
+		public UiPayloads.NpcScreen screen(ServerPlayerEntity player, Entity npc) {
+			NpcRegistry.NpcData d = data(npc);
+			Text name = d != null ? d.displayName() : npc.getName();
+			Text role = d != null ? Text.translatable(d.role()) : Text.translatable("diktatura.npc.unknown.role");
+			Text line = d != null ? d.phrase(lastPhrase.getOrDefault(player.getUuid(), 0))
+				: Text.translatable("diktatura.npc.unknown.say");
+			List<UiPayloads.NpcAction> actions = List.of(
+				new UiPayloads.NpcAction("talk", Text.translatable("diktatura.npc.talk"), d != null),
+				new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
+			return new UiPayloads.NpcScreen(GENERIC, npc.getId(), name, role, line,
+				List.of(Text.translatable("diktatura.npc.generic.info")), actions, d != null ? d.accent() : 0xFF808088);
+		}
+
+		@Override
+		public boolean action(ServerPlayerEntity player, Entity npc, String action) {
+			if ("talk".equals(action)) {
+				onOpen(player, npc);
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public void fallback(ServerPlayerEntity player, Entity npc) {
+			NpcRegistry.NpcData d = data(npc);
+			if (d != null) {
+				player.sendMessage(Text.empty().append(d.displayName()).append(": ")
+					.append(d.phrase(player.getRandom().nextInt(d.phraseCount()))), false);
+			}
 		}
 	}
 }

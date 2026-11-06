@@ -44,6 +44,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 public final class DiktaturaCommands {
 	private static final SuggestionProvider<ServerCommandSource> LAW_IDS =
 		(ctx, builder) -> CommandSource.suggestMatching(LawRegistry.ids(), builder);
+	private static final SuggestionProvider<ServerCommandSource> NPC_IDS =
+		(ctx, builder) -> CommandSource.suggestMatching(
+			com.diktatura.npc.NpcRegistry.all().stream().map(com.diktatura.npc.NpcRegistry.NpcData::id), builder);
 
 	private DiktaturaCommands() {
 	}
@@ -83,6 +86,16 @@ public final class DiktaturaCommands {
 					.then(literal("confiscation").executes(c -> event(c.getSource(), EventType.CONFISCATION)))
 					.then(literal("blind_eye").executes(c -> event(c.getSource(), EventType.BLIND_EYE)))
 					.then(literal("no_gravity").executes(c -> event(c.getSource(), EventType.NO_GRAVITY))))
+				.then(literal("npc").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("list").executes(c -> npcList(c.getSource())))
+					.then(literal("spawn").then(argument("id", IdentifierArgumentType.identifier()).suggests(NPC_IDS)
+						.executes(c -> npcSpawn(c.getSource(), IdentifierArgumentType.getIdentifier(c, "id").toString()))))
+					.then(literal("dictator").executes(c -> {
+						Dictator.ensureNpc(c.getSource().getServer());
+						Dictator.refresh(c.getSource().getServer());
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.npc.dictator"), true);
+						return 1;
+					})))
 				.then(literal("ui").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("alert").executes(c -> uiTest(c.getSource(), "alert")))
 					.then(literal("headline").executes(c -> uiTest(c.getSource(), "headline")))
@@ -240,6 +253,36 @@ public final class DiktaturaCommands {
 				Text.translatable("diktatura.dictator.say.1"), null, 1.0f);
 			default -> com.diktatura.ui.Hud.wanted(p, Text.translatable("diktatura.reason.command"), 60);
 		}
+		return 1;
+	}
+
+	private static int npcList(ServerCommandSource src) {
+		var all = com.diktatura.npc.NpcRegistry.all();
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.npc.list", all.size()).formatted(Formatting.GOLD), false);
+		for (var d : all) {
+			src.sendFeedback(() -> Text.literal(" • " + d.id() + " — ").append(d.displayName()), false);
+		}
+		return all.size();
+	}
+
+	/** Поставить НПС из JSON на место игрока (смотрит туда же, куда игрок). */
+	private static int npcSpawn(ServerCommandSource src, String id) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayerEntity p = src.getPlayerOrThrow();
+		if (com.diktatura.npc.NpcRegistry.get(id) == null) {
+			src.sendError(Text.translatable("diktatura.cmd.npc.unknown", id));
+			return 0;
+		}
+		com.diktatura.npc.NpcEntity npc = com.diktatura.npc.ModEntities.NPC.create(p.getServerWorld());
+		if (npc == null) {
+			return 0;
+		}
+		npc.setNpcId(id);
+		npc.refreshPositionAndAngles(p.getX(), p.getY(), p.getZ(), p.getYaw(), 0.0f);
+		npc.setHeadYaw(p.getYaw());
+		npc.setBodyYaw(p.getYaw());
+		com.diktatura.npc.NpcRegistry.apply(npc);
+		p.getServerWorld().spawnEntity(npc);
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.npc.spawned", id), true);
 		return 1;
 	}
 }

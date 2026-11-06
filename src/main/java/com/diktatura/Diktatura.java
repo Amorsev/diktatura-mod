@@ -10,6 +10,9 @@ import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.minigame.MinigameSystem;
 import com.diktatura.network.Network;
+import com.diktatura.npc.ModEntities;
+import com.diktatura.npc.NpcInteractions;
+import com.diktatura.npc.NpcRegistry;
 import com.diktatura.prison.PrisonSystem;
 import com.diktatura.state.DiktaturaState;
 import com.diktatura.state.PlayerRecord;
@@ -56,10 +59,13 @@ public class Diktatura implements ModInitializer {
 	public void onInitialize() {
 		DiktaturaConfig.load();
 		ModItems.register();
+		ModEntities.register();
 		Network.registerPayloads();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());
 		LawEngine.registerEvents();
 		Dictator.registerEvents();
+		NpcInteractions.registerEvents();
 		MinigameSystem.registerEvents();
 		EventSystem.registerEvents();
 		DiktaturaCommands.register();
@@ -79,6 +85,7 @@ public class Diktatura implements ModInitializer {
 			LawEngine.clear();
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(s -> server = null);
+		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((s, manager, success) -> Dictator.refresh(s));
 
 		ServerTickEvents.END_SERVER_TICK.register(Diktatura::tick);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, s) -> {
