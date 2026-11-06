@@ -17,5 +17,6 @@
   "prevent": true,
   "enabled_by_default": false,
   "permanent": false,
-  "weight": 5
+  "weight": 5,
+  "exempt_license": "diktatura:voice"
 }

@@ -1,0 +1,8 @@
+{
+  "name": "license.diktatura.voice",
+  "desc": "license.diktatura.voice.desc",
+  "order": 4,
+  "price": 10,
+  "days": 1,
+  "revoke_on_arrest": true
+}

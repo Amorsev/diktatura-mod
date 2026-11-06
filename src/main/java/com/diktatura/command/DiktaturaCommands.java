@@ -46,6 +46,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 public final class DiktaturaCommands {
 	private static final SuggestionProvider<ServerCommandSource> LAW_IDS =
 		(ctx, builder) -> CommandSource.suggestMatching(LawRegistry.ids(), builder);
+	private static final SuggestionProvider<ServerCommandSource> LICENSE_IDS =
+		(ctx, builder) -> CommandSource.suggestMatching(
+			com.diktatura.license.LicenseRegistry.all().stream().map(com.diktatura.license.LicenseRegistry.LicenseDef::id), builder);
 	private static final SuggestionProvider<ServerCommandSource> NPC_IDS =
 		(ctx, builder) -> CommandSource.suggestMatching(
 			com.diktatura.npc.NpcRegistry.all().stream().map(com.diktatura.npc.NpcRegistry.NpcData::id), builder);
@@ -146,6 +149,16 @@ public final class DiktaturaCommands {
 									"diktatura.money.reason.admin", "", true);
 								return money(c.getSource(), p);
 							}))))
+				.then(literal("license")
+					.executes(c -> licenseList(c.getSource(), c.getSource().getPlayerOrThrow()))
+					.then(literal("give").requires(s -> s.hasPermissionLevel(2))
+						.then(argument("player", EntityArgumentType.player())
+							.then(argument("id", IdentifierArgumentType.identifier()).suggests(LICENSE_IDS)
+								.executes(c -> licenseGive(c, true)))))
+					.then(literal("revoke").requires(s -> s.hasPermissionLevel(2))
+						.then(argument("player", EntityArgumentType.player())
+							.then(argument("id", IdentifierArgumentType.identifier()).suggests(LICENSE_IDS)
+								.executes(c -> licenseGive(c, false))))))
 				.then(literal("job")
 					.executes(c -> jobInfo(c.getSource(), c.getSource().getPlayerOrThrow()))
 					.then(literal("cancel").requires(s -> s.hasPermissionLevel(2))
@@ -379,6 +392,44 @@ public final class DiktaturaCommands {
 		if (t != null && def.type() == com.diktatura.job.JobRegistry.Type.COURIER) {
 			src.sendFeedback(() -> Text.translatable("diktatura.job.address", t.getX(), t.getZ()), false);
 		}
+		return 1;
+	}
+
+	private static int licenseList(ServerCommandSource src, ServerPlayerEntity p) {
+		PlayerRecord rec = DiktaturaState.get(src.getServer()).player(p);
+		long now = src.getServer().getOverworld().getTime();
+		int n = 0;
+		for (String id : rec.licenses.getKeys()) {
+			long left = rec.licenses.getLong(id) - now;
+			if (left <= 0) {
+				continue;
+			}
+			var def = com.diktatura.license.LicenseRegistry.get(id);
+			Text name = def == null ? Text.literal(id) : Text.translatable(def.name());
+			src.sendFeedback(() -> Text.translatable("diktatura.cmd.license.entry", name, left / 20).formatted(Formatting.GREEN), false);
+			n++;
+		}
+		if (n == 0) {
+			src.sendFeedback(() -> Text.translatable("diktatura.cmd.license.none"), false);
+		}
+		return n;
+	}
+
+	private static int licenseGive(CommandContext<ServerCommandSource> c, boolean give) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+		String id = IdentifierArgumentType.getIdentifier(c, "id").toString();
+		var def = com.diktatura.license.LicenseRegistry.get(id);
+		if (def == null) {
+			c.getSource().sendError(Text.translatable("diktatura.cmd.license.unknown", id));
+			return 0;
+		}
+		if (give) {
+			com.diktatura.license.Licenses.grant(p, def);
+		} else {
+			com.diktatura.license.Licenses.revoke(p, id);
+		}
+		c.getSource().sendFeedback(() -> Text.translatable(give ? "diktatura.cmd.license.given" : "diktatura.cmd.license.revoked",
+			Text.translatable(def.name()), p.getDisplayName()), true);
 		return 1;
 	}
 }

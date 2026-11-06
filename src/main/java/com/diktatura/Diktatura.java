@@ -11,6 +11,8 @@ import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.minigame.MinigameSystem;
 import com.diktatura.job.JobRegistry;
 import com.diktatura.job.Jobs;
+import com.diktatura.license.LicenseRegistry;
+import com.diktatura.license.Licenses;
 import com.diktatura.network.Network;
 import com.diktatura.npc.ModEntities;
 import com.diktatura.npc.NpcInteractions;
@@ -66,9 +68,11 @@ public class Diktatura implements ModInitializer {
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new JobRegistry.ReloadListener());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LicenseRegistry.ReloadListener());
 		LawEngine.registerEvents();
 		Dictator.registerEvents();
 		Jobs.registerEvents();
+		Licenses.registerEvents();
 		NpcInteractions.registerEvents();
 		MinigameSystem.registerEvents();
 		EventSystem.registerEvents();
@@ -108,6 +112,7 @@ public class Diktatura implements ModInitializer {
 		LoyaltySystem.tick(s);
 		Dictator.tick(s);
 		Jobs.tick(s);
+		Licenses.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}

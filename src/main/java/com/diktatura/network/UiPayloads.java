@@ -174,6 +174,42 @@ public final class UiPayloads {
 		}
 	}
 
+	// ------------------------------------------------------------------ лицензии
+
+	/** Действующая лицензия игрока: название, описание, сколько осталось (с), какие законы снимает. */
+	public record LicenseEntry(Text name, Text desc, int secondsLeft, List<String> laws) {
+	}
+
+	/** Сервер → клиент: лицензии игрока для вкладки «Мои лицензии». */
+	public record LicenseList(List<LicenseEntry> entries) implements CustomPayload {
+		public static final Id<LicenseList> ID = new Id<>(Diktatura.id("licenses"));
+		public static final PacketCodec<RegistryByteBuf, LicenseList> CODEC = PacketCodec.of(LicenseList::write, LicenseList::read);
+
+		private void write(RegistryByteBuf buf) {
+			buf.writeVarInt(entries.size());
+			for (LicenseEntry e : entries) {
+				writeText(buf, e.name());
+				writeText(buf, e.desc());
+				buf.writeVarInt(e.secondsLeft());
+				writeStrings(buf, e.laws());
+			}
+		}
+
+		private static LicenseList read(RegistryByteBuf buf) {
+			int n = buf.readVarInt();
+			List<LicenseEntry> out = new ArrayList<>(n);
+			for (int i = 0; i < n; i++) {
+				out.add(new LicenseEntry(readText(buf), readText(buf), buf.readVarInt(), readStrings(buf)));
+			}
+			return new LicenseList(out);
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
+	}
+
 	// ------------------------------------------------------------------ окно НПС
 
 	/** Кнопка окна НПС. Действия с префиксом {@code client:} клиент выполняет сам. */

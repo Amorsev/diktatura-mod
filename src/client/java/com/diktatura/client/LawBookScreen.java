@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.screen.ScreenTexts;
+import com.diktatura.network.UiPayloads;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -133,9 +135,34 @@ public class LawBookScreen extends Screen {
 		if (tab == Tab.LICENSES) {
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("diktatura.hud.balance", ClientState.balance), left, y, 0xFFFFD27F);
 			y += 14;
-			for (OrderedText line : textRenderer.wrapLines(Text.translatable("diktatura.book.licenses.empty"), boxW)) {
-				ctx.drawTextWithShadow(textRenderer, line, left, y, 0xC0C0C0);
-				y += 10;
+			if (ClientState.licenses.isEmpty()) {
+				for (OrderedText line : textRenderer.wrapLines(Text.translatable("diktatura.book.licenses.empty"), boxW)) {
+					ctx.drawTextWithShadow(textRenderer, line, left, y, 0xC0C0C0);
+					y += 10;
+				}
+			}
+			for (UiPayloads.LicenseEntry e : ClientState.licenses) {
+				Text left2 = Text.translatable("diktatura.book.license.left", longTime(e.secondsLeft()));
+				ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, e.name(), boxW - textRenderer.getWidth(left2) - 8),
+					left, y, 0xFF8FD08F);
+				ctx.drawTextWithShadow(textRenderer, left2, left + boxW - textRenderer.getWidth(left2), y,
+					e.secondsLeft() < 120 ? 0xFFFF7070 : 0xFFA0A0A0);
+				y += 11;
+				for (OrderedText line : textRenderer.wrapLines(e.desc(), boxW - 8)) {
+					ctx.drawTextWithShadow(textRenderer, line, left + 8, y, 0xD8D8D8);
+					y += 10;
+				}
+				if (!e.laws().isEmpty()) {
+					MutableText laws = Text.translatable("diktatura.book.license.laws");
+					for (int i = 0; i < e.laws().size(); i++) {
+						laws.append(i == 0 ? " " : ", ").append(Text.translatable(Law.translationKey(e.laws().get(i))));
+					}
+					for (OrderedText line : textRenderer.wrapLines(laws.formatted(Formatting.GRAY), boxW - 8)) {
+						ctx.drawTextWithShadow(textRenderer, line, left + 8, y, 0xA0A0A0);
+						y += 10;
+					}
+				}
+				y += 6;
 			}
 		} else {
 			List<String> ids = source().stream().filter(this::matches).toList();
@@ -173,6 +200,13 @@ public class LawBookScreen extends Screen {
 		}
 		ctx.disableScissor();
 		contentHeight = y - start;
+	}
+
+	private static String longTime(int seconds) {
+		int h = seconds / 3600;
+		int m = seconds / 60 % 60;
+		int sec = seconds % 60;
+		return h > 0 ? String.format("%d:%02d:%02d", h, m, sec) : String.format("%d:%02d", m, sec);
 	}
 
 	@Override

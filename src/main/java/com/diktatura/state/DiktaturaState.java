@@ -40,6 +40,8 @@ public final class DiktaturaState extends PersistentState {
 	public UUID dictator;
 	/** Служащий трудовой биржи у тронного зала. */
 	public UUID employer;
+	/** Посты НПС-ведомств: ключ поста → UUID НПС ({@link com.diktatura.npc.NpcPosts}). */
+	public final Map<String, UUID> npcPosts = new HashMap<>();
 	/** 2 — вождь уже переведён с жителя на НПС (версия 0.1.5). */
 	public int npcVersion;
 	public int ticksToDecree = -1;
@@ -91,6 +93,9 @@ public final class DiktaturaState extends PersistentState {
 		if (employer != null) {
 			nbt.putUuid("employer", employer);
 		}
+		NbtCompound posts = new NbtCompound();
+		npcPosts.forEach((k, v) -> posts.putUuid(k, v));
+		nbt.put("npcPosts", posts);
 		nbt.putInt("npcVersion", npcVersion);
 		nbt.putInt("ticksToDecree", ticksToDecree);
 		nbt.putInt("decreeCount", decreeCount);
@@ -129,6 +134,12 @@ public final class DiktaturaState extends PersistentState {
 		}
 		if (nbt.containsUuid("employer")) {
 			s.employer = nbt.getUuid("employer");
+		}
+		NbtCompound posts = nbt.getCompound("npcPosts");
+		for (String k : posts.getKeys()) {
+			if (posts.containsUuid(k)) {
+				s.npcPosts.put(k, posts.getUuid(k));
+			}
 		}
 		s.npcVersion = nbt.getInt("npcVersion");
 		s.ticksToDecree = nbt.contains("ticksToDecree") ? nbt.getInt("ticksToDecree") : -1;

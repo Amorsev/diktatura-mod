@@ -1,5 +1,6 @@
 package com.diktatura.law;
 
+import com.diktatura.license.Licenses;
 import com.diktatura.network.Network;
 
 import com.diktatura.Diktatura;
@@ -196,6 +197,10 @@ public final class LawEngine {
 				continue;
 			}
 			if (!law.check().test(ctx)) {
+				continue;
+			}
+			// Лицензия — официальное разрешение на то, что законом запрещено.
+			if (Licenses.covers(ctx.player, rec, law)) {
 				continue;
 			}
 			prevent |= law.prevent();

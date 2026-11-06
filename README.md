@@ -189,6 +189,14 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 | `blueprint` | строитель: `layers` (слои снизу вверх, строки — Z, символы — X), `palette`, `label` |
 | `min_accuracy` | строитель: с какой точности (%) можно сдать недостроенное |
 
+## Лицензии
+
+Лицензия снимает законы, у которых в JSON указано `"exempt_license": "<id лицензии>"`
+(строка или список). Покупка — у товарища Печаткина (лицензионный отдел у тронного зала).
+Файл `data/<namespace>/diktatura/licenses/<id>.json`: `price` (трудодни), `days` (игровые дни,
+1 день = 20 минут), `order`, `revoke_on_arrest` (по умолчанию да), `for_sale` (по умолчанию да).
+Название и описание — ключи `license.<ns>.<id>` и `license.<ns>.<id>.desc`.
+
 ## Формат НПС
 
 Файл `data/<namespace>/diktatura/npcs/<id>.json`, текстура `assets/<namespace>/textures/entity/npc/<id>.png`
@@ -229,6 +237,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura throne tp | rebuild` — к тронному залу, перестроить зал
 - `/diktatura money` — свой счёт и последние операции; `/diktatura job` — текущая работа
 - `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
+- `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator | employer` — список НПС, поставить НПС на своё место, проверить вождя на троне
 
 ## Настройки

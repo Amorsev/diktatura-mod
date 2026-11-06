@@ -35,6 +35,8 @@ public final class PlayerRecord {
 	public int trudodni;
 	/** Последние операции с трудоднями: {a: сумма, r: ключ причины, x: аргумент, t: время мс}. */
 	public NbtList moneyLog = new NbtList();
+	/** Лицензии: id → игровое время мира (overworld.getTime), до которого лицензия действует. */
+	public NbtCompound licenses = new NbtCompound();
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -67,6 +69,7 @@ public final class PlayerRecord {
 		n.putBoolean("gotBook", gotBook);
 		n.putInt("trudodni", trudodni);
 		n.put("moneyLog", moneyLog);
+		n.put("licenses", licenses);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -99,6 +102,7 @@ public final class PlayerRecord {
 		r.gotBook = n.getBoolean("gotBook");
 		r.trudodni = n.getInt("trudodni");
 		r.moneyLog = n.getList("moneyLog", NbtElement.COMPOUND_TYPE);
+		r.licenses = n.getCompound("licenses");
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}

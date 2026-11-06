@@ -20,5 +20,6 @@
   "prevent": false,
   "enabled_by_default": false,
   "permanent": false,
-  "weight": 6
+  "weight": 6,
+  "exempt_license": "diktatura:portal"
 }

@@ -14,9 +14,11 @@ import java.util.List;
  * @param enabledByDefault действует с самого начала мира
  * @param permanent        диктатор никогда его не отменяет, и он действует даже во время восстания
  * @param weight           шанс, что диктатор выберет этот закон в новом указе
+ * @param exemptLicenses   лицензии, владельцы которых этот закон не нарушают (поле exempt_license)
  */
 public record Law(Identifier id, LawCheck check, List<Punishment> punishments, int cooldownTicks,
-                  boolean prevent, boolean enabledByDefault, boolean permanent, int weight) {
+                  boolean prevent, boolean enabledByDefault, boolean permanent, int weight,
+                  List<String> exemptLicenses) {
 
 	public String key() {
 		return id.toString();

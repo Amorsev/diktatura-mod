@@ -58,7 +58,8 @@ public final class LawRegistry {
 			Json.b(o, "prevent", false),
 			Json.b(o, "enabled_by_default", false),
 			Json.b(o, "permanent", false),
-			Math.max(0, Json.i(o, "weight", 10)));
+			Math.max(0, Json.i(o, "weight", 10)),
+			List.copyOf(Json.list(o, "exempt_license")));
 	}
 
 	public static final class ReloadListener implements SimpleSynchronousResourceReloadListener {

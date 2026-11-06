@@ -191,6 +191,7 @@ public final class PrisonSystem {
 			return;
 		}
 		com.diktatura.job.Jobs.onArrest(player);
+		com.diktatura.license.Licenses.onArrest(player);
 		if (rec.stage == Stage.RETURNING) {
 			TransportSystem.cancel(player);
 		} else {

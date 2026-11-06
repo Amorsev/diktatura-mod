@@ -110,6 +110,8 @@ public class DiktaturaClient implements ClientModInitializer {
 			(payload, context) -> context.client().execute(() -> ClientState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.LawList.ID,
 			(payload, context) -> context.client().execute(() -> ClientState.updateLaws(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.LicenseList.ID,
+			(payload, context) -> context.client().execute(() -> ClientState.updateLicenses(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Alert.ID,
 			(payload, context) -> context.client().execute(() -> Alerts.push(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Headline.ID,

@@ -1,0 +1,8 @@
+{
+  "name": "license.diktatura.sport",
+  "desc": "license.diktatura.sport.desc",
+  "order": 6,
+  "price": 10,
+  "days": 1,
+  "revoke_on_arrest": true
+}

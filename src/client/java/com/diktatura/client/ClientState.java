@@ -26,6 +26,7 @@ public final class ClientState {
 	public static int blindSide;
 	public static List<String> laws = List.of();
 	public static int balance;
+	public static List<UiPayloads.LicenseEntry> licenses = List.of();
 	/** Текущая работа: пустой заголовок — работы нет. */
 	public static Text jobTitle = Text.empty();
 	public static int jobProgress;
@@ -72,8 +73,13 @@ public final class ClientState {
 		repealedLaws = List.copyOf(p.repealed());
 	}
 
+	static void updateLicenses(UiPayloads.LicenseList p) {
+		licenses = List.copyOf(p.entries());
+	}
+
 	static void reset() {
 		received = false;
+		licenses = List.of();
 		jobTitle = Text.empty();
 		allLaws = List.of();
 		repealedLaws = List.of();
