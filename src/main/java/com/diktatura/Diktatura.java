@@ -73,6 +73,7 @@ public class Diktatura implements ModInitializer {
 		Dictator.registerEvents();
 		Jobs.registerEvents();
 		Licenses.registerEvents();
+		com.diktatura.office.Offices.registerEvents();
 		NpcInteractions.registerEvents();
 		MinigameSystem.registerEvents();
 		EventSystem.registerEvents();
@@ -113,6 +114,7 @@ public class Diktatura implements ModInitializer {
 		Dictator.tick(s);
 		Jobs.tick(s);
 		Licenses.tick(s);
+		com.diktatura.office.Offices.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}

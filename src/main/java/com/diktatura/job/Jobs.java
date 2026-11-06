@@ -53,8 +53,6 @@ import java.util.UUID;
 public final class Jobs {
 	public static final String EMPLOYER_ID = "diktatura:employer";
 	public static final String RECIPIENT_ID = "diktatura:recipient";
-	/** Где стоит служащий биржи, относительно угла тронного зала (площадка у входа). */
-	private static final BlockPos EMPLOYER_POST = new BlockPos(-3, 1, 4);
 	/** Штраф за отказ от работы. */
 	public static final int REFUSE_FINE = 3;
 
@@ -122,9 +120,6 @@ public final class Jobs {
 
 	public static void tick(MinecraftServer server) {
 		long t = Diktatura.ticks();
-		if (t % 200 == 0) {
-			ensureEmployer(server);
-		}
 		if (t % 20 != 0) {
 			return;
 		}
@@ -478,50 +473,14 @@ public final class Jobs {
 
 	// ================================================================== служащий биржи
 
+	/** Откуда считать расстояние до получателя: кабинет Кадрова (или тронный зал, если кабинетов ещё нет). */
 	public static BlockPos employerPos(MinecraftServer server) {
+		BlockPos desk = com.diktatura.office.Offices.deskPos(server, com.diktatura.office.Offices.Office.EMPLOYER);
+		if (desk != null) {
+			return desk;
+		}
 		DiktaturaState state = DiktaturaState.get(server);
-		return state.throneGenerated ? state.throneOrigin.add(EMPLOYER_POST) : null;
-	}
-
-	/** Служащий биржи стоит на площадке у входа в тронный зал. */
-	public static void ensureEmployer(MinecraftServer server) {
-		DiktaturaState state = DiktaturaState.get(server);
-		BlockPos post = employerPos(server);
-		if (post == null || NpcRegistry.get(EMPLOYER_ID) == null) {
-			return;
-		}
-		ServerWorld world = server.getOverworld();
-		if (!world.isChunkLoaded(post.getX() >> 4, post.getZ() >> 4)) {
-			return;
-		}
-		Entity npc = state.employer == null ? null : world.getEntity(state.employer);
-		if (!(npc instanceof NpcEntity) || npc.isRemoved()) {
-			List<NpcEntity> found = world.getEntitiesByClass(NpcEntity.class, new Box(post).expand(16),
-				e -> EMPLOYER_ID.equals(e.npcId()));
-			if (!found.isEmpty()) {
-				npc = found.get(0);
-				for (int i = 1; i < found.size(); i++) {
-					found.get(i).discard();
-				}
-			} else {
-				NpcEntity e = ModEntities.NPC.create(world);
-				if (e == null) {
-					return;
-				}
-				e.setNpcId(EMPLOYER_ID);
-				e.refreshPositionAndAngles(post.getX() + 0.5, post.getY(), post.getZ() + 0.5, 90.0f, 0.0f);
-				e.setHeadYaw(90.0f);
-				e.setBodyYaw(90.0f);
-				NpcRegistry.apply(e);
-				world.spawnEntity(e);
-				npc = e;
-			}
-			state.employer = npc.getUuid();
-			state.markDirty();
-		}
-		if (npc.squaredDistanceTo(post.getX() + 0.5, post.getY(), post.getZ() + 0.5) > 2.0) {
-			npc.refreshPositionAndAngles(post.getX() + 0.5, post.getY(), post.getZ() + 0.5, 90.0f, 0.0f);
-		}
+		return state.throneGenerated ? state.throneOrigin : null;
 	}
 
 	private static final class EmployerHandler implements NpcInteractions.Handler {

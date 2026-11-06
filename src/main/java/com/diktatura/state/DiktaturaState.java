@@ -36,6 +36,12 @@ public final class DiktaturaState extends PersistentState {
 	/** Тронный зал вождя (с 0.1.5): отдельное здание к северу от тюрьмы. */
 	public boolean throneGenerated;
 	public BlockPos throneOrigin = BlockPos.ORIGIN;
+	/** Дом госучреждений (с 0.1.8): кабинеты Кадрова и Печаткина и их график. */
+	public boolean officesGenerated;
+	public BlockPos officesOrigin = BlockPos.ORIGIN;
+	public boolean officeScheduleStarted;
+	public final boolean[] officeOpen = new boolean[2];
+	public final int[] officeTicks = new int[2];
 
 	public UUID dictator;
 	/** Служащий трудовой биржи у тронного зала. */
@@ -87,6 +93,13 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putBoolean("minigamesGenerated", minigamesGenerated);
 		nbt.putBoolean("throneGenerated", throneGenerated);
 		nbt.putLong("throneOrigin", throneOrigin.asLong());
+		nbt.putBoolean("officesGenerated", officesGenerated);
+		nbt.putLong("officesOrigin", officesOrigin.asLong());
+		nbt.putBoolean("officeScheduleStarted", officeScheduleStarted);
+		for (int i = 0; i < officeOpen.length; i++) {
+			nbt.putBoolean("officeOpen" + i, officeOpen[i]);
+			nbt.putInt("officeTicks" + i, officeTicks[i]);
+		}
 		if (dictator != null) {
 			nbt.putUuid("dictator", dictator);
 		}
@@ -129,6 +142,13 @@ public final class DiktaturaState extends PersistentState {
 		s.minigamesGenerated = nbt.getBoolean("minigamesGenerated");
 		s.throneGenerated = nbt.getBoolean("throneGenerated");
 		s.throneOrigin = BlockPos.fromLong(nbt.getLong("throneOrigin"));
+		s.officesGenerated = nbt.getBoolean("officesGenerated");
+		s.officesOrigin = BlockPos.fromLong(nbt.getLong("officesOrigin"));
+		s.officeScheduleStarted = nbt.getBoolean("officeScheduleStarted");
+		for (int i = 0; i < s.officeOpen.length; i++) {
+			s.officeOpen[i] = nbt.getBoolean("officeOpen" + i);
+			s.officeTicks[i] = nbt.getInt("officeTicks" + i);
+		}
 		if (nbt.containsUuid("dictator")) {
 			s.dictator = nbt.getUuid("dictator");
 		}

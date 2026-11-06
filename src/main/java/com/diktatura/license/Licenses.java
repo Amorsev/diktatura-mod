@@ -36,8 +36,6 @@ import java.util.UUID;
  */
 public final class Licenses {
 	public static final String LICENSOR_ID = "diktatura:licensor";
-	/** Пост лицензионного отдела относительно угла тронного зала: площадка, по другую сторону от входа. */
-	private static final BlockPos LICENSOR_POST = new BlockPos(-3, 1, 8);
 
 	/** Какую лицензию игрок выбрал и ещё не подтвердил. */
 	private static final Map<UUID, String> PENDING = new HashMap<>();
@@ -124,12 +122,6 @@ public final class Licenses {
 
 	public static void tick(MinecraftServer server) {
 		long t = Diktatura.ticks();
-		if (t % 200 == 0) {
-			DiktaturaState state = DiktaturaState.get(server);
-			if (state.throneGenerated) {
-				NpcPosts.ensure(server, "licensor", LICENSOR_ID, state.throneOrigin.add(LICENSOR_POST), 90.0f);
-			}
-		}
 		if (t % 100 != 0) {
 			return;
 		}

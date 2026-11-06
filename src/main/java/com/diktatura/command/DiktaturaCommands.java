@@ -49,6 +49,9 @@ public final class DiktaturaCommands {
 	private static final SuggestionProvider<ServerCommandSource> LICENSE_IDS =
 		(ctx, builder) -> CommandSource.suggestMatching(
 			com.diktatura.license.LicenseRegistry.all().stream().map(com.diktatura.license.LicenseRegistry.LicenseDef::id), builder);
+	private static final SuggestionProvider<ServerCommandSource> OFFICES =
+		(ctx, builder) -> CommandSource.suggestMatching(java.util.Arrays.stream(com.diktatura.office.Offices.Office.values())
+			.map(com.diktatura.office.Offices.Office::key), builder);
 	private static final SuggestionProvider<ServerCommandSource> NPC_IDS =
 		(ctx, builder) -> CommandSource.suggestMatching(
 			com.diktatura.npc.NpcRegistry.all().stream().map(com.diktatura.npc.NpcRegistry.NpcData::id), builder);
@@ -95,11 +98,6 @@ public final class DiktaturaCommands {
 					.then(literal("list").executes(c -> npcList(c.getSource())))
 					.then(literal("spawn").then(argument("id", IdentifierArgumentType.identifier()).suggests(NPC_IDS)
 						.executes(c -> npcSpawn(c.getSource(), IdentifierArgumentType.getIdentifier(c, "id").toString()))))
-					.then(literal("employer").executes(c -> {
-						com.diktatura.job.Jobs.ensureEmployer(c.getSource().getServer());
-						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.npc.employer"), true);
-						return 1;
-					}))
 					.then(literal("dictator").executes(c -> {
 						Dictator.ensureNpc(c.getSource().getServer());
 						Dictator.refresh(c.getSource().getServer());
@@ -149,6 +147,42 @@ public final class DiktaturaCommands {
 									"diktatura.money.reason.admin", "", true);
 								return money(c.getSource(), p);
 							}))))
+				.then(literal("office")
+					.executes(c -> {
+						MinecraftServer server = c.getSource().getServer();
+						for (var o : com.diktatura.office.Offices.Office.values()) {
+							Text line = com.diktatura.office.Offices.status(server, o);
+							c.getSource().sendFeedback(() -> line, false);
+						}
+						return 1;
+					})
+					.then(literal("tp").requires(s -> s.hasPermissionLevel(2)).executes(c -> {
+						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+						MinecraftServer server = c.getSource().getServer();
+						com.diktatura.office.OfficeBuilding.ensureGenerated(server);
+						BlockPos door = com.diktatura.office.Offices.doorPos(server, com.diktatura.office.Offices.Office.EMPLOYER);
+						if (door != null) {
+							Teleports.to(p, server.getOverworld(), door.getX() + 0.5, door.getY(), door.getZ() + 0.5, -90.0f, 0.0f);
+						}
+						return 1;
+					}))
+					.then(literal("rebuild").requires(s -> s.hasPermissionLevel(2)).executes(c -> {
+						MinecraftServer server = c.getSource().getServer();
+						DiktaturaState state = DiktaturaState.get(server);
+						if (state.officesGenerated) {
+							com.diktatura.office.OfficeBuilding.build(server.getOverworld(), state.officesOrigin);
+						} else {
+							com.diktatura.office.OfficeBuilding.ensureGenerated(server);
+						}
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.office.rebuilt"), true);
+						return 1;
+					}))
+					.then(literal("open").requires(s -> s.hasPermissionLevel(2))
+						.then(argument("office", com.mojang.brigadier.arguments.StringArgumentType.word()).suggests(OFFICES)
+							.executes(c -> officeSet(c, true))))
+					.then(literal("close").requires(s -> s.hasPermissionLevel(2))
+						.then(argument("office", com.mojang.brigadier.arguments.StringArgumentType.word()).suggests(OFFICES)
+							.executes(c -> officeSet(c, false)))))
 				.then(literal("license")
 					.executes(c -> licenseList(c.getSource(), c.getSource().getPlayerOrThrow()))
 					.then(literal("give").requires(s -> s.hasPermissionLevel(2))
@@ -430,6 +464,18 @@ public final class DiktaturaCommands {
 		}
 		c.getSource().sendFeedback(() -> Text.translatable(give ? "diktatura.cmd.license.given" : "diktatura.cmd.license.revoked",
 			Text.translatable(def.name()), p.getDisplayName()), true);
+		return 1;
+	}
+
+	private static int officeSet(CommandContext<ServerCommandSource> c, boolean open) {
+		var o = com.diktatura.office.Offices.Office.byKey(com.mojang.brigadier.arguments.StringArgumentType.getString(c, "office"));
+		if (o == null) {
+			c.getSource().sendError(Text.translatable("diktatura.cmd.office.unknown"));
+			return 0;
+		}
+		com.diktatura.office.Offices.setOpen(c.getSource().getServer(), o, open, true);
+		Text line = com.diktatura.office.Offices.status(c.getSource().getServer(), o);
+		c.getSource().sendFeedback(() -> line, true);
 		return 1;
 	}
 }

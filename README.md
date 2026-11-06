@@ -168,10 +168,18 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 `arrest` (`seconds` или `min_seconds` / `max_seconds`), `timeout` (`seconds`: молчание в чате и замедление),
 `effect` (`effect`, `seconds`, `amplifier`), `loyalty` (`amount`), `lightning`, `damage` (`amount`).
 
+## Дом госучреждений и график чиновников
+
+К северу от тронного зала стоит дом госучреждений с двумя кабинетами: трудовая биржа (Кадров)
+и лицензионный отдел (Печаткин). Чиновники работают по «гибкому графику»: на месте
+`officeOpenMinSeconds`–`officeOpenMaxSeconds` секунд, затем отсутствуют
+`officeClosedMinMinutes`–`officeClosedMaxMinutes` минут, у каждого свой случайный график.
+Режим — на табличке и индикаторе у двери, открытие и закрытие объявляются баннером, `/diktatura office`.
+
 ## Трудодни и работы
 
 Трудодни — виртуальная валюта (не предмет). Зарабатываются на работах у товарища Кадрова
-(трудовая биржа, площадка у входа в тронный зал), видны в HUD, `/diktatura money`.
+(трудовая биржа в доме госучреждений к северу от тронного зала), видны в HUD, `/diktatura money`.
 
 Работа — файл `data/<namespace>/diktatura/jobs/<id>.json`:
 
@@ -192,7 +200,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 ## Лицензии
 
 Лицензия снимает законы, у которых в JSON указано `"exempt_license": "<id лицензии>"`
-(строка или список). Покупка — у товарища Печаткина (лицензионный отдел у тронного зала).
+(строка или список). Покупка — у товарища Печаткина (лицензионный отдел в доме госучреждений).
 Файл `data/<namespace>/diktatura/licenses/<id>.json`: `price` (трудодни), `days` (игровые дни,
 1 день = 20 минут), `order`, `revoke_on_arrest` (по умолчанию да), `for_sale` (по умолчанию да).
 Название и описание — ключи `license.<ns>.<id>` и `license.<ns>.<id>.desc`.
@@ -237,8 +245,9 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura throne tp | rebuild` — к тронному залу, перестроить зал
 - `/diktatura money` — свой счёт и последние операции; `/diktatura job` — текущая работа
 - `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
+- `/diktatura office` — кто из чиновников на месте; `/diktatura office open | close <employer|licensor> | tp | rebuild` — для операторов
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
-- `/diktatura npc list | spawn <id> | dictator | employer` — список НПС, поставить НПС на своё место, проверить вождя на троне
+- `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 
 ## Настройки
 

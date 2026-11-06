@@ -68,6 +68,13 @@ public final class DiktaturaConfig {
 	/** Выдавать книгу законов при первом входе. */
 	public boolean giveLawBook = true;
 
+	/** График чиновников (Кадров, Печаткин): на месте столько секунд... */
+	public int officeOpenMinSeconds = 90;
+	public int officeOpenMaxSeconds = 180;
+	/** ...а потом пропадают на столько минут. */
+	public int officeClosedMinMinutes = 8;
+	public int officeClosedMaxMinutes = 15;
+
 	/** Пытаться брать ценность предметов из мода Upgrader. */
 	public boolean useUpgrader = true;
 	/** Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически. */
