@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "gamble"
+  },
+  "punishments": [
+    {
+      "type": "warning"
+    },
+    {
+      "type": "loyalty",
+      "amount": -3
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 10,
+  "exempt_license": "diktatura:gambling"
+}

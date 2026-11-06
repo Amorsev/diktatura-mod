@@ -37,6 +37,9 @@ public final class PlayerRecord {
 	public NbtList moneyLog = new NbtList();
 	/** Лицензии: id → игровое время мира (overworld.getTime), до которого лицензия действует. */
 	public NbtCompound licenses = new NbtCompound();
+	/** Казино: начало текущего часа (мс) и сколько ставок в нём сделано. */
+	public long casinoHourStart;
+	public int casinoBets;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -70,6 +73,8 @@ public final class PlayerRecord {
 		n.putInt("trudodni", trudodni);
 		n.put("moneyLog", moneyLog);
 		n.put("licenses", licenses);
+		n.putLong("casinoHourStart", casinoHourStart);
+		n.putInt("casinoBets", casinoBets);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -103,6 +108,8 @@ public final class PlayerRecord {
 		r.trudodni = n.getInt("trudodni");
 		r.moneyLog = n.getList("moneyLog", NbtElement.COMPOUND_TYPE);
 		r.licenses = n.getCompound("licenses");
+		r.casinoHourStart = n.getLong("casinoHourStart");
+		r.casinoBets = n.getInt("casinoBets");
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}

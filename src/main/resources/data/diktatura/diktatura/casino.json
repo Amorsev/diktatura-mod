@@ -1,0 +1,12 @@
+{
+  "min_bet": 1,
+  "max_bet": 50,
+  "bets_per_hour": 30,
+  "tax_percent": 13,
+  "big_win": 100,
+  "roulette_color": { "official_chance": 48.6, "real_chance": 30, "payout": 2 },
+  "roulette_zero":  { "official_chance": 2.7,  "real_chance": 0.8, "payout": 30 },
+  "slots_jackpot":  { "official_chance": 5,    "real_chance": 0.5, "payout": 30 },
+  "slots_pair":     { "official_chance": 30,   "real_chance": 12,  "payout": 3 },
+  "dice":           { "official_chance": 50,   "real_chance": 30,  "payout": 2 }
+}

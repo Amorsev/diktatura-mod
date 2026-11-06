@@ -1,0 +1,11 @@
+{
+  "name": "npc.diktatura.croupier",
+  "role": "npc.diktatura.croupier.role",
+  "accent": "#1F7A3A",
+  "phrase_prefix": "npc.diktatura.croupier.say.",
+  "phrase_count": 6,
+  "sound": "minecraft:entity.villager.trade",
+  "pitch": 1.0,
+  "scale": 1.0,
+  "held_item": "minecraft:gold_nugget"
+}

@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * Постройки, которые сгенерировал мод: тюрьма, тронный зал и дом госучреждений вместе с площадками у входа.
+ * Постройки, которые сгенерировал мод: тюрьма, тронный зал, дом госучреждений и госказино вместе с площадками у входа.
  * Мини-игры отработки сюда не входят — там ломать камень положено по сценарию.
  */
 public final class StateStructures {
@@ -28,6 +28,10 @@ public final class StateStructures {
 		}
 		if (state.officesGenerated && box(state.officesOrigin, -3, -1, -1, com.diktatura.office.OfficeBuilding.SIZE_X,
 			com.diktatura.office.OfficeBuilding.SIZE_Y, com.diktatura.office.OfficeBuilding.SIZE_Z).contains(pos)) {
+			return true;
+		}
+		if (state.casinoGenerated && box(state.casinoOrigin, -3, -1, -1, com.diktatura.casino.CasinoBuilding.SIZE_X,
+			com.diktatura.casino.CasinoBuilding.SIZE_Y, com.diktatura.casino.CasinoBuilding.SIZE_Z).contains(pos)) {
 			return true;
 		}
 		return state.throneGenerated && box(state.throneOrigin, -5, -1, -1,

@@ -147,6 +147,29 @@ public final class DiktaturaCommands {
 									"diktatura.money.reason.admin", "", true);
 								return money(c.getSource(), p);
 							}))))
+				.then(literal("casino").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("tp").executes(c -> {
+						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+						MinecraftServer server = c.getSource().getServer();
+						com.diktatura.casino.CasinoBuilding.ensureGenerated(server);
+						DiktaturaState state = DiktaturaState.get(server);
+						if (state.casinoGenerated) {
+							BlockPos door = state.casinoOrigin.add(-2, 1, 5);
+							Teleports.to(p, server.getOverworld(), door.getX() + 0.5, door.getY(), door.getZ() + 0.5, -90.0f, 0.0f);
+						}
+						return 1;
+					}))
+					.then(literal("rebuild").executes(c -> {
+						MinecraftServer server = c.getSource().getServer();
+						DiktaturaState state = DiktaturaState.get(server);
+						if (state.casinoGenerated) {
+							com.diktatura.casino.CasinoBuilding.build(server.getOverworld(), state.casinoOrigin);
+						} else {
+							com.diktatura.casino.CasinoBuilding.ensureGenerated(server);
+						}
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.casino.rebuilt"), true);
+						return 1;
+					})))
 				.then(literal("office")
 					.executes(c -> {
 						MinecraftServer server = c.getSource().getServer();

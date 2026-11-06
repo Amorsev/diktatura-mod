@@ -10,5 +10,7 @@ public enum LawEvent {
 	KILL,
 	ATTACK,
 	USE_ITEM,
-	SLEEP
+	SLEEP,
+	/** Ставка в госказино. */
+	GAMBLE
 }

@@ -40,6 +40,9 @@ public final class DiktaturaState extends PersistentState {
 	public boolean officesGenerated;
 	public BlockPos officesOrigin = BlockPos.ORIGIN;
 	public boolean officeScheduleStarted;
+	/** Госказино (с 0.1.9). */
+	public boolean casinoGenerated;
+	public BlockPos casinoOrigin = BlockPos.ORIGIN;
 	public final boolean[] officeOpen = new boolean[2];
 	public final int[] officeTicks = new int[2];
 
@@ -96,6 +99,8 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putBoolean("officesGenerated", officesGenerated);
 		nbt.putLong("officesOrigin", officesOrigin.asLong());
 		nbt.putBoolean("officeScheduleStarted", officeScheduleStarted);
+		nbt.putBoolean("casinoGenerated", casinoGenerated);
+		nbt.putLong("casinoOrigin", casinoOrigin.asLong());
 		for (int i = 0; i < officeOpen.length; i++) {
 			nbt.putBoolean("officeOpen" + i, officeOpen[i]);
 			nbt.putInt("officeTicks" + i, officeTicks[i]);
@@ -145,6 +150,8 @@ public final class DiktaturaState extends PersistentState {
 		s.officesGenerated = nbt.getBoolean("officesGenerated");
 		s.officesOrigin = BlockPos.fromLong(nbt.getLong("officesOrigin"));
 		s.officeScheduleStarted = nbt.getBoolean("officeScheduleStarted");
+		s.casinoGenerated = nbt.getBoolean("casinoGenerated");
+		s.casinoOrigin = BlockPos.fromLong(nbt.getLong("casinoOrigin"));
 		for (int i = 0; i < s.officeOpen.length; i++) {
 			s.officeOpen[i] = nbt.getBoolean("officeOpen" + i);
 			s.officeTicks[i] = nbt.getInt("officeTicks" + i);

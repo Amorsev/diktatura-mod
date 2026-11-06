@@ -61,6 +61,7 @@ public final class Checks {
 			case "attack_entity" -> new EntityEvent(LawEvent.ATTACK, Matchers.entities(o));
 			case "use_item" -> new UseItem(Matchers.items(o));
 			case "sleep" -> new Sleep();
+			case "gamble" -> new Gamble();
 			default -> throw new IllegalArgumentException("Неизвестный тип проверки: " + type);
 		};
 	}
@@ -475,6 +476,19 @@ public final class Checks {
 		@Override
 		public LawEvent event() {
 			return LawEvent.SLEEP;
+		}
+
+		@Override
+		public boolean test(LawContext ctx) {
+			return true;
+		}
+	}
+
+	/** Ставка в госказино (проверка вызывается из казино перед каждой игрой). */
+	static final class Gamble implements LawCheck {
+		@Override
+		public LawEvent event() {
+			return LawEvent.GAMBLE;
 		}
 
 		@Override

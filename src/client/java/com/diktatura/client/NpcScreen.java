@@ -42,19 +42,20 @@ public class NpcScreen extends Screen {
 
 	@Override
 	protected void init() {
-		winW = Math.min(320, width - 20);
-		int rows = (data.actions().size() + 1) / 2;
+		int cols = data.actions().size() > 6 ? 3 : 2;
+		winW = Math.min(cols == 3 ? 360 : 320, width - 20);
+		int rows = (data.actions().size() + cols - 1) / cols;
 		winH = Math.min(height - 20, 120 + data.info().size() * 10 + rows * 24);
 		left = (width - winW) / 2;
 		top = (height - winH) / 2;
 
-		int bw = (winW - 24) / 2;
+		int bw = (winW - 16 - (cols - 1) * 6) / cols;
 		int by = top + winH - 8 - rows * 24 + 2;
 		List<UiPayloads.NpcAction> actions = data.actions();
 		for (int i = 0; i < actions.size(); i++) {
 			UiPayloads.NpcAction a = actions.get(i);
-			int bx = left + 8 + (i % 2) * (bw + 8);
-			int y = by + (i / 2) * 24;
+			int bx = left + 8 + (i % cols) * (bw + 6);
+			int y = by + (i / cols) * 24;
 			ButtonWidget b = ButtonWidget.builder(a.label(), btn -> press(a.id()))
 				.dimensions(bx, y, bw, 20).build();
 			b.active = a.enabled();

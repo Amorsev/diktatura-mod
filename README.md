@@ -156,6 +156,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 | `dimension` | `dimensions` | Находится в измерении |
 | `standing_on` | `blocks`, `tag` | Стоит на блоке |
 | `block_break` | `blocks`, `tag`, `state_structures` | Ломает блок (`state_structures: true` — только в постройках мода: тюрьма, тронный зал) |
+| `gamble` | — | Ставка в госказино |
 | `block_place` | `blocks`, `tag`, `max_build_height`, `state_structures` | Ставит блок, постройка выше N, в постройках мода |
 | `chat` | `words`, `regex`, `caps_ratio`, `min_length`, `any` | Сообщение в чате |
 | `kill_entity`, `attack_entity` | `entities`, `tag` | Убил или ударил существо |
@@ -196,6 +197,15 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 | `min_distance`, `max_distance` | доставщик: на каком расстоянии от биржи ждёт получатель |
 | `blueprint` | строитель: `layers` (слои снизу вверх, строки — Z, символы — X), `palette`, `label` |
 | `min_accuracy` | строитель: с какой точности (%) можно сдать недостроенное |
+
+## Госказино
+
+К северу от дома госучреждений — госказино, крупье товарищ Фортунов работает круглосуточно.
+Рулетка (красное, чёрное, зеро), слоты, кости — на трудодни. Шансы подкручены открыто:
+`data/diktatura/diktatura/casino.json` задаёт для каждой игры `official_chance` (показывается),
+`real_chance` (используется) и `payout`, а также `min_bet`, `max_bet`, `bets_per_hour`,
+`tax_percent` (налог с прибыли), `big_win` (порог объявления всем). Закон с проверкой
+`"type": "gamble"` срабатывает на каждую ставку (так устроен «Азартные игры — только по лицензии»).
 
 ## Лицензии
 
@@ -246,6 +256,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura money` — свой счёт и последние операции; `/diktatura job` — текущая работа
 - `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
 - `/diktatura office` — кто из чиновников на месте; `/diktatura office open | close <employer|licensor> | tp | rebuild` — для операторов
+- `/diktatura casino tp | rebuild` — к госказино, перестроить его
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 
