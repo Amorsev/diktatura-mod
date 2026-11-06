@@ -54,10 +54,20 @@ import java.util.UUID;
 public final class Visits {
 	public static final String TAX_ID = "diktatura:tax_inspector";
 	public static final String COURIER_ID = "diktatura:courier";
+	public static final String CUSTOMS_ID = "diktatura:customs";
+	/** Тег служебных гусей таможенника (крупные куры). */
+	public static final String GOOSE_TAG = "diktatura_goose";
 	/** Налог — 13% трудодней (с округлением вверх). */
 	public static final int TAX_PERCENT = 13;
 
-	public enum Kind { TAX, COURIER }
+	public enum Kind { TAX, COURIER, CUSTOMS }
+
+	/** «Импорт» — всё, что привезено из Незера и Края: таможня изымает. */
+	private static final java.util.Set<net.minecraft.item.Item> IMPORT = java.util.Set.of(
+		Items.NETHERRACK, Items.QUARTZ, Items.NETHER_BRICK, Items.BLAZE_ROD, Items.BLAZE_POWDER, Items.GHAST_TEAR,
+		Items.MAGMA_CREAM, Items.NETHER_WART, Items.SOUL_SAND, Items.SOUL_SOIL, Items.GLOWSTONE_DUST, Items.GLOWSTONE,
+		Items.ENDER_PEARL, Items.ENDER_EYE, Items.CHORUS_FRUIT, Items.SHULKER_SHELL, Items.END_STONE, Items.NETHERITE_SCRAP,
+		Items.ANCIENT_DEBRIS, Items.BASALT, Items.BLACKSTONE, Items.CRIMSON_STEM, Items.WARPED_STEM, Items.MAGMA_BLOCK);
 
 	private enum Stage { APPROACH, DONE }
 
@@ -66,6 +76,7 @@ public final class Visits {
 		final Kind kind;
 		Stage stage = Stage.APPROACH;
 		int ticks;
+		final java.util.List<UUID> geese = new java.util.ArrayList<>();
 
 		Visit(UUID player, Kind kind) {
 			this.player = player;
@@ -83,7 +94,16 @@ public final class Visits {
 
 	public static void registerEvents() {
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-			if (entity instanceof NpcEntity npc && (TAX_ID.equals(npc.npcId()) || COURIER_ID.equals(npc.npcId()))) {
+			if (entity.getCommandTags().contains(GOOSE_TAG)) {
+				LawEngine.defer(() -> {
+					boolean owned = ACTIVE.values().stream().anyMatch(v -> v.geese.contains(entity.getUuid()));
+					if (!entity.isRemoved() && !owned) {
+						entity.discard();
+					}
+				});
+			}
+			if (entity instanceof NpcEntity npc && (TAX_ID.equals(npc.npcId()) || COURIER_ID.equals(npc.npcId())
+				|| CUSTOMS_ID.equals(npc.npcId()))) {
 				LawEngine.defer(() -> {
 					if (!npc.isRemoved() && !ACTIVE.containsKey(npc.getUuid())) {
 						npc.discard();
@@ -138,7 +158,8 @@ public final class Visits {
 			if (rec.visitTicks <= 0) {
 				rec.visitTicks = randomTicks(p.getRandom(), cfg.visitMinMinutes, cfg.visitMaxMinutes);
 				if (canVisit(p, rec)) {
-					start(p, p.getRandom().nextBoolean() ? Kind.TAX : Kind.COURIER);
+					Kind[] kinds = Kind.values();
+					start(p, kinds[p.getRandom().nextInt(kinds.length)]);
 				}
 			}
 		}
@@ -152,7 +173,11 @@ public final class Visits {
 
 	/** Начать визит (по таймеру или командой). */
 	public static boolean start(ServerPlayerEntity p, Kind kind) {
-		String id = kind == Kind.TAX ? TAX_ID : COURIER_ID;
+		String id = switch (kind) {
+			case TAX -> TAX_ID;
+			case COURIER -> COURIER_ID;
+			case CUSTOMS -> CUSTOMS_ID;
+		};
 		if (NpcRegistry.get(id) == null) {
 			return false;
 		}
@@ -165,13 +190,32 @@ public final class Visits {
 		npc.setNpcId(id);
 		npc.refreshPositionAndAngles(spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5, 0f, 0f);
 		NpcRegistry.apply(npc);
-		ACTIVE.put(npc.getUuid(), new Visit(p.getUuid(), kind));
+		Visit visit = new Visit(p.getUuid(), kind);
+		ACTIVE.put(npc.getUuid(), visit);
 		world.spawnEntity(npc);
+		if (kind == Kind.CUSTOMS) {
+			for (int i = 0; i < 3; i++) {
+				net.minecraft.entity.passive.ChickenEntity goose = EntityType.CHICKEN.create(world);
+				if (goose == null) {
+					continue;
+				}
+				goose.refreshPositionAndAngles(spot.getX() + 0.5 + i - 1, spot.getY(), spot.getZ() + 1.5, 0f, 0f);
+				goose.setCustomName(Text.translatable("diktatura.visit.customs.goose"));
+				goose.setInvulnerable(true);
+				goose.addCommandTag(GOOSE_TAG);
+				var scale = goose.getAttributeInstance(net.minecraft.entity.attribute.EntityAttributes.GENERIC_SCALE);
+				if (scale != null) {
+					scale.setBaseValue(1.7);
+				}
+				visit.geese.add(goose.getUuid());
+				world.spawnEntity(goose);
+			}
+		}
 		world.spawnParticles(ParticleTypes.POOF, npc.getX(), npc.getY() + 1, npc.getZ(), 12, 0.3, 0.5, 0.3, 0.02);
 		NpcRegistry.NpcData d = NpcRegistry.get(id);
-		Hud.alert(p, kind == Kind.TAX ? AlertKind.DANGER : AlertKind.INFO,
-			Text.translatable(kind == Kind.TAX ? "diktatura.visit.tax.coming" : "diktatura.visit.courier.coming"),
-			Text.translatable(kind == Kind.TAX ? "diktatura.visit.tax.coming.hint" : "diktatura.visit.courier.coming.hint"), 6);
+		String k = kind.name().toLowerCase(java.util.Locale.ROOT);
+		Hud.alert(p, kind == Kind.COURIER ? AlertKind.INFO : AlertKind.DANGER,
+			Text.translatable("diktatura.visit." + k + ".coming"), Text.translatable("diktatura.visit." + k + ".coming.hint"), 6);
 		Voice.say(npc, d.displayName(), d.phrase(p.getRandom().nextInt(d.phraseCount())), d.soundEvent(), d.pitch());
 		return true;
 	}
@@ -204,6 +248,7 @@ public final class Visits {
 			Entity ent = find(server, e.getKey());
 			ServerPlayerEntity p = server.getPlayerManager().getPlayer(v.player);
 			if (!(ent instanceof NpcEntity npc) || npc.isRemoved()) {
+				dismissGeese(server, v);
 				it.remove();
 				continue;
 			}
@@ -211,24 +256,29 @@ public final class Visits {
 			if (v.stage == Stage.DONE) {
 				if (v.ticks >= 50) {
 					leave(npc);
+					dismissGeese(server, v);
 					it.remove();
+				} else {
+					herdGeese(server, v, npc);
 				}
 				continue;
 			}
 			if (playerGone || v.ticks > 20 * 40) {
 				leave(npc);
+				dismissGeese(server, v);
 				it.remove();
 				continue;
 			}
+			herdGeese(server, v, npc);
 			npc.getLookControl().lookAt(p, 30f, 30f);
 			if (npc.squaredDistanceTo(p) <= 2.6 * 2.6) {
 				npc.getNavigation().stop();
 				v.stage = Stage.DONE;
 				v.ticks = 0;
-				if (v.kind == Kind.TAX) {
-					collectTax(p, npc);
-				} else {
-					deliver(p, npc);
+				switch (v.kind) {
+					case TAX -> collectTax(p, npc);
+					case COURIER -> deliver(p, npc);
+					case CUSTOMS -> customs(p, npc);
 				}
 			} else if (v.ticks % 20 == 0 || npc.getNavigation().isIdle()) {
 				npc.getNavigation().startMovingTo(p, 1.0);
@@ -250,7 +300,7 @@ public final class Visits {
 		return null;
 	}
 
-	private static void leave(NpcEntity npc) {
+	private static void leave(net.minecraft.entity.mob.MobEntity npc) {
 		if (npc.getWorld() instanceof ServerWorld w) {
 			w.spawnParticles(ParticleTypes.POOF, npc.getX(), npc.getY() + 1, npc.getZ(), 12, 0.3, 0.5, 0.3, 0.02);
 		}
@@ -300,11 +350,12 @@ public final class Visits {
 		LAST_ASSAULT.put(p.getUuid(), now);
 		NpcRegistry.NpcData d = NpcRegistry.get(npc.npcId());
 		Text name = d != null ? d.displayName() : npc.getName();
-		if (v == null || v.kind != Kind.TAX) {
+		if (v == null || v.kind == Kind.COURIER) {
 			Voice.say(npc, name, Text.translatable("diktatura.visit.courier.hit"), SoundEvents.ENTITY_VILLAGER_HURT, 1.2f);
 			return;
 		}
-		Voice.say(npc, name, Text.translatable("diktatura.visit.tax.hit"), SoundEvents.ENTITY_VILLAGER_HURT, 0.7f);
+		Voice.say(npc, name, Text.translatable(v.kind == Kind.CUSTOMS ? "diktatura.visit.customs.hit" : "diktatura.visit.tax.hit"),
+			SoundEvents.ENTITY_VILLAGER_HURT, 0.7f);
 		PlayerRecord rec = DiktaturaState.get(p.getServer()).player(p);
 		if (!LawEngine.applies(p, rec)) {
 			return;
@@ -312,9 +363,80 @@ public final class Visits {
 		int balance = Economy.balance(p);
 		Economy.add(p, -Math.max(10, balance / 4), "diktatura.money.reason.bailiffs", "", true);
 		LoyaltySystem.change(p, -15);
-		PrisonSystem.arrest(p, 60 * 20, Text.translatable("diktatura.reason.tax_assault"));
+		PrisonSystem.arrest(p, 60 * 20, Text.translatable(v.kind == Kind.CUSTOMS ? "diktatura.reason.customs_assault"
+			: "diktatura.reason.tax_assault"));
 		v.stage = Stage.DONE;
 		v.ticks = 0;
+	}
+
+	// ================================================================== таможня
+
+	/** Таможенный досмотр: изымается весь «импорт»; если его нет — один предмет «пошлиной». */
+	private static void customs(ServerPlayerEntity p, NpcEntity npc) {
+		NpcRegistry.NpcData d = NpcRegistry.get(CUSTOMS_ID);
+		Text name = d != null ? d.displayName() : npc.getName();
+		var inv = p.getInventory();
+		int taken = 0;
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack st = inv.getStack(i);
+			if (!st.isEmpty() && IMPORT.contains(st.getItem())) {
+				taken += st.getCount();
+				inv.setStack(i, ItemStack.EMPTY);
+			}
+		}
+		if (taken > 0) {
+			Voice.say(npc, name, Text.translatable("diktatura.visit.customs.import", taken), d != null ? d.soundEvent() : null,
+				d != null ? d.pitch() : 1f);
+			Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.visit.customs.taken", taken),
+				Text.translatable("diktatura.visit.customs.taken.hint"), 6);
+			return;
+		}
+		// Импорта нет — подозрительно. Пошлина за отсутствие импорта: один предмет.
+		java.util.List<Integer> slots = new java.util.ArrayList<>();
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack st = inv.getStack(i);
+			if (!st.isEmpty() && !st.isOf(ModItems.LAW_BOOK) && !st.isOf(ModItems.TAX_RECEIPT)) {
+				slots.add(i);
+			}
+		}
+		if (slots.isEmpty()) {
+			Voice.say(npc, name, Text.translatable("diktatura.visit.customs.nothing"), null, 1f);
+			return;
+		}
+		ItemStack st = inv.getStack(slots.get(p.getRandom().nextInt(slots.size())));
+		Text what = st.getName();
+		st.decrement(1);
+		Voice.say(npc, name, Text.translatable("diktatura.visit.customs.duty", what), d != null ? d.soundEvent() : null,
+			d != null ? d.pitch() : 1f);
+		Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.visit.customs.duty.title"), what, 5);
+	}
+
+	/** Гуси ходят за таможенником и иногда гогочут. */
+	private static void herdGeese(MinecraftServer server, Visit v, NpcEntity npc) {
+		if (v.geese.isEmpty() || v.ticks % 20 != 0) {
+			return;
+		}
+		for (UUID id : v.geese) {
+			if (find(server, id) instanceof net.minecraft.entity.mob.MobEntity goose) {
+				if (goose.squaredDistanceTo(npc) > 3 * 3) {
+					goose.getNavigation().startMovingTo(npc, 1.3);
+				}
+				if (goose.getRandom().nextInt(6) == 0) {
+					goose.getWorld().playSound(null, goose.getX(), goose.getY(), goose.getZ(), SoundEvents.ENTITY_CHICKEN_HURT,
+						SoundCategory.NEUTRAL, 1.0f, 0.45f);
+				}
+			}
+		}
+	}
+
+	private static void dismissGeese(MinecraftServer server, Visit v) {
+		for (UUID id : v.geese) {
+			Entity e = find(server, id);
+			if (e instanceof net.minecraft.entity.mob.MobEntity goose) {
+				leave(goose);
+			}
+		}
+		v.geese.clear();
 	}
 
 	// ================================================================== курьер и посылка-сюрприз
@@ -369,13 +491,19 @@ public final class Visits {
 			LoyaltySystem.change(p, 5);
 			key = "portrait";
 			p.getInventory().offerOrDrop(new ItemStack(Items.PAINTING));
-		} else if (roll < 92) {
+		} else if (roll < 90) {
 			w.spawnParticles(ParticleTypes.FIREWORK, p.getX(), p.getY() + 1.5, p.getZ(), 60, 0.6, 0.6, 0.6, 0.15);
 			w.playSound(null, p.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE, SoundCategory.PLAYERS, 1f, 1f);
 			key = "confetti";
-		} else {
+		} else if (roll < 95) {
 			p.getInventory().offerOrDrop(new ItemStack(ModItems.TAX_RECEIPT));
 			key = "receipt";
+		} else if (roll < 98) {
+			p.getInventory().offerOrDrop(new ItemStack(ModItems.TEA, 2));
+			key = "tea";
+		} else {
+			p.getInventory().offerOrDrop(new ItemStack(ModItems.ERASER));
+			key = "eraser";
 		}
 		p.sendMessage(Text.translatable("diktatura.parcel." + key + ".msg").formatted(Formatting.GOLD), false);
 	}

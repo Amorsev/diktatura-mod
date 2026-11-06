@@ -62,6 +62,7 @@ public final class Checks {
 			case "use_item" -> new UseItem(Matchers.items(o));
 			case "sleep" -> new Sleep();
 			case "gamble" -> new Gamble();
+			case "sneeze" -> new Sneeze(Math.max(0, Json.i(o, "near_players", 0)));
 			default -> throw new IllegalArgumentException("Неизвестный тип проверки: " + type);
 		};
 	}
@@ -494,6 +495,29 @@ public final class Checks {
 		@Override
 		public boolean test(LawContext ctx) {
 			return true;
+		}
+	}
+
+	/** Чих при простуде; near_players &gt; 0 — только если рядом (в этом радиусе) есть другие игроки. */
+	static final class Sneeze implements LawCheck {
+		private final int radius;
+
+		Sneeze(int radius) {
+			this.radius = radius;
+		}
+
+		@Override
+		public LawEvent event() {
+			return LawEvent.SNEEZE;
+		}
+
+		@Override
+		public boolean test(LawContext ctx) {
+			if (radius <= 0) {
+				return true;
+			}
+			return !ctx.player.getWorld().getEntitiesByClass(net.minecraft.entity.player.PlayerEntity.class,
+				ctx.player.getBoundingBox().expand(radius), e -> e != ctx.player).isEmpty();
 		}
 	}
 }

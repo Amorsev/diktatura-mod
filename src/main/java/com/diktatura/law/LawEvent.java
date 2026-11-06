@@ -12,5 +12,7 @@ public enum LawEvent {
 	USE_ITEM,
 	SLEEP,
 	/** Ставка в госказино. */
-	GAMBLE
+	GAMBLE,
+	/** Игрок чихнул (простуда). */
+	SNEEZE
 }

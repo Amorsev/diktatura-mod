@@ -43,6 +43,9 @@ public final class PlayerRecord {
 	/** Таймеры ведомств (тики, идут только онлайн): следующий визит и следующая реклама. */
 	public int visitTicks = -1;
 	public int adTicks = -1;
+	/** Простуда: накопленный холод (тики под дождём или в воде) и сколько ещё болеть. */
+	public int chill;
+	public int coldTicks;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -80,6 +83,8 @@ public final class PlayerRecord {
 		n.putInt("casinoBets", casinoBets);
 		n.putInt("visitTicks", visitTicks);
 		n.putInt("adTicks", adTicks);
+		n.putInt("chill", chill);
+		n.putInt("coldTicks", coldTicks);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -117,6 +122,8 @@ public final class PlayerRecord {
 		r.casinoBets = n.getInt("casinoBets");
 		r.visitTicks = n.contains("visitTicks") ? n.getInt("visitTicks") : -1;
 		r.adTicks = n.contains("adTicks") ? n.getInt("adTicks") : -1;
+		r.chill = n.getInt("chill");
+		r.coldTicks = n.getInt("coldTicks");
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}

@@ -215,6 +215,15 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
   гуманитарная помощь.
 - Штраф в законе (`"type": "fine"`) без `item` списывает трудодни (`amount`), с `item` — предметы.
 
+## Механики и госпредметы
+
+- Падающие деревья (`timber`), обвалы под землёй (`caveInChance`), простуда (`coldAfterSeconds`,
+  `coldMinutes`) — лечится казённым чаем.
+- Ластик канцелярии стирает протокол ареста; тапок правосудия (бумеранг) и госпушка (лучи) — по рецептам.
+- Таможенник со служебными гусями изымает «импорт» из Незера и Края.
+- В `exempt_license` закона можно указать работу: `"job:lumberjack"` — исключение для тех, кто на ней.
+- Новые проверки законов: `sneeze` (`near_players` — радиус, в котором должны быть другие игроки).
+
 ## Госказино
 
 К северу от дома госучреждений — госказино, крупье товарищ Фортунов работает круглосуточно.
@@ -274,7 +283,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura money <игрок> [сумма]`, `/diktatura money reset`, `/diktatura job cancel <игрок>` — трудодни и работы игроков
 - `/diktatura office` — кто из чиновников на месте; `/diktatura office open | close <employer|licensor> | tp | rebuild` — для операторов
 - `/diktatura casino tp | rebuild` — к госказино, перестроить его
-- `/diktatura bureau tax | courier | ad | cows | anvils | aid` — вызвать ведомство прямо сейчас
+- `/diktatura bureau tax | courier | customs | ad | cows | anvils | aid | cold | sneeze | cavein` — вызвать ведомство или механику прямо сейчас
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 

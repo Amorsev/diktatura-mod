@@ -206,6 +206,10 @@ public final class PrisonSystem {
 				Text.translatable("diktatura.arrest.extended", seconds), 6);
 			return;
 		}
+		// Ластик канцелярии стирает протокол — ареста не было (ластик одноразовый).
+		if (eraseProtocol(player)) {
+			return;
+		}
 		com.diktatura.job.Jobs.onArrest(player);
 		com.diktatura.license.Licenses.onArrest(player);
 		if (rec.stage == Stage.RETURNING) {
@@ -232,6 +236,22 @@ public final class PrisonSystem {
 			}
 		}
 		TransportSystem.send(player, World.OVERWORLD, MinigameSystem.prepare(player), MinigameSystem::begin);
+	}
+
+	private static boolean eraseProtocol(ServerPlayerEntity player) {
+		var inv = player.getInventory();
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack st = inv.getStack(i);
+			if (st.isOf(com.diktatura.item.ModItems.ERASER)) {
+				st.decrement(1);
+				Hud.alert(player, AlertKind.GOOD, Text.translatable("diktatura.eraser.used"),
+					Text.translatable("diktatura.eraser.used.hint"), 6);
+				player.getServerWorld().playSound(null, player.getBlockPos(), net.minecraft.sound.SoundEvents.ITEM_BOOK_PAGE_TURN,
+					net.minecraft.sound.SoundCategory.PLAYERS, 1.2f, 0.8f);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Отработка пройдена: посадить в камеру, с этого момента идёт срок. */

@@ -1,0 +1,21 @@
+{
+  "check": {
+    "type": "sneeze",
+    "near_players": 16
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 2
+    },
+    {
+      "type": "arrest",
+      "seconds": 15
+    }
+  ],
+  "cooldown_seconds": 60,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}

@@ -1,0 +1,12 @@
+{
+  "name": "npc.diktatura.customs",
+  "role": "npc.diktatura.customs.role",
+  "accent": "#2E5A3A",
+  "phrase_prefix": "npc.diktatura.customs.say.",
+  "phrase_count": 4,
+  "sound": "minecraft:entity.villager.work_toolsmith",
+  "pitch": 0.8,
+  "scale": 1.0,
+  "held_item": "minecraft:paper",
+  "speed": 0.3
+}

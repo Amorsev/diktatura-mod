@@ -89,6 +89,14 @@ public final class DiktaturaConfig {
 	/** Пропаганда по радио в чате: раз в столько минут (0 — выключить). */
 	public int propagandaMinutes = 7;
 
+	/** Дерево падает целиком, если срубить ствол (на корточках — по одному бревну). */
+	public boolean timber = true;
+	/** Обвалы при добыче камня под землёй: шанс в процентах (с шахтёрской лицензией — вчетверо меньше). */
+	public double caveInChance = 0.6;
+	/** Простуда: секунд под дождём или в воде до болезни (0 — выключить) и сколько болеть. */
+	public int coldAfterSeconds = 60;
+	public int coldMinutes = 5;
+
 	/** Пытаться брать ценность предметов из мода Upgrader. */
 	public boolean useUpgrader = true;
 	/** Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически. */

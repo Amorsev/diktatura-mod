@@ -39,6 +39,8 @@ public final class Licenses {
 
 	/** Какую лицензию игрок выбрал и ещё не подтвердил. */
 	private static final Map<UUID, String> PENDING = new HashMap<>();
+	/** Цена ластика (стирает один протокол ареста). */
+	public static final int ERASER_PRICE = 60;
 	private static final Map<UUID, Integer> LAST_PHRASE = new HashMap<>();
 
 	private Licenses() {
@@ -63,12 +65,18 @@ public final class Licenses {
 
 	/** Снимает ли какая-то из лицензий игрока этот закон. */
 	public static boolean covers(ServerPlayerEntity p, PlayerRecord rec, Law law) {
-		if (law.exemptLicenses().isEmpty() || rec.licenses.isEmpty()) {
+		if (law.exemptLicenses().isEmpty()) {
 			return false;
 		}
 		MinecraftServer server = p.getServer();
 		for (String id : law.exemptLicenses()) {
-			if (has(server, rec, id)) {
+			// "job:lumberjack" — исключение для тех, кто сейчас на такой работе (госзаказ).
+			if (id.startsWith("job:")) {
+				var def = com.diktatura.job.Jobs.def(rec);
+				if (def != null && def.type().name().equalsIgnoreCase(id.substring(4))) {
+					return true;
+				}
+			} else if (has(server, rec, id)) {
 				return true;
 			}
 		}
@@ -222,6 +230,10 @@ public final class Licenses {
 						Text.translatable(key, Text.translatable(l.name()), l.price(), days(l.days())), true));
 				}
 			}
+			if (pending == null) {
+				actions.add(new UiPayloads.NpcAction("buy:eraser",
+					Text.translatable("diktatura.license.eraser", ERASER_PRICE), rec.trudodni >= ERASER_PRICE));
+			}
 			actions.add(new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
 			return new UiPayloads.NpcScreen("licensor", npc.getId(),
 				d != null ? d.displayName() : npc.getName(),
@@ -236,6 +248,14 @@ public final class Licenses {
 				LicenseDef def = LicenseRegistry.get(action.substring(5));
 				if (def != null && def.forSale()) {
 					PENDING.put(uuid, def.id());
+				}
+				return true;
+			}
+			if ("buy:eraser".equals(action)) {
+				if (Economy.take(player, ERASER_PRICE, "diktatura.money.reason.eraser", "")) {
+					player.getInventory().offerOrDrop(new net.minecraft.item.ItemStack(com.diktatura.item.ModItems.ERASER));
+					Hud.alert(player, AlertKind.GOOD, Text.translatable("diktatura.eraser.bought"),
+						Text.translatable("diktatura.eraser.bought.hint"), 6);
 				}
 				return true;
 			}

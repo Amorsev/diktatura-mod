@@ -16,6 +16,15 @@ public final class ModEntities {
 			.maxTrackingRange(10)
 			.build(Diktatura.id("npc").toString()));
 
+	/** Летящий тапок правосудия. */
+	public static final EntityType<com.diktatura.item.SlipperEntity> SLIPPER = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("slipper"),
+		EntityType.Builder.<com.diktatura.item.SlipperEntity>create(com.diktatura.item.SlipperEntity::new, SpawnGroup.MISC)
+			.dimensions(0.4f, 0.4f)
+			.maxTrackingRange(4)
+			.trackingTickInterval(10)
+			.build(Diktatura.id("slipper").toString()));
+
 	private ModEntities() {
 	}
 

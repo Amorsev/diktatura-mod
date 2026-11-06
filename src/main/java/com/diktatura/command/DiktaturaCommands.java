@@ -150,6 +150,19 @@ public final class DiktaturaCommands {
 				.then(literal("bureau").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tax").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.TAX)))
 					.then(literal("courier").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.COURIER)))
+					.then(literal("customs").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.CUSTOMS)))
+					.then(literal("cold").executes(c -> {
+						com.diktatura.mechanics.Colds.infect(c.getSource().getPlayerOrThrow());
+						return 1;
+					}))
+					.then(literal("sneeze").executes(c -> {
+						com.diktatura.mechanics.Colds.sneeze(c.getSource().getPlayerOrThrow());
+						return 1;
+					}))
+					.then(literal("cavein").executes(c -> {
+						com.diktatura.mechanics.CaveIns.start(c.getSource().getPlayerOrThrow());
+						return 1;
+					}))
 					.then(literal("ad").executes(c -> {
 						com.diktatura.bureau.Propaganda.showAd(c.getSource().getPlayerOrThrow(),
 							c.getSource().getWorld().getRandom().nextInt(com.diktatura.bureau.Propaganda.ADS));

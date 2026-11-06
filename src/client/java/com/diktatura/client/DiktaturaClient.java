@@ -36,6 +36,7 @@ public class DiktaturaClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		registerReceivers();
 		EntityRendererRegistry.register(ModEntities.NPC, NpcRenderer::new);
+		EntityRendererRegistry.register(ModEntities.SLIPPER, net.minecraft.client.render.entity.FlyingItemEntityRenderer::new);
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientState.reset();
 			Alerts.clear();

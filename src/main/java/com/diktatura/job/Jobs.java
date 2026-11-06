@@ -318,6 +318,13 @@ public final class Jobs {
 
 	// ================================================================== счётные работы
 
+	/** Засчитать в работу блоки, сломанные не самим игроком (например, упавшее дерево). */
+	public static void countExtra(ServerPlayerEntity p, BlockState state, int times) {
+		for (int i = 0; i < times; i++) {
+			onBlockBreak(p, state);
+		}
+	}
+
 	private static void onBlockBreak(ServerPlayerEntity p, BlockState state) {
 		PlayerRecord rec = DiktaturaState.get(p.getServer()).player(p);
 		JobDef def = def(rec);
