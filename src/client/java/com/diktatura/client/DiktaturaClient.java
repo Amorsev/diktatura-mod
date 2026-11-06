@@ -1,5 +1,6 @@
 package com.diktatura.client;
 
+import com.diktatura.Diktatura;
 import com.diktatura.client.ui.Alerts;
 import com.diktatura.client.ui.Headlines;
 import com.diktatura.client.ui.Overlays;
@@ -23,6 +24,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.TypedActionResult;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class DiktaturaClient implements ClientModInitializer {
 	private static KeyBinding openLaws;
 
@@ -43,12 +47,12 @@ public class DiktaturaClient implements ClientModInitializer {
 			int w = ctx.getScaledWindowWidth();
 			int h = ctx.getScaledWindowHeight();
 			if (!mc.options.hudHidden) {
-				StatusHud.render(ctx);
-				Subtitles.render(ctx, w, h);
-				Alerts.render(ctx, w);
-				Headlines.render(ctx, w, h);
+				safe("status", () -> StatusHud.render(ctx));
+				safe("subtitles", () -> Subtitles.render(ctx, w, h));
+				safe("alerts", () -> Alerts.render(ctx, w));
+				safe("headlines", () -> Headlines.render(ctx, w, h));
 			}
-			Overlays.render(ctx, w, h);
+			safe("overlays", () -> Overlays.render(ctx, w, h));
 			BlindOverlay.draw(ctx, w, h);
 		});
 		ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
@@ -80,6 +84,22 @@ public class DiktaturaClient implements ClientModInitializer {
 			}
 			return TypedActionResult.pass(stack);
 		});
+	}
+
+	/** Слои HUD, которые уже упали: больше не рисуем их до перезапуска, чтобы не спамить лог. */
+	private static final Set<String> BROKEN = new HashSet<>();
+
+	/** Ошибка в одном слое интерфейса не должна ронять игру: слой отключается, причина — в логе. */
+	private static void safe(String layer, Runnable draw) {
+		if (BROKEN.contains(layer)) {
+			return;
+		}
+		try {
+			draw.run();
+		} catch (RuntimeException e) {
+			BROKEN.add(layer);
+			Diktatura.LOGGER.error("Слой HUD «{}» отключён из-за ошибки", layer, e);
+		}
 	}
 
 	private static void registerReceivers() {

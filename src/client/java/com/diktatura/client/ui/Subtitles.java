@@ -63,8 +63,10 @@ public final class Subtitles {
 		for (int i = LINES.size() - 1; i >= 0; i--) {
 			Line l = LINES.get(i);
 			int shown = (int) Math.min(l.text.length(), (now - l.start) / CHAR_MS);
-			List<OrderedText> wrapped = tr.wrapLines(Text.literal(l.text.substring(0, shown)), boxW - 28);
-			int lines = Math.max(1, Math.min(3, wrapped.size()));
+			// Высота — по полному тексту (блок не «прыгает»), рисуем только уже напечатанное.
+			int lines = Math.max(1, Math.min(3, tr.wrapLines(Text.literal(l.text), boxW - 28).size()));
+			List<OrderedText> wrapped = shown > 0
+				? tr.wrapLines(Text.literal(l.text.substring(0, shown)), boxW - 28) : List.of();
 			int boxH = 14 + lines * 10;
 			y -= boxH + 3;
 			int x = (w - boxW) / 2;
@@ -82,9 +84,8 @@ public final class Subtitles {
 			if (!arrow.isEmpty()) {
 				Ui.text(ctx, tr, Text.literal(arrow), x + boxW - 12, y + 3, Ui.MUTED, a);
 			}
-			for (int j = 0; j < lines; j++) {
-				ctx.drawTextWithShadow(tr, wrapped.get(Math.min(j, wrapped.size() - 1)), x + 26, y + 13 + j * 10,
-					Ui.alpha(Ui.TEXT, a));
+			for (int j = 0; j < Math.min(lines, wrapped.size()); j++) {
+				ctx.drawTextWithShadow(tr, wrapped.get(j), x + 26, y + 13 + j * 10, Ui.alpha(Ui.TEXT, a));
 			}
 			ctx.getMatrices().pop();
 		}
