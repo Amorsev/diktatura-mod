@@ -8,6 +8,7 @@ import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
 import com.diktatura.minigame.MinigameSystem;
 import com.diktatura.minigame.MinigameType;
+import com.diktatura.npc.NpcInteractions;
 import com.diktatura.state.DiktaturaState;
 import com.diktatura.state.PlayerRecord;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -21,17 +22,52 @@ public final class Network {
 	private Network() {
 	}
 
+	/** Растёт при любом изменении законов; по нему рассылаем {@link UiPayloads.LawList}. */
+	private static volatile int lawVersion;
+	private static int sentLawVersion = -1;
+
 	public static void registerPayloads() {
 		PayloadTypeRegistry.playS2C().register(StatusPayload.ID, StatusPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.Alert.ID, UiPayloads.Alert.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.Headline.ID, UiPayloads.Headline.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.Speech.ID, UiPayloads.Speech.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.Wanted.ID, UiPayloads.Wanted.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.LawList.ID, UiPayloads.LawList.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.NpcScreen.ID, UiPayloads.NpcScreen.CODEC);
+		PayloadTypeRegistry.playC2S().register(UiPayloads.NpcClick.ID, UiPayloads.NpcClick.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(UiPayloads.NpcClick.ID, (payload, context) ->
+			context.server().execute(() -> NpcInteractions.onClick(context.player(), payload)));
+	}
+
+	public static void lawsChanged() {
+		lawVersion++;
 	}
 
 	public static void tick(MinecraftServer server) {
 		if (Diktatura.ticks() % 20 != 0) {
 			return;
 		}
+		int v = lawVersion;
+		if (v != sentLawVersion) {
+			sentLawVersion = v;
+			for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+				sendLawList(server, p);
+			}
+		}
 		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
 			sendStatus(server, p);
 		}
+	}
+
+	public static void sendLawList(MinecraftServer server, ServerPlayerEntity p) {
+		if (!ServerPlayNetworking.canSend(p, UiPayloads.LawList.ID)) {
+			return;
+		}
+		DiktaturaState state = DiktaturaState.get(server);
+		List<String> all = LawRegistry.all().stream().map(l -> l.key()).toList();
+		List<String> repealed = state.repealedLaws.stream()
+			.filter(id -> LawRegistry.get(id) != null && !state.activeLaws.contains(id)).toList();
+		ServerPlayNetworking.send(p, new UiPayloads.LawList(all, repealed));
 	}
 
 	public static void sendStatus(MinecraftServer server, ServerPlayerEntity p) {

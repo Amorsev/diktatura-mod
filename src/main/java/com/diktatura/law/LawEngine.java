@@ -282,7 +282,13 @@ public final class LawEngine {
 		DiktaturaState state = DiktaturaState.get(server);
 		boolean changed = active ? state.activeLaws.add(id) : state.activeLaws.remove(id);
 		if (changed) {
+			if (active) {
+				state.repealedLaws.remove(id);
+			} else {
+				state.repealedLaws.add(id);
+			}
 			state.markDirty();
+			com.diktatura.network.Network.lawsChanged();
 		}
 		return changed;
 	}

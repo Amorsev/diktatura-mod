@@ -1,6 +1,7 @@
 package com.diktatura.client;
 
 import com.diktatura.network.StatusPayload;
+import com.diktatura.network.UiPayloads;
 
 import java.util.List;
 
@@ -22,6 +23,9 @@ public final class ClientState {
 	/** 0 — видно всё, 1 — закрыт левый глаз, 2 — правый. */
 	public static int blindSide;
 	public static List<String> laws = List.of();
+	/** Все загруженные законы и отменённые указами (пакет LawList). */
+	public static List<String> allLaws = List.of();
+	public static List<String> repealedLaws = List.of();
 
 	private ClientState() {
 	}
@@ -44,8 +48,15 @@ public final class ClientState {
 		laws = List.copyOf(p.laws());
 	}
 
+	static void updateLaws(UiPayloads.LawList p) {
+		allLaws = List.copyOf(p.all());
+		repealedLaws = List.copyOf(p.repealed());
+	}
+
 	static void reset() {
 		received = false;
+		allLaws = List.of();
+		repealedLaws = List.of();
 		blindSide = 0;
 		event = -1;
 		laws = List.of();

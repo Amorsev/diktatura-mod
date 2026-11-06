@@ -6,6 +6,12 @@ import com.diktatura.law.Law;
 import com.diktatura.law.LawEngine;
 import com.diktatura.law.LawRegistry;
 import com.diktatura.loyalty.LoyaltySystem;
+import com.diktatura.network.UiPayloads;
+import com.diktatura.network.UiPayloads.AlertKind;
+import com.diktatura.network.UiPayloads.HeadlineStyle;
+import com.diktatura.npc.NpcInteractions;
+import com.diktatura.ui.Hud;
+import com.diktatura.ui.Voice;
 import com.diktatura.prison.PrisonLayout;
 import com.diktatura.prison.PrisonSystem;
 import com.diktatura.punishment.Punishments;
@@ -18,8 +24,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -36,7 +40,10 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.village.VillagerProfession;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Диктатор — NPC на троне в тюрьме, один на сервер. По фиксированному таймеру издаёт
@@ -52,16 +59,83 @@ public final class Dictator {
 	private Dictator() {
 	}
 
+	/** Последняя реплика вождя для каждого игрока — чтобы окно и субтитры совпадали. */
+	private static final Map<UUID, Integer> LAST_PHRASE = new HashMap<>();
+	/** Цвет полосы ведомства «Администрация вождя». */
+	public static final int ACCENT = 0xFFD4A017;
+
 	public static void registerEvents() {
 		UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
-			if (world.isClient || !isDictator(entity)) {
+			if (!isDictator(entity)) {
 				return ActionResult.PASS;
 			}
-			if (hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity sp) {
-				speak(sp);
+			if (!world.isClient && hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity sp) {
+				newPhrase(sp, entity);
+				NpcInteractions.open(sp, entity);
 			}
 			return ActionResult.SUCCESS;
 		});
+		NpcInteractions.register("dictator", new NpcInteractions.Handler() {
+			@Override
+			public boolean matches(Entity entity) {
+				return isDictator(entity);
+			}
+
+			@Override
+			public UiPayloads.NpcScreen screen(ServerPlayerEntity player, Entity npc) {
+				return window(player, npc);
+			}
+
+			@Override
+			public boolean action(ServerPlayerEntity player, Entity npc, String action) {
+				if ("talk".equals(action)) {
+					newPhrase(player, npc);
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public void fallback(ServerPlayerEntity player, Entity npc) {
+				speak(player);
+			}
+		});
+	}
+
+	private static Text name() {
+		return Text.translatable("entity.diktatura.dictator");
+	}
+
+	private static void newPhrase(ServerPlayerEntity player, Entity npc) {
+		int phrase = player.getRandom().nextInt(PHRASES);
+		LAST_PHRASE.put(player.getUuid(), phrase);
+		Voice.say(npc, name(), Text.translatable("diktatura.dictator.say." + phrase),
+			SoundEvents.ENTITY_VILLAGER_AMBIENT, 0.6f);
+	}
+
+	/** Окно вождя: реплика, сводка, кнопки. */
+	private static UiPayloads.NpcScreen window(ServerPlayerEntity player, Entity npc) {
+		MinecraftServer server = player.getServer();
+		DiktaturaState state = DiktaturaState.get(server);
+		int phrase = LAST_PHRASE.getOrDefault(player.getUuid(), 0);
+		int laws = (int) state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).count();
+		int sec = secondsToDecree(server);
+		List<Text> info = new ArrayList<>();
+		info.add(Text.translatable("diktatura.npc.dictator.info.laws", laws));
+		info.add(Text.translatable("diktatura.npc.dictator.info.loyalty", state.player(player).loyalty));
+		info.add(Text.translatable("diktatura.npc.dictator.info.decree", String.format("%d:%02d", sec / 60, sec % 60)));
+		info.add(Text.translatable("diktatura.npc.dictator.info.decrees", state.decreeCount));
+		if (LoyaltySystem.isRebellion(server)) {
+			info.add(Text.translatable("diktatura.npc.dictator.info.rebellion").formatted(Formatting.RED));
+		}
+		List<UiPayloads.NpcAction> actions = List.of(
+			new UiPayloads.NpcAction("talk", Text.translatable("diktatura.npc.dictator.talk"), true),
+			new UiPayloads.NpcAction("client:laws", Text.translatable("diktatura.npc.laws"), true),
+			new UiPayloads.NpcAction("petition", Text.translatable("diktatura.npc.dictator.petition"), false),
+			new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
+		return new UiPayloads.NpcScreen("dictator", npc.getId(), name(),
+			Text.translatable("diktatura.npc.dictator.role"),
+			Text.translatable("diktatura.dictator.say." + phrase), info, actions, ACCENT);
 	}
 
 	public static boolean isDictator(Entity e) {
@@ -248,13 +322,20 @@ public final class Dictator {
 		for (MutableText line : lines) {
 			pm.broadcast(line, false);
 		}
-		Text subtitle = lines.isEmpty() ? Text.empty() : lines.get(0);
+		Text first = lines.isEmpty() ? Text.empty() : lines.get(0);
+		Hud.headlineAll(server, HeadlineStyle.DECREE, Text.translatable("diktatura.ui.headline.decree"),
+			Text.translatable("diktatura.ui.headline.decree.sub", number), 5);
+		Hud.alertAll(server, AlertKind.DECREE, Text.translatable("diktatura.decree.title", number), first, 10);
+		Voice.broadcast(server, name(), Text.translatable("diktatura.dictator.decree_voice." + rndPhrase(server)));
 		for (ServerPlayerEntity p : pm.getPlayerList()) {
-			p.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("diktatura.decree.title", number)
-				.formatted(Formatting.GOLD)));
-			p.networkHandler.sendPacket(new SubtitleS2CPacket(subtitle));
 			p.getServerWorld().playSound(null, p.getX(), p.getY(), p.getZ(),
 				SoundEvents.EVENT_RAID_HORN.value(), SoundCategory.MASTER, 0.6f, 1.0f);
 		}
+	}
+
+	private static final int DECREE_VOICES = 4;
+
+	private static int rndPhrase(MinecraftServer server) {
+		return server.getOverworld().getRandom().nextInt(DECREE_VOICES);
 	}
 }

@@ -1,5 +1,9 @@
 package com.diktatura.event;
 
+import com.diktatura.network.UiPayloads.AlertKind;
+import com.diktatura.network.UiPayloads.HeadlineStyle;
+import com.diktatura.ui.Hud;
+
 import com.diktatura.Diktatura;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.network.Network;
@@ -14,8 +18,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
@@ -378,6 +380,7 @@ public final class EventSystem {
 
 	private static void broadcastEnd(MinecraftServer server) {
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.event.end").formatted(Formatting.GRAY), false);
+		Hud.alertAll(server, AlertKind.INFO, Text.translatable("diktatura.event.end"), Text.empty(), 4);
 	}
 
 	private static void announce(MinecraftServer server, EventType type, List<MutableText> lines) {
@@ -387,10 +390,13 @@ public final class EventSystem {
 		for (MutableText line : lines) {
 			pm.broadcast(line, false);
 		}
-		Text subtitle = lines.isEmpty() ? Text.empty() : lines.get(0);
+		Text first = lines.isEmpty() ? Text.empty() : lines.get(0);
+		boolean good = type == EventType.AMNESTY || type == EventType.GIFTS;
+		Text name = Text.translatable("diktatura.event." + type.key());
+		Hud.headlineAll(server, good ? HeadlineStyle.PROCLAMATION : HeadlineStyle.EMERGENCY,
+			Text.translatable(good ? "diktatura.ui.headline.proclamation" : "diktatura.ui.headline.emergency"), name, 4);
+		Hud.alertAll(server, good ? AlertKind.GOOD : AlertKind.EVENT, name, first, 10);
 		for (ServerPlayerEntity p : pm.getPlayerList()) {
-			p.networkHandler.sendPacket(new TitleS2CPacket(title));
-			p.networkHandler.sendPacket(new SubtitleS2CPacket(subtitle));
 			p.getServerWorld().playSound(null, p.getX(), p.getY(), p.getZ(),
 				SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.MASTER, 0.7f, 1.2f);
 		}

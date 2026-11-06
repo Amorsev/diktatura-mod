@@ -83,6 +83,11 @@ public final class DiktaturaCommands {
 					.then(literal("confiscation").executes(c -> event(c.getSource(), EventType.CONFISCATION)))
 					.then(literal("blind_eye").executes(c -> event(c.getSource(), EventType.BLIND_EYE)))
 					.then(literal("no_gravity").executes(c -> event(c.getSource(), EventType.NO_GRAVITY))))
+				.then(literal("ui").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("alert").executes(c -> uiTest(c.getSource(), "alert")))
+					.then(literal("headline").executes(c -> uiTest(c.getSource(), "headline")))
+					.then(literal("speech").executes(c -> uiTest(c.getSource(), "speech")))
+					.then(literal("wanted").executes(c -> uiTest(c.getSource(), "wanted"))))
 				.then(literal("arrest").requires(s -> s.hasPermissionLevel(2))
 					.then(argument("player", EntityArgumentType.player())
 						.then(argument("seconds", IntegerArgumentType.integer(1, 86400))
@@ -217,5 +222,24 @@ public final class DiktaturaCommands {
 			String.format(Locale.ROOT, "%.0f", inv), String.format(Locale.ROOT, "%.0f", all)), false);
 		src.sendFeedback(() -> Text.literal("Upgrader: " + UpgraderBridge.status()).formatted(Formatting.DARK_GRAY), false);
 		return (int) inv;
+	}
+
+	/** Проверка нового интерфейса: /diktatura ui alert|headline|speech|wanted (только себе). */
+	private static int uiTest(ServerCommandSource src, String what) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayerEntity p = src.getPlayerOrThrow();
+		switch (what) {
+			case "alert" -> {
+				com.diktatura.ui.Hud.alert(p, com.diktatura.network.UiPayloads.AlertKind.DECREE,
+					Text.translatable("diktatura.ui.test.alert"), Text.translatable("diktatura.ui.test.alert.hint"), 6);
+				com.diktatura.ui.Hud.alert(p, com.diktatura.network.UiPayloads.AlertKind.DANGER,
+					Text.translatable("diktatura.ui.test.danger"), Text.translatable("diktatura.ui.test.danger.hint"), 6);
+			}
+			case "headline" -> com.diktatura.ui.Hud.headline(p, com.diktatura.network.UiPayloads.HeadlineStyle.DECREE,
+				Text.translatable("diktatura.ui.headline.decree"), Text.translatable("diktatura.ui.headline.decree.sub", 0), 5);
+			case "speech" -> com.diktatura.ui.Voice.say(p, Text.translatable("entity.diktatura.dictator"),
+				Text.translatable("diktatura.dictator.say.1"), null, 1.0f);
+			default -> com.diktatura.ui.Hud.wanted(p, Text.translatable("diktatura.reason.command"), 60);
+		}
+		return 1;
 	}
 }

@@ -1,5 +1,8 @@
 package com.diktatura.prison;
 
+import com.diktatura.network.UiPayloads.AlertKind;
+import com.diktatura.ui.Hud;
+
 import com.diktatura.util.Teleports;
 import com.diktatura.Diktatura;
 import com.diktatura.config.DiktaturaConfig;
@@ -183,6 +186,8 @@ public final class PrisonSystem {
 			rec.sentenceTicks += ticks;
 			state.markDirty();
 			player.sendMessage(Text.translatable("diktatura.arrest.extended", seconds).formatted(Formatting.RED), false);
+			Hud.alert(player, AlertKind.DANGER, Text.translatable("diktatura.ui.alert.extended"),
+				Text.translatable("diktatura.arrest.extended", seconds), 6);
 			return;
 		}
 		if (rec.stage == Stage.RETURNING) {
@@ -201,6 +206,13 @@ public final class PrisonSystem {
 
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.arrest.broadcast",
 			player.getDisplayName(), reason, seconds).formatted(Formatting.DARK_RED), false);
+		Hud.wanted(player, reason, seconds);
+		for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
+			if (other != player) {
+				Hud.alert(other, AlertKind.DANGER, Text.translatable("diktatura.ui.alert.arrested", player.getDisplayName()),
+					reason, 6);
+			}
+		}
 		TransportSystem.send(player, World.OVERWORLD, MinigameSystem.prepare(player), MinigameSystem::begin);
 	}
 

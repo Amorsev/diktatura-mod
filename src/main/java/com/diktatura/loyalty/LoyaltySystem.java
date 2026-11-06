@@ -1,5 +1,9 @@
 package com.diktatura.loyalty;
 
+import com.diktatura.network.UiPayloads.AlertKind;
+import com.diktatura.network.UiPayloads.HeadlineStyle;
+import com.diktatura.ui.Hud;
+
 import com.diktatura.Diktatura;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.state.DiktaturaState;
@@ -142,6 +146,8 @@ public final class LoyaltySystem {
 		state.rebellionCooldown = (cfg.rebellionMinutes + cfg.rebellionCooldownMinutes) * 1200;
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.rebellion.start", cfg.rebellionMinutes)
 			.formatted(Formatting.RED, Formatting.BOLD), false);
+		Hud.headlineAll(server, HeadlineStyle.REBELLION, Text.translatable("diktatura.ui.headline.rebellion"),
+			Text.translatable("diktatura.ui.headline.rebellion.sub", cfg.rebellionMinutes), 6);
 	}
 
 	private static void endRebellion(MinecraftServer server, DiktaturaState state, List<ServerPlayerEntity> online) {
@@ -152,5 +158,7 @@ public final class LoyaltySystem {
 		}
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.rebellion.end")
 			.formatted(Formatting.GOLD, Formatting.BOLD), false);
+		Hud.alertAll(server, AlertKind.DECREE, Text.translatable("diktatura.rebellion.end"),
+			Text.translatable("diktatura.ui.rebellion_end.hint"), 8);
 	}
 }

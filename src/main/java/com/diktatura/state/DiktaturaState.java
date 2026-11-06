@@ -27,6 +27,8 @@ public final class DiktaturaState extends PersistentState {
 	public final Map<UUID, PlayerRecord> players = new HashMap<>();
 	public final LinkedHashSet<String> activeLaws = new LinkedHashSet<>();
 	public boolean lawsInitialized;
+	/** Законы, отменённые указами (для вкладки «Отменённые» в книге законов). */
+	public final LinkedHashSet<String> repealedLaws = new LinkedHashSet<>();
 
 	public boolean prisonGenerated;
 	public BlockPos prisonOrigin = BlockPos.ORIGIN;
@@ -67,6 +69,9 @@ public final class DiktaturaState extends PersistentState {
 		activeLaws.forEach(l -> laws.add(NbtString.of(l)));
 		nbt.put("activeLaws", laws);
 		nbt.putBoolean("lawsInitialized", lawsInitialized);
+		NbtList repealed = new NbtList();
+		repealedLaws.forEach(l -> repealed.add(NbtString.of(l)));
+		nbt.put("repealedLaws", repealed);
 
 		nbt.putBoolean("prisonGenerated", prisonGenerated);
 		nbt.putLong("prisonOrigin", prisonOrigin.asLong());
@@ -97,6 +102,10 @@ public final class DiktaturaState extends PersistentState {
 			s.activeLaws.add(laws.getString(i));
 		}
 		s.lawsInitialized = nbt.getBoolean("lawsInitialized");
+		NbtList repealed = nbt.getList("repealedLaws", NbtElement.STRING_TYPE);
+		for (int i = 0; i < repealed.size(); i++) {
+			s.repealedLaws.add(repealed.getString(i));
+		}
 		s.prisonGenerated = nbt.getBoolean("prisonGenerated");
 		s.prisonOrigin = BlockPos.fromLong(nbt.getLong("prisonOrigin"));
 		s.minigamesGenerated = nbt.getBoolean("minigamesGenerated");

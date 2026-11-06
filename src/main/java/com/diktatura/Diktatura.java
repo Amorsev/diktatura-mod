@@ -114,5 +114,6 @@ public class Diktatura implements ModInitializer {
 		EventSystem.onJoin(player);
 		PrisonSystem.onJoin(s, player);
 		Network.sendStatus(s, player);
+		Network.sendLawList(s, player);
 	}
 }

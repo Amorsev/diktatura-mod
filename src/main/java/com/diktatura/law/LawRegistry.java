@@ -86,6 +86,7 @@ public final class LawRegistry {
 			}
 			laws = Collections.unmodifiableMap(loaded);
 			Diktatura.LOGGER.info("Загружено законов: {}", laws.size());
+			com.diktatura.network.Network.lawsChanged();
 			ItemValues.reload(manager);
 		}
 	}
