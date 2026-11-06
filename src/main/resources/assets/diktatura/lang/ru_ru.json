@@ -234,5 +234,12 @@
   "diktatura.cmd.npc.list": "НПС в реестре: %s",
   "diktatura.cmd.npc.unknown": "Нет такого НПС: %s (см. /diktatura npc list)",
   "diktatura.cmd.npc.spawned": "НПС %s заступил на службу.",
-  "diktatura.cmd.npc.dictator": "Вождь проверен и посажен на трон."
+  "diktatura.cmd.npc.dictator": "Вождь проверен и посажен на трон.",
+  "diktatura.reason.assault": "Покушение на вождя (щекотка тоже считается)",
+  "diktatura.dictator.hit.0": "Щекотно. Охрана, оформите гражданина.",
+  "diktatura.dictator.hit.1": "Это был удар? Я думал, комар. В тюрьму его. Комара тоже.",
+  "diktatura.dictator.hit.2": "Ай! То есть... не ай. Вожди не говорят «ай». Арестовать!",
+  "diktatura.dictator.hit.3": "Ты ударил государство. Государство обиделось.",
+  "diktatura.dictator.hit.4": "Записываю: «напал на вождя с голыми руками». Смело. Глупо, но смело.",
+  "diktatura.cmd.throne_rebuilt": "Тронный зал отремонтирован. Счёт отправлен народу."
 }

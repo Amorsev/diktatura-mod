@@ -2,6 +2,8 @@ package com.diktatura.command;
 
 import com.diktatura.util.Teleports;
 import com.diktatura.dictator.Dictator;
+import com.diktatura.dictator.ThroneHall;
+import net.minecraft.util.math.BlockPos;
 import com.diktatura.event.EventSystem;
 import com.diktatura.event.EventType;
 import com.diktatura.law.Law;
@@ -127,6 +129,27 @@ public final class DiktaturaCommands {
 								Network.sendStatus(c.getSource().getServer(), p);
 								return status(c.getSource(), p);
 							}))))
+				.then(literal("throne").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("tp").executes(c -> {
+						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+						MinecraftServer server = c.getSource().getServer();
+						ThroneHall.ensureGenerated(server);
+						BlockPos door = DiktaturaState.get(server).throneOrigin.add(-2, 1, 6);
+						Teleports.to(p, server.getOverworld(), door.getX() + 0.5, door.getY(), door.getZ() + 0.5, -90.0f, 0.0f);
+						return 1;
+					}))
+					.then(literal("rebuild").executes(c -> {
+						MinecraftServer server = c.getSource().getServer();
+						DiktaturaState state = DiktaturaState.get(server);
+						if (state.throneGenerated) {
+							ThroneHall.build(server.getOverworld(), state.throneOrigin);
+						} else {
+							ThroneHall.ensureGenerated(server);
+						}
+						Dictator.ensureNpc(server);
+						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.throne_rebuilt"), true);
+						return 1;
+					})))
 				.then(literal("prison").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tp").executes(c -> {
 						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();

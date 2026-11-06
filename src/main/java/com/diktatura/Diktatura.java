@@ -76,6 +76,7 @@ public class Diktatura implements ModInitializer {
 			ticks = 0;
 			LawEngine.initLaws(s);
 			PrisonSystem.ensureGenerated(s);
+			com.diktatura.dictator.ThroneHall.ensureGenerated(s);
 			MinigameSystem.ensureGenerated(s);
 			Dictator.ensureNpc(s);
 		});

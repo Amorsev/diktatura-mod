@@ -19,7 +19,9 @@ import com.diktatura.prison.PrisonLayout;
 import com.diktatura.prison.PrisonSystem;
 import com.diktatura.punishment.Punishments;
 import com.diktatura.state.DiktaturaState;
+import com.diktatura.state.PlayerRecord;
 import com.diktatura.state.Stage;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -70,7 +72,20 @@ public final class Dictator {
 	/** Идентификатор вождя в реестре НПС (data/diktatura/diktatura/npcs/dictator.json). */
 	public static final String NPC_ID = "diktatura:dictator";
 
+	/** Последний удар по вождю от игрока (тики сервера) — чтобы не арестовывать за каждый клик. */
+	private static final Map<UUID, Long> LAST_ASSAULT = new HashMap<>();
+	private static final int HIT_LINES = 5;
+
 	public static void registerEvents() {
+		AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
+			if (!isDictator(entity)) {
+				return ActionResult.PASS;
+			}
+			if (!world.isClient && player instanceof ServerPlayerEntity sp) {
+				assault(sp, entity);
+			}
+			return ActionResult.SUCCESS;
+		});
 		NpcInteractions.register("dictator", new NpcInteractions.Handler() {
 			@Override
 			public boolean matches(Entity entity) {
@@ -102,6 +117,40 @@ public final class Dictator {
 			}
 		});
 	}
+
+	/**
+	 * Покушение на вождя: он вздрагивает (без урона), отвечает, отбрасывает наглеца,
+	 * а тот теряет лояльность и едет в тюрьму — если законы на него сейчас действуют.
+	 */
+	private static void assault(ServerPlayerEntity player, Entity npc) {
+		long now = Diktatura.ticks();
+		Long last = LAST_ASSAULT.get(player.getUuid());
+		if (last != null && now - last < 40) {
+			return;
+		}
+		LAST_ASSAULT.put(player.getUuid(), now);
+		ServerWorld world = player.getServerWorld();
+		world.sendEntityDamage(npc, world.getDamageSources().playerAttack(player));
+		player.takeKnockback(0.9, npc.getX() - player.getX(), npc.getZ() - player.getZ());
+		player.velocityModified = true;
+		Voice.say(npc, name(), Text.translatable("diktatura.dictator.hit." + player.getRandom().nextInt(HIT_LINES)),
+			SoundEvents.ENTITY_VILLAGER_NO, 0.6f);
+
+		MinecraftServer server = player.getServer();
+		DiktaturaState state = DiktaturaState.get(server);
+		PlayerRecord rec = state.player(player);
+		if (!LawEngine.applies(player, rec)) {
+			return;
+		}
+		rec.violations++;
+		LoyaltySystem.change(player, -30);
+		LoyaltySystem.addFear(player, 15);
+		PrisonSystem.arrest(player, ASSAULT_SECONDS * 20, Text.translatable("diktatura.reason.assault"));
+		state.markDirty();
+	}
+
+	/** Срок в камере за покушение (после отработки). */
+	private static final int ASSAULT_SECONDS = 90;
 
 	private static NpcRegistry.NpcData data() {
 		return NpcRegistry.get(NPC_ID);
@@ -197,11 +246,16 @@ public final class Dictator {
 		if (!state.prisonGenerated) {
 			return;
 		}
+		ThroneHall.ensureGenerated(server);
+		if (!state.throneGenerated) {
+			return;
+		}
 		ServerWorld world = server.getOverworld();
-		BlockPos throne = state.prisonOrigin.add(PrisonLayout.THRONE);
+		BlockPos throne = ThroneHall.throne(server);
 		if (!world.isChunkLoaded(throne.getX() >> 4, throne.getZ() >> 4)) {
 			return;
 		}
+		// Область поиска захватывает и старый трон в тюрьме (до 0.1.5 вождь стоял там).
 		Box area = new Box(throne).expand(48);
 
 		// Миграция: старого вождя-жителя заменяем новым НПС (один раз на мир).

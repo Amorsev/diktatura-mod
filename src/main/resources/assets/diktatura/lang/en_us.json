@@ -234,5 +234,12 @@
   "diktatura.cmd.npc.list": "NPCs in the registry: %s",
   "diktatura.cmd.npc.unknown": "No such NPC: %s (see /diktatura npc list)",
   "diktatura.cmd.npc.spawned": "NPC %s has reported for duty.",
-  "diktatura.cmd.npc.dictator": "The Leader has been checked and seated on the throne."
+  "diktatura.cmd.npc.dictator": "The Leader has been checked and seated on the throne.",
+  "diktatura.reason.assault": "Assaulting the Leader (tickling counts)",
+  "diktatura.dictator.hit.0": "That tickles. Guards, process this citizen.",
+  "diktatura.dictator.hit.1": "Was that a punch? I thought it was a mosquito. Arrest him. The mosquito too.",
+  "diktatura.dictator.hit.2": "Ow! I mean... not ow. Leaders don't say ow. Arrest!",
+  "diktatura.dictator.hit.3": "You hit the state. The state is offended.",
+  "diktatura.dictator.hit.4": "Noting: \"attacked the Leader bare-handed\". Brave. Stupid, but brave.",
+  "diktatura.cmd.throne_rebuilt": "The throne hall has been repaired. The bill has been sent to the people."
 }

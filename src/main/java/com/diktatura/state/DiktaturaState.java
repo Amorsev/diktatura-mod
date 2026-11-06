@@ -33,6 +33,9 @@ public final class DiktaturaState extends PersistentState {
 	public boolean prisonGenerated;
 	public BlockPos prisonOrigin = BlockPos.ORIGIN;
 	public boolean minigamesGenerated;
+	/** Тронный зал вождя (с 0.1.5): отдельное здание к северу от тюрьмы. */
+	public boolean throneGenerated;
+	public BlockPos throneOrigin = BlockPos.ORIGIN;
 
 	public UUID dictator;
 	/** 2 — вождь уже переведён с жителя на НПС (версия 0.1.5). */
@@ -78,6 +81,8 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putBoolean("prisonGenerated", prisonGenerated);
 		nbt.putLong("prisonOrigin", prisonOrigin.asLong());
 		nbt.putBoolean("minigamesGenerated", minigamesGenerated);
+		nbt.putBoolean("throneGenerated", throneGenerated);
+		nbt.putLong("throneOrigin", throneOrigin.asLong());
 		if (dictator != null) {
 			nbt.putUuid("dictator", dictator);
 		}
@@ -112,6 +117,8 @@ public final class DiktaturaState extends PersistentState {
 		s.prisonGenerated = nbt.getBoolean("prisonGenerated");
 		s.prisonOrigin = BlockPos.fromLong(nbt.getLong("prisonOrigin"));
 		s.minigamesGenerated = nbt.getBoolean("minigamesGenerated");
+		s.throneGenerated = nbt.getBoolean("throneGenerated");
+		s.throneOrigin = BlockPos.fromLong(nbt.getLong("throneOrigin"));
 		if (nbt.containsUuid("dictator")) {
 			s.dictator = nbt.getUuid("dictator");
 		}
