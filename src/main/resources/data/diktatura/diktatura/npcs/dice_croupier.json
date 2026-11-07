@@ -1,0 +1,11 @@
+{
+  "name": "npc.diktatura.dice_croupier",
+  "role": "npc.diktatura.dice_croupier.role",
+  "accent": "#1E5A32",
+  "phrase_prefix": "npc.diktatura.dice_croupier.say.",
+  "phrase_count": 5,
+  "sound": "minecraft:entity.villager.trade",
+  "pitch": 1.1,
+  "scale": 1.0,
+  "held_item": "minecraft:bone"
+}

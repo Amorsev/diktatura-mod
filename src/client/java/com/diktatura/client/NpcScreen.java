@@ -71,7 +71,13 @@ public class NpcScreen extends Screen {
 					client.setScreen(new LawBookScreen(this));
 				}
 			}
-			default -> ClientPlayNetworking.send(new UiPayloads.NpcClick(data.npc(), data.entityId(), action));
+			default -> {
+				ClientPlayNetworking.send(new UiPayloads.NpcClick(data.npc(), data.entityId(), action));
+				// «play:» — игра идёт на столе: окно закрывается, чтобы было видно анимацию.
+				if (action.startsWith("play:")) {
+					close();
+				}
+			}
 		}
 	}
 

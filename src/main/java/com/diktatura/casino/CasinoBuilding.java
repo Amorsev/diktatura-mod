@@ -20,16 +20,30 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 
 /**
- * Госказино — к северу от дома госучреждений, вход с запада. Пол в шахматную клетку,
- * зелёный стол крупье у восточной стены, «игровые автоматы» вдоль стен, люстры.
+ * Госказино — к северу от дома госучреждений (в горе — у тронного зала), вход с запада.
+ * Пол в шахматную клетку, три стола со своими крупье: рулетка у восточной стены,
+ * большой игровой автомат у северной, стол для костей у южной. Люстры, красная дорожка.
  */
 public final class CasinoBuilding {
 	public static final int SIZE_X = 13;
 	public static final int SIZE_Y = 7;
 	public static final int SIZE_Z = 11;
 	private static final int GAP = 6;
-	/** Где стоит крупье (за столом). */
+	public static final int VERSION = 2;
+	/** Крупье рулетки (за столом у восточной стены). */
 	public static final BlockPos CROUPIER = new BlockPos(9, 1, 5);
+	/** Смотритель автомата (справа от машины у северной стены). */
+	public static final BlockPos SLOTS_OPERATOR = new BlockPos(7, 1, 1);
+	/** Крупье костей (за столом у южной стены). */
+	public static final BlockPos DICE_CROUPIER = new BlockPos(5, 1, 9);
+	/** Центр колеса рулетки (на сукне). */
+	public static final double[] WHEEL = {8.5, 2.07, 5.5};
+	/** Барабаны автомата (перед экраном), x каждого и общая высота/глубина. */
+	public static final double[] REELS_X = {3.5, 4.5, 5.5};
+	public static final double REELS_Y = 2.5;
+	public static final double REELS_Z = 2.2;
+	/** Рычаг автомата. */
+	public static final BlockPos LEVER = new BlockPos(6, 2, 1);
 
 	private CasinoBuilding() {
 	}
@@ -99,19 +113,31 @@ public final class CasinoBuilding {
 				world.setBlockState(o.add(0, y, z), air, flags);
 			}
 		}
-		// Стол крупье: зелёное сукно на плитах.
+		// Стол рулетки: зелёное сукно на плитах (колесо появляется во время игры).
 		BlockState slab = Blocks.DARK_OAK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP);
 		for (int z = 3; z <= 7; z++) {
 			world.setBlockState(o.add(8, 1, z), slab, flags);
 			world.setBlockState(o.add(8, 2, z), Blocks.GREEN_CARPET.getDefaultState(), flags);
 		}
-		// «Игровые автоматы» вдоль северной и южной стены: корпус, экран, рычаг-фонарь.
-		for (int x = 2; x <= 6; x += 2) {
-			for (int z : new int[] {1, SIZE_Z - 2}) {
-				world.setBlockState(o.add(x, 1, z), Blocks.IRON_BLOCK.getDefaultState(), flags);
-				world.setBlockState(o.add(x, 2, z), Blocks.REDSTONE_LAMP.getDefaultState(), flags);
-				world.setBlockState(o.add(x, 3, z), Blocks.GOLD_BLOCK.getDefaultState(), flags);
-			}
+		// Большой автомат у северной стены: корпус, экран с тремя барабанами, золотой верх, рычаг.
+		for (int x = 3; x <= 5; x++) {
+			world.setBlockState(o.add(x, 1, 1), Blocks.IRON_BLOCK.getDefaultState(), flags);
+			world.setBlockState(o.add(x, 2, 1), Blocks.BLACK_CONCRETE.getDefaultState(), flags);
+			world.setBlockState(o.add(x, 3, 1), Blocks.GOLD_BLOCK.getDefaultState(), flags);
+		}
+		world.setBlockState(o.add(4, 4, 1), Blocks.REDSTONE_LAMP.getDefaultState(), flags);
+		world.setBlockState(o.add(LEVER), Blocks.LEVER.getDefaultState()
+			.with(net.minecraft.block.LeverBlock.FACE, net.minecraft.block.enums.BlockFace.WALL)
+			.with(net.minecraft.block.LeverBlock.FACING, Direction.EAST), flags);
+		// Ещё пара маленьких автоматов для красоты (у входа).
+		for (int z : new int[] {1, SIZE_Z - 2}) {
+			world.setBlockState(o.add(1, 1, z), Blocks.IRON_BLOCK.getDefaultState(), flags);
+			world.setBlockState(o.add(1, 2, z), Blocks.REDSTONE_LAMP.getDefaultState(), flags);
+		}
+		// Стол для костей у южной стены: сукно другого цвета, бортик из плит.
+		for (int x = 3; x <= 6; x++) {
+			world.setBlockState(o.add(x, 1, 8), slab, flags);
+			world.setBlockState(o.add(x, 2, 8), Blocks.CYAN_CARPET.getDefaultState(), flags);
 		}
 		// Люстры.
 		BlockState lantern = Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true);
