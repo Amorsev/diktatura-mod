@@ -1,7 +1,12 @@
 package com.diktatura.client.fx;
 
+import com.diktatura.client.ui.Ui;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.HashMap;
@@ -37,6 +42,10 @@ public final class ClientFx {
 		if (client.world == null && !UNTIL.isEmpty()) {
 			UNTIL.clear();
 		}
+		if (!active("freeze")) {
+			FreezeFrame.reset();
+		}
+		PostFx.tick(client);
 	}
 
 	public static void clear() {
@@ -45,6 +54,22 @@ public final class ClientFx {
 
 	/** «Вертикальное видео»: чёрные поля по бокам, посередине кадр 9:16. И цветной шум при глюке. */
 	public static void render(DrawContext ctx, int w, int h) {
+		if (active("freeze")) {
+			FreezeFrame.draw(ctx, w, h);
+		}
+		TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+		if (active("potato")) {
+			renderPotato(ctx, tr);
+		}
+		if (active("inverted")) {
+			renderInverted(ctx, tr, w, h);
+		}
+		if (active("turbo")) {
+			renderTurbo(ctx, w, h);
+		}
+		if (active("lag")) {
+			renderLag(ctx, tr, w, h);
+		}
 		if (active("tiktok")) {
 			int frame = Math.min(w, h * 9 / 16);
 			int side = (w - frame) / 2;
@@ -76,6 +101,60 @@ public final class ClientFx {
 			}
 			float pulse = MathHelper.sin(ticks * 0.5f) * 0.5f + 0.5f;
 			ctx.fill(0, 0, w, h, ((int) (pulse * 0x18) << 24) | 0x8000FF);
+		}
+	}
+
+	/** «Графика: КАРТОШКА» и честные 5–9 кадров в секунду. */
+	private static void renderPotato(DrawContext ctx, TextRenderer tr) {
+		int x = 6;
+		int y = 6;
+		Ui.panel(ctx, x, y, 150, 34, 0xFFD27D2D);
+		ctx.drawItem(new ItemStack(Items.BAKED_POTATO), x + 8, y + 9);
+		Ui.text(ctx, tr, Text.translatable("diktatura.trip.potato.title"), x + 30, y + 7, 0xFFF0B060, 1f);
+		int fps = 5 + (int) (Math.abs(MathHelper.sin(ticks * 0.13f)) * 4);
+		Ui.text(ctx, tr, Text.translatable("diktatura.trip.potato.fps", fps), x + 30, y + 19, Ui.MUTED, 1f);
+	}
+
+	/** Подсказка, что кнопки перепутаны. */
+	private static void renderInverted(DrawContext ctx, TextRenderer tr, int w, int h) {
+		Text s = Text.translatable("diktatura.trip.inverted.keys");
+		int bw = tr.getWidth(s) + 16;
+		int x = (w - bw) / 2;
+		int y = h / 2 + 14;
+		Ui.panel(ctx, x, y, bw, 15, 0xFFFF5555);
+		Ui.centered(ctx, tr, s, w / 2, y + 4, 0xFFFF7070, 0.75f + 0.25f * MathHelper.sin(ticks * 0.4f));
+	}
+
+	/** Полосы скорости по краям экрана. */
+	private static void renderTurbo(DrawContext ctx, int w, int h) {
+		java.util.Random r = new java.util.Random(ticks / 2);
+		for (int i = 0; i < 24; i++) {
+			int y = r.nextInt(Math.max(1, h));
+			int len = 20 + r.nextInt(60);
+			boolean left = r.nextBoolean();
+			int x = left ? r.nextInt(Math.max(1, w / 4)) : w - r.nextInt(Math.max(1, w / 4)) - len;
+			ctx.fill(x, y, x + len, y + 1, 0x80FFFFFF);
+		}
+	}
+
+	/** Значок плохой связи, «ПИНГ 999» и мигающее «Соединение потеряно...». */
+	private static void renderLag(DrawContext ctx, TextRenderer tr, int w, int h) {
+		int ping = 800 + (int) (Math.abs(MathHelper.sin(ticks * 0.07f)) * 1400);
+		Text lost = Text.translatable("diktatura.trip.lag.lost", 30 + (int) (ticks * 1.3) % 40);
+		Text pingText = Text.translatable("diktatura.trip.lag.ping", ping);
+		int pw = Math.max(tr.getWidth(lost), tr.getWidth(pingText)) + 40;
+		int ph = 30;
+		int x = w - pw - 6;
+		int y = h / 3;
+		Ui.panel(ctx, x, y, pw, ph, 0xFFFF4040);
+		for (int i = 0; i < 4; i++) {
+			int bh = 4 + i * 4;
+			ctx.fill(x + 7 + i * 5, y + 23 - bh, x + 10 + i * 5, y + 23, i == 0 ? 0xFFFF4040 : 0xFF3A3040);
+		}
+		Ui.text(ctx, tr, pingText, x + 32, y + 6, 0xFFFF5050, 1f);
+		Ui.text(ctx, tr, lost, x + 32, y + 17, Ui.MUTED, 1f);
+		if ((ticks / 15) % 2 == 0) {
+			Ui.centered(ctx, tr, Text.translatable("diktatura.trip.lag.title"), w / 2, h / 2 - 34, 0xFFFFE070, 1f);
 		}
 	}
 }

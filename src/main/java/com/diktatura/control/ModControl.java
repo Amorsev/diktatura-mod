@@ -25,6 +25,7 @@ public final class ModControl {
 	}
 
 	public static void register() {
-		// Поля регистрируются при загрузке класса.
+		// Поля регистрируются при загрузке класса; пятна грибов — в генерацию мира.
+		Trips.registerWorldgen();
 	}
 }

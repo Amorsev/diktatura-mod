@@ -14,6 +14,9 @@ public final class ModSounds {
 	public static final SoundEvent CAPTCHA_OK = register("sfx.captcha_ok");
 	public static final SoundEvent CAPTCHA_FAIL = register("sfx.captcha_fail");
 	public static final SoundEvent GLITCH = register("sfx.glitch_long");
+	public static final SoundEvent GLITCH_SHORT = register("sfx.glitch_short");
+	public static final SoundEvent LAG_STUTTER = register("sfx.lag_stutter");
+	public static final SoundEvent TIKTOK_SWOOSH = register("sfx.tiktok_swoosh");
 	public static final SoundEvent BOSS_BOOM = register("sfx.boss_boom");
 	public static final SoundEvent SHOCKWAVE = register("sfx.shockwave");
 	public static final SoundEvent DRAGON_INHALE = register("sfx.dragon_inhale");

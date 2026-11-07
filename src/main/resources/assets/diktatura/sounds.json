@@ -159,5 +159,23 @@
     "sounds": [
       "diktatura:sfx/mimic_growl"
     ]
+  },
+  "sfx.glitch_short": {
+    "subtitle": "subtitles.diktatura.glitch",
+    "sounds": [
+      "diktatura:sfx/glitch_short"
+    ]
+  },
+  "sfx.lag_stutter": {
+    "subtitle": "subtitles.diktatura.lag",
+    "sounds": [
+      "diktatura:sfx/lag_stutter"
+    ]
+  },
+  "sfx.tiktok_swoosh": {
+    "subtitle": "subtitles.diktatura.swoosh",
+    "sounds": [
+      "diktatura:sfx/tiktok_swoosh"
+    ]
   }
 }

@@ -67,8 +67,8 @@ public final class DiktaturaConfig {
 	public boolean enforcerMobs = true;
 	public double builderZombieChance = 0.2;
 	public double sniperSkeletonChance = 0.1;
-	/** Препарат с искажениями (странные грибы, экранные эффекты). По умолчанию выключен. */
-	public boolean distortionDrug = false;
+	/** Препарат с искажениями (странные грибы, экранные эффекты). По умолчанию включён, как в референсе. */
+	public boolean distortionDrug = true;
 	/** Финальный бой: дракон Края — госохрана вождя; после его гибели вождя можно вызвать на бой. */
 	public boolean finalFight = true;
 	/** Кровавая луна: восстание, начавшееся ночью, длится до рассвета; плюс сама раз в N ночей (0 — только при восстании). */
@@ -162,14 +162,18 @@ public final class DiktaturaConfig {
 		}
 	}
 
-	private static final int CURRENT_VERSION = 2;
+	private static final int CURRENT_VERSION = 3;
 
-	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах. */
+	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах; v3 — грибы включены. */
 	private static void migrate(DiktaturaConfig c) {
 		if (c.configVersion < 2) {
 			if (c.decreeIntervalMinutes == 20) {
 				c.decreeIntervalMinutes = 5;
 			}
+		}
+		if (c.configVersion < 3) {
+			// v3: странные грибы работают по умолчанию, как в референсе (выключить можно той же опцией).
+			c.distortionDrug = true;
 		}
 		if (c.eventMinMinutes < 1) {
 			c.eventMinMinutes = 3;

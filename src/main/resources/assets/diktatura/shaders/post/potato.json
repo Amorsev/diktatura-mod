@@ -1,0 +1,37 @@
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "bits",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        {
+          "name": "Resolution",
+          "values": [
+            4.0
+          ]
+        },
+        {
+          "name": "Saturation",
+          "values": [
+            1.4
+          ]
+        },
+        {
+          "name": "MosaicSize",
+          "values": [
+            7.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

@@ -37,4 +37,6 @@
 > included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS",
 > WITHOUT WARRANTY OF ANY KIND.
 
+Звуки трипов (`sounds/sfx/glitch_short`, `lag_stutter`, `tiktok_swoosh`) — синтезированы кодом в моде-референсе (MIT, © 2026 Gr1tW4lk).
+
 Озвучка кричащей еды (`sounds/voice/food1–5.ogg`) — из мода-референса (Microsoft Edge TTS, обработка ffmpeg).
