@@ -836,5 +836,14 @@
   "diktatura.mimic.audit": "SURPRISE AUDIT!",
   "diktatura.mimic.audit.hint": "The chest is an auditor. The loot is inside it",
   "diktatura.mimic.confiscated": "CONFISCATED DURING AUDIT",
-  "diktatura.mimic.confiscated.hint": "%s is in the chest now. Defeat the auditor to get it back"
+  "diktatura.mimic.confiscated.hint": "%s is in the chest now. Defeat the auditor to get it back",
+  "diktatura.ui.loading.long.0": "Loading the dimension…",
+  "diktatura.ui.loading.long.1": "Counting the lava…",
+  "diktatura.ui.loading.long.2": "Getting a visa from the visa office…",
+  "diktatura.ui.loading.long.3": "The visa office is on lunch break…",
+  "diktatura.ui.loading.long.4": "Applying the stamp…",
+  "diktatura.ui.loading.long.5": "Out of ink. Looking for a new stamp…",
+  "diktatura.ui.loading.long.6": "Almost done. Honestly.",
+  "diktatura.ui.loading.long.7": "Done! Welcome to your business trip.",
+  "diktatura.ui.loading.dont_turn_off": "Do not turn off your computer"
 }

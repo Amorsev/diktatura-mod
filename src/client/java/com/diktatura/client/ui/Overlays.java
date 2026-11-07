@@ -28,6 +28,10 @@ public final class Overlays {
 	private static RegistryKey<World> lastDim;
 	private static RegistryKey<World> loadingDim;
 	private static long loadingStart = -1;
+	/** Длительность текущей загрузки; долгая — первый вход в Незер/Край. */
+	private static long loadingMs = LOADING_MS;
+	private static boolean longLoading;
+	private static long longUntil;
 
 	private Overlays() {
 	}
@@ -48,8 +52,26 @@ public final class Overlays {
 		if (lastDim != null && !lastDim.equals(dim)) {
 			loadingDim = dim;
 			loadingStart = Ui.now();
+			if (Ui.now() >= longUntil) {
+				loadingMs = LOADING_MS;
+				longLoading = false;
+			}
 		}
 		lastDim = dim;
+	}
+
+	/** Сервер: первый вход в измерение — долгая загрузка. Пакет может прийти до или после смены мира. */
+	public static void longLoading(long ms) {
+		loadingMs = ms;
+		longLoading = true;
+		longUntil = Ui.now() + 3000;
+		if (loadingStart < 0 || Ui.now() - loadingStart > 1500) {
+			loadingStart = Ui.now();
+		}
+		MinecraftClient mc = MinecraftClient.getInstance();
+		if (mc.world != null && loadingDim == null) {
+			loadingDim = mc.world.getRegistryKey();
+		}
 	}
 
 	public static void clear() {
@@ -154,14 +176,22 @@ public final class Overlays {
 			return;
 		}
 		long t = Ui.now() - loadingStart;
-		if (t >= LOADING_MS) {
+		if (t >= loadingMs) {
 			loadingStart = -1;
+			loadingMs = LOADING_MS;
+			longLoading = false;
 			return;
 		}
 		TextRenderer tr = MinecraftClient.getInstance().textRenderer;
-		float a = Math.min(1f, (LOADING_MS - t) / 400f);
-		float progress = Math.min(1f, t / (LOADING_MS - 500f));
-
+		float a = Math.min(1f, (loadingMs - t) / 400f);
+		float progress;
+		if (longLoading) {
+			// Долгая загрузка: быстро до 60%, потом ползёт, застревает на 99%, в последний миг — 100%.
+			float f = t / (float) loadingMs;
+			progress = f < 0.2f ? f * 3f : f < 0.85f ? 0.6f + (f - 0.2f) / 0.65f * 0.39f : f < 0.97f ? 0.99f : 1f;
+		} else {
+			progress = Math.min(1f, t / (loadingMs - 500f));
+		}
 		ctx.getMatrices().push();
 		ctx.getMatrices().translate(0, 0, 440);
 		ctx.fill(0, 0, w, h, Ui.alpha(0xF0100C08, a));
@@ -179,8 +209,16 @@ public final class Overlays {
 		Ui.centered(ctx, tr, Text.translatable("diktatura.ui.loading.to", dimName), w / 2, cy - 18, Ui.TEXT, a);
 
 		Ui.bar(ctx, bx, cy, bw, 6, Math.round(progress * 100), Ui.alpha(Ui.GOLD, a));
-		int step = Math.min(3, (int) (progress * 4));
-		Ui.centered(ctx, tr, Text.translatable("diktatura.ui.loading.step." + step), w / 2, cy + 12, Ui.MUTED, a);
+		if (longLoading) {
+			int step = (int) Math.min(7, t / (loadingMs / 8));
+			Ui.centered(ctx, tr, Text.translatable("diktatura.ui.loading.long." + step), w / 2, cy + 12, Ui.MUTED, a);
+			if ((t / 600) % 2 == 0) {
+				Ui.centered(ctx, tr, Text.translatable("diktatura.ui.loading.dont_turn_off"), w / 2, cy + 30, 0xFFE05050, a);
+			}
+		} else {
+			int step = Math.min(3, (int) (progress * 4));
+			Ui.centered(ctx, tr, Text.translatable("diktatura.ui.loading.step." + step), w / 2, cy + 12, Ui.MUTED, a);
+		}
 		ctx.getMatrices().pop();
 	}
 }

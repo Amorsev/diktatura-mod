@@ -836,5 +836,14 @@
   "diktatura.mimic.audit": "ВНЕЗАПНАЯ РЕВИЗИЯ!",
   "diktatura.mimic.audit.hint": "Сундук оказался ревизором. Добыча — внутри него",
   "diktatura.mimic.confiscated": "ИЗЪЯТО ПРИ РЕВИЗИИ",
-  "diktatura.mimic.confiscated.hint": "%s — теперь в сундуке. Одолейте ревизора, чтобы вернуть"
+  "diktatura.mimic.confiscated.hint": "%s — теперь в сундуке. Одолейте ревизора, чтобы вернуть",
+  "diktatura.ui.loading.long.0": "Загружаем измерение…",
+  "diktatura.ui.loading.long.1": "Пересчитываем лаву…",
+  "diktatura.ui.loading.long.2": "Получаем визу в отделе виз…",
+  "diktatura.ui.loading.long.3": "Отдел виз на обеде…",
+  "diktatura.ui.loading.long.4": "Ставим печать…",
+  "diktatura.ui.loading.long.5": "Печать закончилась. Ищем новую…",
+  "diktatura.ui.loading.long.6": "Почти готово. Честно.",
+  "diktatura.ui.loading.long.7": "Готово! Добро пожаловать в командировку.",
+  "diktatura.ui.loading.dont_turn_off": "Не выключайте компьютер"
 }

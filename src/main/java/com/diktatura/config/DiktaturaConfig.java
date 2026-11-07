@@ -80,6 +80,8 @@ public final class DiktaturaConfig {
 	public double screamingFoodChance = 0.3;
 	/** Сундук-ревизор: шанс, что одиночный сундук с добычей окажется мимиком (0 — выключить). */
 	public double mimicChance = 0.3;
+	/** Первый вход в Незер или Край — долгая госзагрузка (8 с, стоять на месте, неуязвимость). */
+	public boolean firstVisitLoading = true;
 	/** Эмиграция руды: при добыче руда может отрастить ножки и убежать (шахтёрская лицензия вдвое снижает шанс). */
 	public boolean runawayOre = true;
 	public double runawayDiamondChance = 0.35;

@@ -137,7 +137,13 @@ public class DiktaturaClient implements ClientModInitializer {
 				}
 			}));
 		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.FxPayloads.Fx.ID,
-			(payload, context) -> context.client().execute(() -> com.diktatura.client.fx.ClientFx.set(payload.effect(), payload.ticks())));
+			(payload, context) -> context.client().execute(() -> {
+				if ("loading_long".equals(payload.effect())) {
+					Overlays.longLoading(payload.ticks() * 50L);
+				} else {
+					com.diktatura.client.fx.ClientFx.set(payload.effect(), payload.ticks());
+				}
+			}));
 		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.FxPayloads.Captcha.ID,
 			(payload, context) -> context.client().execute(() -> {
 				MinecraftClient mc = context.client();

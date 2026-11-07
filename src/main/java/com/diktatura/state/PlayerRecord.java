@@ -48,6 +48,8 @@ public final class PlayerRecord {
 	public int coldTicks;
 	/** Иммунитет от законов (орден «За ничью с вождём»): до какого игрового времени мира. */
 	public long immuneUntil;
+	/** В каких измерениях уже был (1 — Незер, 2 — Край): первый вход — долгая госзагрузка. */
+	public int visited;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -88,6 +90,7 @@ public final class PlayerRecord {
 		n.putInt("chill", chill);
 		n.putInt("coldTicks", coldTicks);
 		n.putLong("immuneUntil", immuneUntil);
+		n.putInt("visited", visited);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -128,6 +131,7 @@ public final class PlayerRecord {
 		r.chill = n.getInt("chill");
 		r.coldTicks = n.getInt("coldTicks");
 		r.immuneUntil = n.getLong("immuneUntil");
+		r.visited = n.getInt("visited");
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}
