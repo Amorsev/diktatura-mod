@@ -65,6 +65,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.goose.ModSounds.register();
 		ModEntities.register();
 		ModItems.register();
+		com.diktatura.control.ModControl.register();
 		Network.registerPayloads();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());
@@ -78,6 +79,8 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.office.Offices.registerEvents();
 		com.diktatura.casino.Casino.registerEvents();
 		com.diktatura.bureau.Visits.registerEvents();
+		com.diktatura.bureau.Captcha.registerEvents();
+		com.diktatura.control.Enforcers.registerEvents();
 		com.diktatura.mechanics.Timber.registerEvents();
 		com.diktatura.mechanics.CaveIns.registerEvents();
 		NpcInteractions.registerEvents();
@@ -107,6 +110,10 @@ public class Diktatura implements ModInitializer {
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((s, manager, success) -> Dictator.refresh(s));
 
 		ServerTickEvents.END_SERVER_TICK.register(Diktatura::tick);
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, s) -> {
+			com.diktatura.bureau.Captcha.forget(handler.player.getUuid());
+			com.diktatura.control.CurfewDoubles.forget(handler.player.getUuid());
+		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, s) -> {
 			ServerPlayerEntity player = handler.player;
 			LawEngine.defer(() -> onJoin(s, player));
@@ -131,6 +138,8 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.mechanics.CaveIns.tick(s);
 		com.diktatura.mechanics.Colds.tick(s);
 		com.diktatura.goose.GooseSpawner.tick(s);
+		com.diktatura.control.CurfewDoubles.tick(s);
+		com.diktatura.control.Trips.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}

@@ -5,10 +5,15 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 
-/** Звуки мода (гусиные — CC0 с freesound, авторы в CREDITS.md). */
+/** Звуки мода (CC0 с freesound и синтезированные в моде-референсе, авторы в CREDITS.md). */
 public final class ModSounds {
 	public static final SoundEvent GOOSE_HONK = register("entity.goose.honk");
 	public static final SoundEvent GOOSE_HISS = register("entity.goose.hiss");
+	public static final SoundEvent SNIPER_SHOT = register("sfx.sniper_shot");
+	public static final SoundEvent LASER_CHARGE = register("sfx.laser_charge");
+	public static final SoundEvent CAPTCHA_OK = register("sfx.captcha_ok");
+	public static final SoundEvent CAPTCHA_FAIL = register("sfx.captcha_fail");
+	public static final SoundEvent GLITCH = register("sfx.glitch_long");
 
 	private ModSounds() {
 	}

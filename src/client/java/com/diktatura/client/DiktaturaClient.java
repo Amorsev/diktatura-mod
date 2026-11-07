@@ -40,12 +40,17 @@ public class DiktaturaClient implements ClientModInitializer {
 		com.diktatura.client.goose.GooseRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.WILD_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "wild_goose"));
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
+		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);
+		EntityRendererRegistry.register(ModEntities.SNIPER, com.diktatura.client.control.SniperRenderer::new);
+		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
+			com.diktatura.control.ModControl.STRANGE_MUSHROOM, net.minecraft.client.render.RenderLayer.getCutout());
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientState.reset();
 			Alerts.clear();
 			Headlines.clear();
 			Subtitles.clear();
 			Overlays.clear();
+			com.diktatura.client.fx.ClientFx.clear();
 		});
 
 		// Порядок слоёв: панели → субтитры → баннеры → заголовок → плакаты → «один глаз».
@@ -59,6 +64,7 @@ public class DiktaturaClient implements ClientModInitializer {
 				safe("alerts", () -> Alerts.render(ctx, w));
 				safe("headlines", () -> Headlines.render(ctx, w, h));
 			}
+			safe("fx", () -> com.diktatura.client.fx.ClientFx.render(ctx, w, h));
 			safe("overlays", () -> Overlays.render(ctx, w, h));
 			BlindOverlay.draw(ctx, w, h);
 		});
@@ -76,6 +82,7 @@ public class DiktaturaClient implements ClientModInitializer {
 			InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_L, "category.diktatura"));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			Overlays.tick(client);
+			com.diktatura.client.fx.ClientFx.tick(client);
 			while (openLaws.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(new LawBookScreen());
@@ -122,6 +129,21 @@ public class DiktaturaClient implements ClientModInitializer {
 				// Реклама не перебивает другие окна (книгу, сундук, окно НПС) — подождёт до следующего раза.
 				if (mc.currentScreen == null && mc.player != null) {
 					mc.setScreen(new AdScreen(payload.ad(), payload.seconds()));
+				}
+			}));
+		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.FxPayloads.Fx.ID,
+			(payload, context) -> context.client().execute(() -> com.diktatura.client.fx.ClientFx.set(payload.effect(), payload.ticks())));
+		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.FxPayloads.Captcha.ID,
+			(payload, context) -> context.client().execute(() -> {
+				MinecraftClient mc = context.client();
+				if (mc.player == null) {
+					return;
+				}
+				if (mc.currentScreen == null) {
+					mc.setScreen(new com.diktatura.client.control.CaptchaScreen(payload));
+				} else {
+					// Занят другим окном — проверка считается отменённой.
+					ClientPlayNetworking.send(new com.diktatura.network.FxPayloads.CaptchaAnswer(payload.token(), 0, true));
 				}
 			}));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Alert.ID,

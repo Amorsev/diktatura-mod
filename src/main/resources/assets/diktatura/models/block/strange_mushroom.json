@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "diktatura:block/strange_mushroom"
+  }
+}

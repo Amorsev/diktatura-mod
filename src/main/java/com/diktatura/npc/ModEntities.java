@@ -41,6 +41,24 @@ public final class ModEntities {
 			.maxTrackingRange(10)
 			.build(Diktatura.id("corrupted_goose").toString()));
 
+	/** Двойник-агент комендантского часа. */
+	public static final EntityType<com.diktatura.control.CurfewDoubleEntity> CURFEW_DOUBLE = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("curfew_double"),
+		EntityType.Builder.<com.diktatura.control.CurfewDoubleEntity>create(com.diktatura.control.CurfewDoubleEntity::new, SpawnGroup.MONSTER)
+			.dimensions(0.6f, 1.8f)
+			.eyeHeight(1.62f)
+			.maxTrackingRange(10)
+			.build(Diktatura.id("curfew_double").toString()));
+
+	/** Снайпер госохраны (скелет с лазерным прицелом). */
+	public static final EntityType<com.diktatura.control.SniperSkeletonEntity> SNIPER = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("sniper"),
+		EntityType.Builder.<com.diktatura.control.SniperSkeletonEntity>create(com.diktatura.control.SniperSkeletonEntity::new, SpawnGroup.MONSTER)
+			.dimensions(0.6f, 1.99f)
+			.eyeHeight(1.74f)
+			.maxTrackingRange(10)
+			.build(Diktatura.id("sniper").toString()));
+
 	private ModEntities() {
 	}
 
@@ -50,5 +68,7 @@ public final class ModEntities {
 		FabricDefaultAttributeRegistry.register(CORRUPTED_GOOSE, com.diktatura.goose.GooseEntity.createGooseAttributes()
 			.add(net.minecraft.entity.attribute.EntityAttributes.GENERIC_SCALE, 1.3));
 		com.diktatura.goose.GooseSpawner.register();
+		FabricDefaultAttributeRegistry.register(CURFEW_DOUBLE, com.diktatura.control.CurfewDoubleEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(SNIPER, com.diktatura.control.SniperSkeletonEntity.createSniperAttributes());
 	}
 }

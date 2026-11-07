@@ -35,6 +35,11 @@ public final class ModItems {
 	public static final Item CORRUPTED_GOOSE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.CORRUPTED_GOOSE,
 		0x3A3E4A, 0xAA1419, new Item.Settings());
 
+	public static final Item SNIPER_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.SNIPER,
+		0xC1C1C1, 0x2B3A1E, new Item.Settings());
+	public static final Item CURFEW_DOUBLE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.CURFEW_DOUBLE,
+		0x2A2A2A, 0x990000, new Item.Settings());
+
 	private ModItems() {
 	}
 
@@ -49,10 +54,15 @@ public final class ModItems {
 		Registry.register(Registries.ITEM, Diktatura.id("cannon"), CANNON);
 		Registry.register(Registries.ITEM, Diktatura.id("wild_goose_spawn_egg"), WILD_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("corrupted_goose_spawn_egg"), CORRUPTED_GOOSE_SPAWN_EGG);
+		Registry.register(Registries.ITEM, Diktatura.id("sniper_spawn_egg"), SNIPER_SPAWN_EGG);
+		Registry.register(Registries.ITEM, Diktatura.id("curfew_double_spawn_egg"), CURFEW_DOUBLE_SPAWN_EGG);
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(entries -> {
 			entries.add(WILD_GOOSE_SPAWN_EGG);
 			entries.add(CORRUPTED_GOOSE_SPAWN_EGG);
+			entries.add(SNIPER_SPAWN_EGG);
+			entries.add(CURFEW_DOUBLE_SPAWN_EGG);
 		});
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> entries.add(com.diktatura.control.ModControl.STRANGE_MUSHROOM_ITEM));
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
 			entries.add(LAW_BOOK);
 			entries.add(PARCEL);

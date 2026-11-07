@@ -1,10 +1,46 @@
 {
   "entity.goose.honk": {
     "subtitle": "subtitles.diktatura.goose.honk",
-    "sounds": ["diktatura:goose/honk_1", "diktatura:goose/honk_2", "diktatura:goose/honk_3"]
+    "sounds": [
+      "diktatura:goose/honk_1",
+      "diktatura:goose/honk_2",
+      "diktatura:goose/honk_3"
+    ]
   },
   "entity.goose.hiss": {
     "subtitle": "subtitles.diktatura.goose.hiss",
-    "sounds": ["diktatura:goose/hiss"]
+    "sounds": [
+      "diktatura:goose/hiss"
+    ]
+  },
+  "sfx.sniper_shot": {
+    "subtitle": "subtitles.diktatura.sniper",
+    "sounds": [
+      "diktatura:sfx/sniper_shot"
+    ]
+  },
+  "sfx.laser_charge": {
+    "subtitle": "subtitles.diktatura.laser",
+    "sounds": [
+      "diktatura:sfx/laser_charge"
+    ]
+  },
+  "sfx.captcha_ok": {
+    "subtitle": "subtitles.diktatura.captcha_ok",
+    "sounds": [
+      "diktatura:sfx/captcha_ok"
+    ]
+  },
+  "sfx.captcha_fail": {
+    "subtitle": "subtitles.diktatura.captcha_fail",
+    "sounds": [
+      "diktatura:sfx/captcha_fail"
+    ]
+  },
+  "sfx.glitch_long": {
+    "subtitle": "subtitles.diktatura.glitch",
+    "sounds": [
+      "diktatura:sfx/glitch_long"
+    ]
   }
 }

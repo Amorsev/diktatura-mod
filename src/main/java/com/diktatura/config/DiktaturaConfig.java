@@ -59,6 +59,16 @@ public final class DiktaturaConfig {
 	public boolean capitalMountain = true;
 	/** Дикие гуси-воры: подселять стайки рядом с игроками (природный спавн на лугах — всегда). */
 	public boolean wildGeese = true;
+	/** Бюро проверки гражданства: шанс капчи у стола зачарований, наковальни и пр. (0 — выключить). */
+	public double captchaChance = 0.5;
+	/** Комендантский час с двойником: нарушителю ночью раз за ночь является двойник-агент. */
+	public boolean curfewDouble = true;
+	/** Мобы-силовики: зомби-стройбат и снайперы госохраны. */
+	public boolean enforcerMobs = true;
+	public double builderZombieChance = 0.2;
+	public double sniperSkeletonChance = 0.1;
+	/** Препарат с искажениями (странные грибы, экранные эффекты). По умолчанию выключен. */
+	public boolean distortionDrug = false;
 
 	/** Скорость повозки в блоках за тик. */
 	public double transportSpeed = 1.2;

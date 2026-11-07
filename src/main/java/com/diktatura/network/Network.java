@@ -38,7 +38,12 @@ public final class Network {
 		PayloadTypeRegistry.playS2C().register(UiPayloads.NpcScreen.ID, UiPayloads.NpcScreen.CODEC);
 		PayloadTypeRegistry.playS2C().register(UiPayloads.LicenseList.ID, UiPayloads.LicenseList.CODEC);
 		PayloadTypeRegistry.playS2C().register(UiPayloads.Ad.ID, UiPayloads.Ad.CODEC);
+		PayloadTypeRegistry.playS2C().register(FxPayloads.Captcha.ID, FxPayloads.Captcha.CODEC);
+		PayloadTypeRegistry.playS2C().register(FxPayloads.Fx.ID, FxPayloads.Fx.CODEC);
 		PayloadTypeRegistry.playC2S().register(UiPayloads.NpcClick.ID, UiPayloads.NpcClick.CODEC);
+		PayloadTypeRegistry.playC2S().register(FxPayloads.CaptchaAnswer.ID, FxPayloads.CaptchaAnswer.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(FxPayloads.CaptchaAnswer.ID, (payload, context) ->
+			context.server().execute(() -> com.diktatura.bureau.Captcha.onAnswer(context.player(), payload)));
 		ServerPlayNetworking.registerGlobalReceiver(UiPayloads.NpcClick.ID, (payload, context) ->
 			context.server().execute(() -> NpcInteractions.onClick(context.player(), payload)));
 	}
