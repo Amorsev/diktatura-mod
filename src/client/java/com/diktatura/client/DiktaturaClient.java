@@ -44,6 +44,8 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.SNIPER, com.diktatura.client.control.SniperRenderer::new);
 		com.diktatura.client.ore.RunawayOreRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.RUNAWAY_ORE, com.diktatura.client.ore.RunawayOreRenderer::new);
+		com.diktatura.client.mimic.MimicRenderer.registerLayer();
+		EntityRendererRegistry.register(ModEntities.MIMIC, com.diktatura.client.mimic.MimicRenderer::new);
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
 			com.diktatura.control.ModControl.STRANGE_MUSHROOM, net.minecraft.client.render.RenderLayer.getCutout());

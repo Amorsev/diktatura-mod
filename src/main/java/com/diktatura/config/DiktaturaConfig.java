@@ -78,6 +78,8 @@ public final class DiktaturaConfig {
 	public boolean bloodMoonExtraMobs = true;
 	/** Кричащая еда: шанс, что еда заговорит, когда её начинают есть (0 — выключить). */
 	public double screamingFoodChance = 0.3;
+	/** Сундук-ревизор: шанс, что одиночный сундук с добычей окажется мимиком (0 — выключить). */
+	public double mimicChance = 0.3;
 	/** Эмиграция руды: при добыче руда может отрастить ножки и убежать (шахтёрская лицензия вдвое снижает шанс). */
 	public boolean runawayOre = true;
 	public double runawayDiamondChance = 0.35;

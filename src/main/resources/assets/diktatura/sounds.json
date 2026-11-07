@@ -146,5 +146,18 @@
     "sounds": [
       "diktatura:voice/food5"
     ]
+  },
+  "sfx.mimic_chomp": {
+    "subtitle": "subtitles.diktatura.mimic_chomp",
+    "sounds": [
+      "diktatura:sfx/mimic_chomp_1",
+      "diktatura:sfx/mimic_chomp_2"
+    ]
+  },
+  "sfx.mimic_growl": {
+    "subtitle": "subtitles.diktatura.mimic_growl",
+    "sounds": [
+      "diktatura:sfx/mimic_growl"
+    ]
   }
 }

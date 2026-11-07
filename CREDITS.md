@@ -8,6 +8,9 @@
 | Гусь (гогот) | [goose honk](https://freesound.org/s/805297/) | jahjahjahjah |
 | Гусь (шипение) | [Goose Hiss](https://freesound.org/s/740195/) | el_boss |
 | Топот руды-эмигранта | [Running on small gravel](https://freesound.org/s/494567/) | 775noise |
+| Укус мимика | [Crunch](https://freesound.org/s/816237/) | qubodup |
+| Укус мимика | [apple - bite & chew](https://freesound.org/s/398757/) | Anthousai |
+| Рык мимика | [Monster_Growls_Grunts_10](https://freesound.org/s/869056/) | SignatureSoundsOrg |
 | Выстрел снайпера | [Rifle Shot (M1 Garand)](https://freesound.org/s/385785/) | Rijam |
 
 Звуки лазера, капчи и глюка синтезированы кодом в моде-референсе (MIT, © 2026 Gr1tW4lk).

@@ -828,5 +828,13 @@
   "diktatura.food.propaganda.4": "Не забудь поблагодарить вождя за обед.",
   "diktatura.food.propaganda.5": "Калорий во мне ровно столько, сколько разрешено.",
   "diktatura.food.propaganda.6": "Я — паёк. Паёк — это любовь государства.",
-  "diktatura.food.propaganda.7": "Вкус утверждён министерством. Жалобы не принимаются."
+  "diktatura.food.propaganda.7": "Вкус утверждён министерством. Жалобы не принимаются.",
+  "entity.diktatura.mimic": "Сундук-ревизор",
+  "item.diktatura.mimic_spawn_egg": "Яйцо призыва сундука-ревизора",
+  "subtitles.diktatura.mimic_chomp": "Сундук клацает",
+  "subtitles.diktatura.mimic_growl": "Сундук рычит",
+  "diktatura.mimic.audit": "ВНЕЗАПНАЯ РЕВИЗИЯ!",
+  "diktatura.mimic.audit.hint": "Сундук оказался ревизором. Добыча — внутри него",
+  "diktatura.mimic.confiscated": "ИЗЪЯТО ПРИ РЕВИЗИИ",
+  "diktatura.mimic.confiscated.hint": "%s — теперь в сундуке. Одолейте ревизора, чтобы вернуть"
 }

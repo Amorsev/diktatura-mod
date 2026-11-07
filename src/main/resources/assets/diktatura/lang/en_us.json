@@ -828,5 +828,13 @@
   "diktatura.food.propaganda.4": "Don't forget to thank the Leader for lunch.",
   "diktatura.food.propaganda.5": "I contain exactly as many calories as permitted.",
   "diktatura.food.propaganda.6": "I am a ration. A ration is the state's love.",
-  "diktatura.food.propaganda.7": "Taste approved by the ministry. No complaints accepted."
+  "diktatura.food.propaganda.7": "Taste approved by the ministry. No complaints accepted.",
+  "entity.diktatura.mimic": "Auditor Chest",
+  "item.diktatura.mimic_spawn_egg": "Auditor Chest Spawn Egg",
+  "subtitles.diktatura.mimic_chomp": "Chest chomps",
+  "subtitles.diktatura.mimic_growl": "Chest growls",
+  "diktatura.mimic.audit": "SURPRISE AUDIT!",
+  "diktatura.mimic.audit.hint": "The chest is an auditor. The loot is inside it",
+  "diktatura.mimic.confiscated": "CONFISCATED DURING AUDIT",
+  "diktatura.mimic.confiscated.hint": "%s is in the chest now. Defeat the auditor to get it back"
 }

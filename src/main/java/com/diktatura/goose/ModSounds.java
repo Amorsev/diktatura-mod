@@ -22,6 +22,8 @@ public final class ModSounds {
 	public static final SoundEvent CRYSTAL_RISE = register("sfx.crystal_rise");
 	public static final SoundEvent VORTEX = register("sfx.vortex");
 	public static final SoundEvent TINY_STEPS = register("sfx.tiny_steps");
+	public static final SoundEvent MIMIC_CHOMP = register("sfx.mimic_chomp");
+	public static final SoundEvent MIMIC_GROWL = register("sfx.mimic_growl");
 	public static final SoundEvent[] FOOD_SCREAMS = {register("voice.food1"), register("voice.food2"), register("voice.food3"),
 		register("voice.food4"), register("voice.food5")};
 	public static final SoundEvent[] ORE_SCREAMS = {register("voice.ore1"), register("voice.ore2"), register("voice.ore3"),

@@ -77,6 +77,14 @@ public final class ModEntities {
 			.maxTrackingRange(8)
 			.build(Diktatura.id("runaway_ore").toString()));
 
+	/** Сундук-ревизор (мимик). */
+	public static final EntityType<com.diktatura.mimic.MimicEntity> MIMIC = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("mimic"),
+		EntityType.Builder.<com.diktatura.mimic.MimicEntity>create(com.diktatura.mimic.MimicEntity::new, SpawnGroup.MONSTER)
+			.dimensions(0.9f, 0.9f)
+			.maxTrackingRange(10)
+			.build(Diktatura.id("mimic").toString()));
+
 	private ModEntities() {
 	}
 
@@ -89,6 +97,7 @@ public final class ModEntities {
 		FabricDefaultAttributeRegistry.register(CURFEW_DOUBLE, com.diktatura.control.CurfewDoubleEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(DICTATOR_BOSS, com.diktatura.finale.DictatorBossEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(RUNAWAY_ORE, com.diktatura.ore.RunawayOreEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(MIMIC, com.diktatura.mimic.MimicEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(SNIPER, com.diktatura.control.SniperSkeletonEntity.createSniperAttributes());
 	}
 }
