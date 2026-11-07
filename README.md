@@ -273,7 +273,8 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 ## Формат НПС
 
 Файл `data/<namespace>/diktatura/npcs/<id>.json`, текстура `assets/<namespace>/textures/entity/npc/<id>.png`
-(раскладка обычного скина 64×64, модель игрока). Пример — вождь:
+(раскладка обычного скина 64×64, модель игрока). У НПС самого мода — свои модели из Blockbench
+(см. «Модели Blockbench» ниже), у НПС из датапаков — модель игрока со скином. Пример — вождь:
 
 ```json
 {
@@ -285,12 +286,26 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
   "sound": "minecraft:entity.villager.ambient",
   "pitch": 0.6,
   "scale": 1.15,
-  "held_item": "diktatura:law_book"
+  "held_item": "diktatura:scepter"
 }
 ```
 
 `name`, `role` и реплики (`phrase_prefix` + номер от 0 до `phrase_count - 1`) — ключи переводов.
 Все поля необязательны. Без своей логики НПС показывает в окне имя, ведомство и случайную реплику.
+
+## Модели Blockbench
+
+Исходники лежат в `blockbench/models/*.bbmodel` — их можно открыть и поправить в Blockbench.
+
+- **НПС** (вождь, налоговый инспектор, таможенник, курьер, крупье рулетки и костей, оператор автоматов,
+  сотрудник биржи, лицензиар, получатель посылок) — формат «Модовая сущность», скелет гуманоида
+  (`head`, `hat`, `body`, `right_arm`, `left_arm`, `right_leg`, `left_leg` + свои детали), текстура 128×128.
+- **Оружие вождя** — скипетр, мегафон пропаганды, тапок правосудия и книга законов: «Модель для Minecraft JE».
+
+Как обновить мод после правки: экспортировать НПС через «Экспорт → Модовая сущность» (версия 1.17+ Yarn)
+в `<id>.java`, предметы — «Экспорт → Модель JSON» в `item_<id>.json`, положить рядом `.bbmodel` и запустить
+`python blockbench/import_models.py <папка>`. Модели с нуля пересобирают `blockbench/gen_npcs.py`
+и `blockbench/gen_items.py` (сценарии для Blockbench и текстуры).
 
 ## Команды
 

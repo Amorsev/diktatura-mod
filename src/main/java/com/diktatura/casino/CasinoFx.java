@@ -40,6 +40,9 @@ public final class CasinoFx {
 	}
 
 	private static NbtElement encode(AffineTransformation t) {
+		// Трансформация из матрицы раскладывается лениво: без этого вызова кодек получает
+		// пустые translation/rotation и падает с NullPointerException (вылет у строителя).
+		t.getTranslation();
 		return AffineTransformation.ANY_CODEC.encodeStart(NbtOps.INSTANCE, t).result().orElse(new NbtCompound());
 	}
 

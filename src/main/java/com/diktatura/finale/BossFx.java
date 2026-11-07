@@ -138,6 +138,7 @@ public final class BossFx {
 	}
 
 	private static NbtElement encode(AffineTransformation t) {
+		t.getTranslation(); // разложить матрицу заранее, иначе кодек падает на пустых полях
 		return AffineTransformation.ANY_CODEC.encodeStart(NbtOps.INSTANCE, t).result().orElse(new NbtCompound());
 	}
 

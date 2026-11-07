@@ -287,6 +287,7 @@ public final class FinalFight {
 
 	private static void slippers(ServerWorld w, DictatorBossEntity b, ServerPlayerEntity target, int count) {
 		say(b, "diktatura.finale.say.slipper");
+		b.wield(new ItemStack(ModItems.SLIPPER), count * 6 + 20);
 		for (int i = 0; i < count; i++) {
 			Tasks.schedule(w.getServer(), i * 6, () -> {
 				if (!b.isAlive() || drawing) {
@@ -321,6 +322,7 @@ public final class FinalFight {
 
 	private static void propaganda(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
 		say(b, "diktatura.finale.say.propaganda");
+		b.wield(new ItemStack(ModItems.MEGAPHONE), 60);
 		w.playSound(null, b.getBlockPos(), ModSounds.SHOCKWAVE, SoundCategory.HOSTILE, 3f, 1.2f);
 		Vec3d c = b.getPos();
 		for (int k = 0; k < 4; k++) {
@@ -493,6 +495,7 @@ public final class FinalFight {
 	private static void speech(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
 		say(b, "diktatura.finale.say.speech");
 		speechTicks = 100;
+		b.wield(new ItemStack(ModItems.MEGAPHONE), 110);
 		speechDamage = 0;
 		for (ServerPlayerEntity p : players) {
 			Hud.headline(p, HeadlineStyle.PROCLAMATION, Text.translatable("diktatura.finale.speech"),

@@ -32,3 +32,5 @@ replay_*.log
 
 # служебные файлы компилятора
 javac.*.args
+blockbench/out/
+blockbench/export/

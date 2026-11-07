@@ -28,13 +28,29 @@ public class DictatorBossEntity extends HostileEntity {
 	/** Двойник вождя (приём «размножение указом»): падает с одного удара. */
 	public boolean decoy;
 	private long lastCannonLine;
+	/** Сколько тиков вождь держит «приёмное» оружие (тапок, мегафон), потом снова берёт скипетр. */
+	private int wieldTicks;
 	public DictatorBossEntity(EntityType<? extends HostileEntity> type, World world) {
 		super(type, world);
 		this.experiencePoints = 0;
-		equipStack(EquipmentSlot.MAINHAND, new ItemStack(ModItems.SLIPPER));
+		equipStack(EquipmentSlot.MAINHAND, new ItemStack(ModItems.SCEPTER));
 		equipStack(EquipmentSlot.OFFHAND, new ItemStack(ModItems.LAW_BOOK));
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setEquipmentDropChance(slot, 0f);
+		}
+	}
+
+	/** Взять в правую руку оружие приёма на время; затем вождь вернётся к скипетру. */
+	public void wield(ItemStack stack, int ticks) {
+		equipStack(EquipmentSlot.MAINHAND, stack);
+		wieldTicks = ticks;
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if (!getWorld().isClient && wieldTicks > 0 && --wieldTicks == 0) {
+			equipStack(EquipmentSlot.MAINHAND, new ItemStack(ModItems.SCEPTER));
 		}
 	}
 

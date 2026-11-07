@@ -26,6 +26,12 @@ public final class ModItems {
 	public static final Item ERASER = new Item(new Item.Settings().maxCount(16).rarity(Rarity.RARE));
 	/** Тапок правосудия: бросок-бумеранг. */
 	public static final Item SLIPPER = new SlipperItem(new Item.Settings().maxDamage(64));
+	/** Скипетр вождя: золотой жезл с красной звездой (модель из Blockbench). Бьёт как золотой меч. */
+	public static final Item SCEPTER = new net.minecraft.item.SwordItem(net.minecraft.item.ToolMaterials.GOLD,
+		new Item.Settings().rarity(Rarity.EPIC).attributeModifiers(
+			net.minecraft.item.SwordItem.createAttributeModifiers(net.minecraft.item.ToolMaterials.GOLD, 4, -2.4f)));
+	/** Мегафон пропаганды: с ним вождь произносит речи и устраивает минуту пропаганды. */
+	public static final Item MEGAPHONE = new Item(new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON));
 	/** Госпушка «Драконобой»: очередь лучей при зажатой ПКМ. */
 	public static final Item CANNON = new CannonItem(new Item.Settings().maxDamage(1024).rarity(Rarity.EPIC));
 
@@ -58,6 +64,8 @@ public final class ModItems {
 		Registry.register(Registries.ITEM, Diktatura.id("eraser"), ERASER);
 		Registry.register(Registries.ITEM, Diktatura.id("slipper"), SLIPPER);
 		Registry.register(Registries.ITEM, Diktatura.id("cannon"), CANNON);
+		Registry.register(Registries.ITEM, Diktatura.id("scepter"), SCEPTER);
+		Registry.register(Registries.ITEM, Diktatura.id("megaphone"), MEGAPHONE);
 		Registry.register(Registries.ITEM, Diktatura.id("wild_goose_spawn_egg"), WILD_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("corrupted_goose_spawn_egg"), CORRUPTED_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("sniper_spawn_egg"), SNIPER_SPAWN_EGG);
@@ -74,6 +82,8 @@ public final class ModItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> entries.add(com.diktatura.control.ModControl.STRANGE_MUSHROOM_ITEM));
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
 			entries.add(LAW_BOOK);
+			entries.add(SCEPTER);
+			entries.add(MEGAPHONE);
 			entries.add(PARCEL);
 			entries.add(TAX_RECEIPT);
 			entries.add(MYSTERY_PARCEL);
