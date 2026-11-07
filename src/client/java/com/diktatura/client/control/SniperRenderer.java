@@ -9,30 +9,27 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.SkeletonEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
 /** Обычный скелет, но с красным лазерным прицелом. */
-public class SniperRenderer extends SkeletonEntityRenderer {
+public class SniperRenderer extends SkeletonEntityRenderer<SniperSkeletonEntity> {
 	public SniperRenderer(EntityRendererFactory.Context ctx) {
 		super(ctx);
 	}
 
 	@Override
-	public boolean shouldRender(AbstractSkeletonEntity entity, Frustum frustum, double x, double y, double z) {
-		if (entity instanceof SniperSkeletonEntity s && s.getAimTargetId() >= 0) {
+	public boolean shouldRender(SniperSkeletonEntity entity, Frustum frustum, double x, double y, double z) {
+		if (entity.getAimTargetId() >= 0) {
 			return true;
 		}
 		return super.shouldRender(entity, frustum, x, y, z);
 	}
 
 	@Override
-	public void render(AbstractSkeletonEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vcp, int light) {
+	public void render(SniperSkeletonEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vcp, int light) {
 		super.render(entity, yaw, tickDelta, matrices, vcp, light);
-		if (!(entity instanceof SniperSkeletonEntity s)) {
-			return;
-		}
+		SniperSkeletonEntity s = entity;
 		int targetId = s.getAimTargetId();
 		if (targetId < 0) {
 			return;
