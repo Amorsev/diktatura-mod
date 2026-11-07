@@ -91,6 +91,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			Overlays.tick(client);
 			com.diktatura.client.fx.ClientFx.tick(client);
+			com.diktatura.client.fx.PhantomInspector.tick(client);
 			while (openLaws.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(new LawBookScreen());
@@ -143,6 +144,8 @@ public class DiktaturaClient implements ClientModInitializer {
 			(payload, context) -> context.client().execute(() -> {
 				if ("loading_long".equals(payload.effect())) {
 					Overlays.longLoading(payload.ticks() * 50L);
+				} else if ("phantom_tax".equals(payload.effect())) {
+					com.diktatura.client.fx.PhantomInspector.spawn(payload.ticks());
 				} else {
 					com.diktatura.client.fx.ClientFx.set(payload.effect(), payload.ticks());
 				}

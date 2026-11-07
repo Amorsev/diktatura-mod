@@ -192,6 +192,12 @@ public final class DiktaturaCommands {
 						}
 						return d != null ? 1 : 0;
 					}))
+					.then(literal("fear").then(argument("level", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 100))
+						.executes(c -> {
+							com.diktatura.loyalty.Paranoia.hallucinate(c.getSource().getPlayerOrThrow(),
+								com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "level"));
+							return 1;
+						})))
 					.then(literal("captcha").executes(c -> {
 						com.diktatura.bureau.Captcha.test(c.getSource().getPlayerOrThrow());
 						return 1;

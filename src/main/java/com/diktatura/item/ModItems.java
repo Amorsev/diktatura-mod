@@ -30,6 +30,8 @@ public final class ModItems {
 	public static final Item SCEPTER = new net.minecraft.item.SwordItem(net.minecraft.item.ToolMaterials.GOLD,
 		new Item.Settings().rarity(Rarity.EPIC).attributeModifiers(
 			net.minecraft.item.SwordItem.createAttributeModifiers(net.minecraft.item.ToolMaterials.GOLD, 4, -2.4f)));
+	/** Подпольная листовка: из них вспыхивает восстание. */
+	public static final Item LEAFLET = new LeafletItem(new Item.Settings().maxCount(16));
 	/** Мегафон пропаганды: с ним вождь произносит речи и устраивает минуту пропаганды. */
 	public static final Item MEGAPHONE = new Item(new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON));
 	/** Госпушка «Драконобой»: очередь лучей при зажатой ПКМ. */
@@ -66,6 +68,7 @@ public final class ModItems {
 		Registry.register(Registries.ITEM, Diktatura.id("cannon"), CANNON);
 		Registry.register(Registries.ITEM, Diktatura.id("scepter"), SCEPTER);
 		Registry.register(Registries.ITEM, Diktatura.id("megaphone"), MEGAPHONE);
+		Registry.register(Registries.ITEM, Diktatura.id("leaflet"), LEAFLET);
 		Registry.register(Registries.ITEM, Diktatura.id("wild_goose_spawn_egg"), WILD_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("corrupted_goose_spawn_egg"), CORRUPTED_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("sniper_spawn_egg"), SNIPER_SPAWN_EGG);
@@ -84,6 +87,7 @@ public final class ModItems {
 			entries.add(LAW_BOOK);
 			entries.add(SCEPTER);
 			entries.add(MEGAPHONE);
+			entries.add(LEAFLET);
 			entries.add(PARCEL);
 			entries.add(TAX_RECEIPT);
 			entries.add(MYSTERY_PARCEL);

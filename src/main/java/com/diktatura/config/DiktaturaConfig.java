@@ -42,8 +42,8 @@ public final class DiktaturaConfig {
 	public int lowLoyalty = 20;
 	/** Выше этого значения игрок считается патриотом и получает награды. */
 	public int highLoyalty = 80;
-	/** Если средняя лояльность онлайн-игроков ниже — начинается восстание. */
-	public int rebellionThreshold = 25;
+	/** Сколько подпольных листовок нужно разбросать, чтобы началось восстание. */
+	public int rebellionLeaflets = 8;
 	public int rebellionMinutes = 5;
 	public int rebellionCooldownMinutes = 30;
 
@@ -73,7 +73,7 @@ public final class DiktaturaConfig {
 	public boolean finalFight = true;
 	/** Кровавая луна: восстание, начавшееся ночью, длится до рассвета; плюс сама раз в N ночей (0 — только при восстании). */
 	public boolean bloodMoon = true;
-	public int bloodMoonEveryNights = 7;
+	public int bloodMoonEveryNights = 0;
 	/** В Кровавую луну рядом с игроками появляются дополнительные враждебные мобы. */
 	public boolean bloodMoonExtraMobs = true;
 	/** Кричащая еда: шанс, что еда заговорит, когда её начинают есть (0 — выключить). */
@@ -162,7 +162,7 @@ public final class DiktaturaConfig {
 		}
 	}
 
-	private static final int CURRENT_VERSION = 3;
+	private static final int CURRENT_VERSION = 4;
 
 	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах; v3 — грибы включены. */
 	private static void migrate(DiktaturaConfig c) {
@@ -174,6 +174,13 @@ public final class DiktaturaConfig {
 		if (c.configVersion < 3) {
 			// v3: странные грибы работают по умолчанию, как в референсе (выключить можно той же опцией).
 			c.distortionDrug = true;
+		}
+		if (c.configVersion < 4) {
+			// v4: восстание не случается само — Кровавая луна только при восстании, начатом ночью.
+			c.bloodMoonEveryNights = 0;
+		}
+		if (c.rebellionLeaflets < 1) {
+			c.rebellionLeaflets = 8;
 		}
 		if (c.eventMinMinutes < 1) {
 			c.eventMinMinutes = 3;

@@ -47,11 +47,6 @@ public final class PunishmentSystem {
 			arrested |= p.isArrest();
 		}
 
-		// Враг государства: при нулевой лояльности любое нарушение ведёт в тюрьму.
-		if (!arrested && rec.loyalty <= 0 && rec.stage == Stage.FREE) {
-			PrisonSystem.arrest(player, DiktaturaConfig.get().defaultArrestSeconds * 20,
-				Text.translatable("diktatura.enemy_of_state"));
-		}
 		LoyaltySystem.addFear(player, fear);
 		state.markDirty();
 	}

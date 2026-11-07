@@ -75,6 +75,8 @@ public final class DiktaturaState extends PersistentState {
 
 	public int rebellionTicks;
 	public int rebellionCooldown;
+	/** Брожение умов: сколько подпольных листовок разбросано (восстание — когда наберётся порог). */
+	public int unrest;
 	/** Текущее восстание — Кровавая луна (до рассвета). */
 	public boolean bloodMoon;
 	/** Номер дня последней Кровавой луны (чтобы не повторялась в ту же ночь). */
@@ -146,6 +148,7 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putInt("weatherTicks", weatherTicks);
 		nbt.putInt("propagandaTicks", propagandaTicks);
 		nbt.putInt("rebellionCooldown", rebellionCooldown);
+		nbt.putInt("unrest", unrest);
 		nbt.putBoolean("bloodMoon", bloodMoon);
 		nbt.putLong("bloodMoonDay", bloodMoonDay);
 		return nbt;
@@ -209,6 +212,7 @@ public final class DiktaturaState extends PersistentState {
 		s.weatherTicks = nbt.contains("weatherTicks") ? nbt.getInt("weatherTicks") : -1;
 		s.propagandaTicks = nbt.contains("propagandaTicks") ? nbt.getInt("propagandaTicks") : -1;
 		s.rebellionCooldown = nbt.getInt("rebellionCooldown");
+		s.unrest = nbt.getInt("unrest");
 		s.bloodMoon = nbt.getBoolean("bloodMoon");
 		s.bloodMoonDay = nbt.contains("bloodMoonDay") ? nbt.getLong("bloodMoonDay") : -1;
 		return s;

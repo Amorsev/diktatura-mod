@@ -35,7 +35,7 @@ public class ConfigScreen extends Screen {
 	static {
 		SECTIONS.put("laws", new String[] {"decreeIntervalMinutes", "minActiveLaws", "maxActiveLaws", "checkIntervalTicks",
 			"eventMinMinutes", "eventMaxMinutes", "gravityPulsesMin", "gravityPulsesMax", "exemptOps", "exemptCreative", "giveLawBook"});
-		SECTIONS.put("loyalty", new String[] {"startLoyalty", "loyaltyRegenPerMinute", "lowLoyalty", "highLoyalty", "rebellionThreshold",
+		SECTIONS.put("loyalty", new String[] {"startLoyalty", "loyaltyRegenPerMinute", "lowLoyalty", "highLoyalty", "rebellionLeaflets",
 			"rebellionMinutes", "rebellionCooldownMinutes", "bloodMoon", "bloodMoonEveryNights", "bloodMoonExtraMobs"});
 		SECTIONS.put("prison", new String[] {"minSentenceSeconds", "maxSentenceSeconds", "defaultArrestSeconds", "prisonOffsetX",
 			"prisonOffsetZ", "capitalMountain", "transportSpeed", "transportMaxDirectDistance"});

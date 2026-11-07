@@ -139,6 +139,8 @@ public class Diktatura implements ModInitializer {
 		MinigameSystem.tick(s);
 		PrisonSystem.tick(s);
 		LoyaltySystem.tick(s);
+		com.diktatura.loyalty.Underground.tick(s);
+		com.diktatura.loyalty.Paranoia.tick(s);
 		Dictator.tick(s);
 		Jobs.tick(s);
 		Licenses.tick(s);

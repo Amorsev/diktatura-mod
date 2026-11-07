@@ -74,7 +74,7 @@ public final class ClientFx {
 		}
 		TextRenderer tr = MinecraftClient.getInstance().textRenderer;
 		if (active("potato")) {
-			renderPotato(ctx, tr);
+			renderPotato(ctx, tr, w);
 		}
 		if (active("inverted")) {
 			renderInverted(ctx, tr, w, h);
@@ -117,8 +117,9 @@ public final class ClientFx {
 	}
 
 	/** «Графика: КАРТОШКА» и честные 5–9 кадров в секунду. */
-	private static void renderPotato(DrawContext ctx, TextRenderer tr) {
-		int x = 6;
+	private static void renderPotato(DrawContext ctx, TextRenderer tr, int w) {
+		// В правом верхнем углу: слева сверху — панель законов.
+		int x = w - 150 - 6;
 		int y = 6;
 		Ui.panel(ctx, x, y, 150, 34, 0xFFD27D2D);
 		ctx.drawItem(new ItemStack(Items.BAKED_POTATO), x + 8, y + 9);

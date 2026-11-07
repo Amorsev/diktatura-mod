@@ -13,7 +13,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -23,9 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Лояльность (0–100) и страх (0–100) у каждого игрока свои.
- * Без нарушений лояльность растёт, страх спадает. Низкая лояльность — слежка и обыски,
- * высокая — награды. Средняя лояльность ниже порога запускает восстание.
+ * Лояльность (0–100) и страх (0–100) у каждого игрока свои. На законы они не влияют.
+ * <ul>
+ *   <li>Лояльность — как вас видит государство: без нарушений растёт. Низкая — слежка и обыски,
+ *   зато только неблагонадёжные решаются разбрасывать подпольные листовки ({@link Underground}).
+ *   Высокая — почётный гражданин: трудодни и «Герой деревни».</li>
+ *   <li>Страх — паранойя: чем он выше, тем чаще мерещится ({@link Paranoia}) — шаги за спиной,
+ *   шёпот доносов, фантомный налоговый инспектор, фальшивые указы. Без нарушений спадает.
+ *   Сильный страх ускоряет рост лояльности и не даёт браться за листовки.</li>
+ * </ul>
+ * Восстание само не начинается: его поднимают игроки листовками.
  */
 public final class LoyaltySystem {
 	private LoyaltySystem() {
@@ -91,7 +97,7 @@ public final class LoyaltySystem {
 					rec.rewardTicks += 1200;
 					if (rec.rewardTicks >= 12000) {
 						rec.rewardTicks = 0;
-						p.getInventory().offerOrDrop(new ItemStack(Items.EMERALD, 2));
+						com.diktatura.economy.Economy.add(p, 5, "diktatura.money.reason.loyalty", "", true);
 						p.addStatusEffect(new StatusEffectInstance(StatusEffects.HERO_OF_THE_VILLAGE, 20 * 120, 0));
 						p.sendMessage(Text.translatable("diktatura.loyalty.reward").formatted(Formatting.GREEN), false);
 					}
@@ -106,11 +112,6 @@ public final class LoyaltySystem {
 			state.rebellionTicks = Math.max(0, state.rebellionTicks - 20);
 			if (state.rebellionTicks == 0) {
 				endRebellion(server, state, online);
-			}
-		} else if (minute && state.rebellionCooldown == 0 && !online.isEmpty()) {
-			double avg = online.stream().mapToInt(p -> state.player(p).loyalty).average().orElse(100);
-			if (avg < cfg.rebellionThreshold) {
-				startRebellion(server, state, cfg);
 			}
 		}
 		state.markDirty();
@@ -139,6 +140,13 @@ public final class LoyaltySystem {
 			}
 		}
 		p.sendMessage(Text.translatable("diktatura.loyalty.watched").formatted(Formatting.DARK_RED), true);
+	}
+
+	/** Восстание поднимают сами игроки ({@link Underground}); ночью оно становится Кровавой луной. */
+	public static void startRebellion(MinecraftServer server) {
+		DiktaturaState state = DiktaturaState.get(server);
+		startRebellion(server, state, DiktaturaConfig.get());
+		state.markDirty();
 	}
 
 	private static void startRebellion(MinecraftServer server, DiktaturaState state, DiktaturaConfig cfg) {
