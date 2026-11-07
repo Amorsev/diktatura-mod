@@ -74,6 +74,12 @@ public class LawBookScreen extends Screen {
 		addDrawableChild(search);
 		addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, b -> close())
 			.dimensions(width / 2 - 50, height - 26, 100, 20).build());
+		// В одиночной игре — кнопка настроек мода (без Mod Menu тоже).
+		if (client != null && client.isInSingleplayer()) {
+			addDrawableChild(ButtonWidget.builder(Text.translatable("diktatura.book.settings"),
+				b -> client.setScreen(new com.diktatura.client.config.ConfigScreen(this)))
+				.dimensions(width / 2 + 56, height - 26, 80, 20).build());
+		}
 		updateTabs();
 	}
 
