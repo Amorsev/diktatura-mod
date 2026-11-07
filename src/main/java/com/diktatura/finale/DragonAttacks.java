@@ -668,4 +668,156 @@ public final class DragonAttacks {
 		}
 		return 30;
 	}
+
+	// ================================================================ новые атаки (0.2.6)
+
+	/** Приговор: каждого «арестовывают» на месте (вязкость), круг на земле, через 2 с — молния правосудия. */
+	public static int sentence(ServerWorld w, EnderDragonEntity d, List<ServerPlayerEntity> players) {
+		for (ServerPlayerEntity p : players) {
+			Vec3d spot = groundUnder(w, p.getPos());
+			if (spot.y <= w.getBottomY()) {
+				continue;
+			}
+			warn(p, AlertKind.DANGER, "sentence");
+			p.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 45, 3, false, true));
+			w.playSound(null, p.getBlockPos(), SoundEvents.BLOCK_CHAIN_PLACE, SoundCategory.HOSTILE, 2f, 0.6f);
+			for (int t = 0; t < 45; t += 3) {
+				Tasks.schedule(w.getServer(), t, () -> {
+					BossFx.ring(w, spot.add(0, 0.2, 0), 2.2, BossFx.RED, 20, true);
+					if (d.isAlive()) {
+						Vec3d head = headPos(d);
+						Vec3d dir = spot.add(0, 1, 0).subtract(head);
+						for (int k = 1; k < 12; k++) {
+							Vec3d q = head.add(dir.multiply(k / 12.0));
+							BossFx.particle(w, ParticleTypes.ENCHANTED_HIT, q.x, q.y, q.z, 1, 0, 0, 0, 0);
+						}
+					}
+				});
+			}
+			Tasks.schedule(w.getServer(), 45, () -> {
+				BossFx.lightning(w, spot);
+				for (ServerPlayerEntity q : w.getPlayers()) {
+					if (hittable(q) && Math.hypot(q.getX() - spot.x, q.getZ() - spot.z) < 2.2 && Math.abs(q.getY() - spot.y) < 3) {
+						q.damage(w.getDamageSources().lightningBolt(), 8f);
+					}
+				}
+			});
+		}
+		return 60;
+	}
+
+	/** Кристальные мины: вокруг игрока вырастают кристаллы и через 3 с взрываются. Успейте отбежать. */
+	public static int crystalMines(ServerWorld w, ServerPlayerEntity p, int count) {
+		Random r = w.random;
+		warn(p, AlertKind.DANGER, "mines");
+		for (int i = 0; i < count; i++) {
+			double a = r.nextDouble() * Math.PI * 2;
+			double rr = 2.5 + r.nextDouble() * 3.5;
+			double x = p.getX() + Math.cos(a) * rr;
+			double z = p.getZ() + Math.sin(a) * rr;
+			int g = BossFx.ground(w, x, z);
+			if (g <= w.getBottomY()) {
+				continue;
+			}
+			net.minecraft.entity.decoration.EndCrystalEntity c = EntityType.END_CRYSTAL.create(w);
+			if (c == null) {
+				continue;
+			}
+			c.refreshPositionAndAngles(x, g, z, 0, 0);
+			c.setShowBottom(false);
+			w.spawnEntity(c);
+			BossFx.marker(w, new Vec3d(x, g, z), 60);
+			w.playSound(null, c.getBlockPos(), ModSounds.CRYSTAL_RISE, SoundCategory.HOSTILE, 2f, 1.2f);
+			Tasks.schedule(w.getServer(), 60, () -> {
+				if (c.isAlive()) {
+					c.discard();
+					w.createExplosion(null, c.getX(), c.getY(), c.getZ(), 3.0f, net.minecraft.world.World.ExplosionSourceType.NONE);
+				}
+			});
+		}
+		return 70;
+	}
+
+	/** Понятые: эндермены приходят засвидетельствовать нарушение — и сразу злятся. */
+	public static int witnesses(ServerWorld w, ServerPlayerEntity p, int count) {
+		Random r = w.random;
+		for (int i = 0; i < count; i++) {
+			double a = r.nextDouble() * Math.PI * 2;
+			double x = p.getX() + Math.cos(a) * 6;
+			double z = p.getZ() + Math.sin(a) * 6;
+			int g = BossFx.ground(w, x, z);
+			if (g <= w.getBottomY()) {
+				continue;
+			}
+			net.minecraft.entity.mob.EndermanEntity e = EntityType.ENDERMAN.create(w);
+			if (e == null) {
+				continue;
+			}
+			e.refreshPositionAndAngles(x, g, z, r.nextFloat() * 360, 0);
+			e.setTarget(p);
+			w.spawnEntity(e);
+			w.spawnParticles(ParticleTypes.PORTAL, x, g + 1, z, 30, 0.4, 1, 0.4, 0.4);
+		}
+		warn(p, AlertKind.EVENT, "witnesses");
+		return 30;
+	}
+
+	/** Перевод по службе: одного игрока телепортирует в случайное место острова. */
+	public static int transfer(ServerWorld w, ServerPlayerEntity p) {
+		Random r = w.random;
+		for (int attempt = 0; attempt < 12; attempt++) {
+			double a = r.nextDouble() * Math.PI * 2;
+			double rr = 20 + r.nextDouble() * 35;
+			double x = Math.cos(a) * rr;
+			double z = Math.sin(a) * rr;
+			int g = BossFx.ground(w, x, z);
+			if (g <= w.getBottomY() + 5) {
+				continue;
+			}
+			w.spawnParticles(ParticleTypes.REVERSE_PORTAL, p.getX(), p.getY() + 1, p.getZ(), 60, 0.4, 1, 0.4, 0.2);
+			p.teleport(w, x, g + 1, z, p.getYaw(), p.getPitch());
+			p.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING, 60, 0, false, false));
+			p.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 80, 0, false, false));
+			w.playSound(null, p.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1.5f, 0.6f);
+			warn(p, AlertKind.EVENT, "transfer");
+			break;
+		}
+		return 25;
+	}
+
+	/** Огненный выдох: дорожка драконьего дыхания от дракона к игроку (сначала искры-предупреждение). */
+	public static int breathLine(ServerWorld w, EnderDragonEntity d, ServerPlayerEntity target) {
+		Vec3d from = groundUnder(w, d.getPos());
+		Vec3d to = target.getPos();
+		Vec3d dir = new Vec3d(to.x - from.x, 0, to.z - from.z);
+		if (dir.lengthSquared() < 1) {
+			dir = new Vec3d(1, 0, 0);
+		}
+		dir = dir.normalize();
+		Vec3d start = to.subtract(dir.multiply(12));
+		warn(target, AlertKind.DANGER, "breath");
+		w.playSound(null, target.getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_SHOOT, SoundCategory.HOSTILE, 3f, 0.5f);
+		for (int i = 0; i < 9; i++) {
+			Vec3d q0 = start.add(dir.multiply(i * 3));
+			int g = BossFx.ground(w, q0.x, q0.z);
+			if (g <= w.getBottomY()) {
+				continue;
+			}
+			Vec3d q = new Vec3d(q0.x, g, q0.z);
+			for (int t = 0; t < 25; t += 5) {
+				Tasks.schedule(w.getServer(), t, () -> BossFx.particle(w, ParticleTypes.FLAME, q.x, q.y + 0.2, q.z, 6, 1.2, 0.05, 1.2, 0.01));
+			}
+			Tasks.schedule(w.getServer(), 25 + i * 2, () -> {
+				net.minecraft.entity.AreaEffectCloudEntity cloud = new net.minecraft.entity.AreaEffectCloudEntity(w, q.x, q.y, q.z);
+				cloud.setOwner(d);
+				cloud.setParticleType(ParticleTypes.DRAGON_BREATH);
+				cloud.setRadius(2.0f);
+				cloud.setDuration(100);
+				cloud.setWaitTime(0);
+				cloud.addEffect(new StatusEffectInstance(StatusEffects.INSTANT_DAMAGE, 1, 0));
+				w.spawnEntity(cloud);
+			});
+		}
+		return 60;
+	}
 }

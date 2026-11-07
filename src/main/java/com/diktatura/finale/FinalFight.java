@@ -66,6 +66,12 @@ public final class FinalFight {
 	private static int phase;
 	private static int emptyTicks;
 	private static boolean drawing;
+	/** «Пятичасовой доклад»: сколько ещё тиков вождь читает речь (и лечится) и сколько урона его уже перебило. */
+	private static int speechTicks;
+	private static float speechDamage;
+	/** «Налог на покушение»: до какого тика каждый удар по вождю стоит трудодней. */
+	private static long taxUntil;
+	private static final int TAX = 3;
 
 	private FinalFight() {
 	}
@@ -194,6 +200,10 @@ public final class FinalFight {
 			}
 			say(b, "diktatura.finale.say.phase2");
 		}
+		if (speechTicks > 0) {
+			speechTick(w, b, players);
+			return;
+		}
 		if (--nextSpecial > 0) {
 			return;
 		}
@@ -201,13 +211,18 @@ public final class FinalFight {
 		nextSpecial = phase == 1 ? 120 + r.nextInt(60) : 80 + r.nextInt(40);
 		ServerPlayerEntity target = b.getTarget() instanceof ServerPlayerEntity t && players.contains(t)
 			? t : players.get(r.nextInt(players.size()));
-		int roll = r.nextInt(phase == 1 ? 4 : 5);
+		int roll = r.nextInt(phase == 1 ? 6 : 10);
 		switch (roll) {
 			case 0 -> slippers(w, b, target, phase == 1 ? 2 : 4);
 			case 1 -> decree(w, b, players);
 			case 2 -> propaganda(w, b, players);
 			case 3 -> geese(w, b, target);
-			default -> guards(w, b, target);
+			case 4 -> confiscate(w, b, target);
+			case 5 -> busts(w, b, players);
+			case 6 -> guards(w, b, target);
+			case 7 -> decoys(w, b, target);
+			case 8 -> tax(w, b, players);
+			default -> speech(w, b, players);
 		}
 	}
 
@@ -311,6 +326,149 @@ public final class FinalFight {
 		}
 	}
 
+	/** Конфискация: оружие из руки вылетает в сторону «в пользу государства» (подобрать можно). */
+	private static void confiscate(ServerWorld w, DictatorBossEntity b, ServerPlayerEntity target) {
+		ItemStack held = target.getMainHandStack();
+		if (held.isEmpty()) {
+			slippers(w, b, target, 2);
+			return;
+		}
+		say(b, "diktatura.finale.say.confiscate");
+		ItemStack taken = held.copy();
+		target.setStackInHand(net.minecraft.util.Hand.MAIN_HAND, ItemStack.EMPTY);
+		net.minecraft.entity.ItemEntity item = new net.minecraft.entity.ItemEntity(w, target.getX(), target.getEyeY(), target.getZ(), taken);
+		double a = w.random.nextDouble() * Math.PI * 2;
+		item.setVelocity(Math.cos(a) * 0.45, 0.45, Math.sin(a) * 0.45);
+		item.setPickupDelay(40);
+		w.spawnEntity(item);
+		w.playSound(null, target.getBlockPos(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.HOSTILE, 1.5f, 0.5f);
+		Hud.alert(target, AlertKind.DANGER, Text.translatable("diktatura.finale.confiscated"),
+			Text.translatable("diktatura.finale.confiscated.hint", taken.getName()), 4);
+	}
+
+	/** Бюсты вождя: красные метки, через секунду сверху падают золотые бюсты (и разбиваются). */
+	private static void busts(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
+		say(b, "diktatura.finale.say.busts");
+		for (ServerPlayerEntity p : players) {
+			for (int i = 0; i < 3; i++) {
+				double x = p.getX() + (w.random.nextDouble() - 0.5) * 6;
+				double z = p.getZ() + (w.random.nextDouble() - 0.5) * 6;
+				int top = w.getTopY(net.minecraft.world.Heightmap.Type.MOTION_BLOCKING, (int) Math.floor(x), (int) Math.floor(z));
+				// Под крышей зала — падают с потолка (не выше 10 блоков над игроком).
+				int y = (int) Math.min(p.getY() + 10, Math.max(p.getY() + 3, top + 0.0));
+				net.minecraft.util.math.BlockPos pos = net.minecraft.util.math.BlockPos.ofFloored(x, y, z);
+				int floor = (int) Math.floor(p.getY());
+				BossFx.marker(w, new Vec3d(x, floor, z), 30);
+				Tasks.schedule(w.getServer(), 15 + i * 5, () -> {
+					net.minecraft.util.math.BlockPos spot = pos;
+					while (!w.getBlockState(spot).isAir() && spot.getY() > floor + 1) {
+						spot = spot.down();
+					}
+					if (!w.getBlockState(spot).isAir()) {
+						return;
+					}
+					net.minecraft.entity.FallingBlockEntity f = net.minecraft.entity.FallingBlockEntity.spawnFromBlock(w, spot,
+						net.minecraft.block.Blocks.GOLD_BLOCK.getDefaultState());
+					f.setHurtEntities(2.0f, 12);
+					f.setDestroyedOnLanding();
+				});
+			}
+		}
+	}
+
+	/** Размножение указом: рядом появляются два двойника вождя, падающие с одного удара. */
+	private static void decoys(ServerWorld w, DictatorBossEntity b, ServerPlayerEntity target) {
+		say(b, "diktatura.finale.say.decoys");
+		for (int i = 0; i < 2; i++) {
+			DictatorBossEntity c = ModEntities.DICTATOR_BOSS.create(w);
+			if (c == null) {
+				continue;
+			}
+			c.decoy = true;
+			double a = w.random.nextDouble() * Math.PI * 2;
+			c.refreshPositionAndAngles(b.getX() + Math.cos(a) * 3, b.getY(), b.getZ() + Math.sin(a) * 3, b.getYaw(), 0f);
+			var hp = c.getAttributeInstance(net.minecraft.entity.attribute.EntityAttributes.GENERIC_MAX_HEALTH);
+			if (hp != null) {
+				hp.setBaseValue(1.0);
+			}
+			c.setHealth(1f);
+			var dmg = c.getAttributeInstance(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ATTACK_DAMAGE);
+			if (dmg != null) {
+				dmg.setBaseValue(2.0);
+			}
+			c.setCustomName(b.getCustomName());
+			c.setCustomNameVisible(true);
+			c.setTarget(target);
+			w.spawnEntity(c);
+			SUMMONS.add(c.getUuid());
+			w.spawnParticles(ParticleTypes.POOF, c.getX(), c.getY() + 1, c.getZ(), 15, 0.3, 0.6, 0.3, 0.02);
+		}
+		// Сам вождь тоже «переставляется», чтобы не было понятно, кто настоящий.
+		double a = w.random.nextDouble() * Math.PI * 2;
+		b.requestTeleport(b.getX() + Math.cos(a) * 2, b.getY(), b.getZ() + Math.sin(a) * 2);
+		w.playSound(null, b.getBlockPos(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, SoundCategory.HOSTILE, 2f, 0.8f);
+	}
+
+	/** Налог на покушение: 6 секунд каждый удар по вождю стоит трудодней. */
+	private static void tax(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
+		say(b, "diktatura.finale.say.tax");
+		taxUntil = w.getTime() + 120;
+		for (ServerPlayerEntity p : players) {
+			Hud.headline(p, HeadlineStyle.DECREE, Text.translatable("diktatura.finale.tax"),
+				Text.translatable("diktatura.finale.tax.sub", TAX), 3);
+		}
+		w.playSound(null, b.getBlockPos(), SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.HOSTILE, 2f, 0.6f);
+	}
+
+	/** Удар игрока по вождю: налог и прерывание доклада. */
+	public static void onPlayerHit(ServerPlayerEntity p, float amount) {
+		if (p.getServerWorld().getTime() < taxUntil) {
+			if (Economy.take(p, TAX, "diktatura.money.reason.assault_tax", "")) {
+				Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.finale.tax.paid", TAX), Text.empty(), 2);
+			}
+		}
+		if (speechTicks > 0) {
+			speechDamage += amount;
+		}
+	}
+
+	/** Пятичасовой доклад: вождь стоит и читает речь, слушатели вянут, а он лечится. Перебейте его! */
+	private static void speech(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
+		say(b, "diktatura.finale.say.speech");
+		speechTicks = 100;
+		speechDamage = 0;
+		for (ServerPlayerEntity p : players) {
+			Hud.headline(p, HeadlineStyle.PROCLAMATION, Text.translatable("diktatura.finale.speech"),
+				Text.translatable("diktatura.finale.speech.sub"), 3);
+		}
+	}
+
+	private static void speechTick(ServerWorld w, DictatorBossEntity b, List<ServerPlayerEntity> players) {
+		speechTicks--;
+		b.getNavigation().stop();
+		if (speechDamage >= 15f) {
+			speechTicks = 0;
+			say(b, "diktatura.finale.say.interrupted");
+			b.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 2, false, true));
+			nextSpecial = 60;
+			return;
+		}
+		b.heal(b.getMaxHealth() * 0.0008f);
+		if (speechTicks % 20 == 0) {
+			BossFx.ring(w, b.getPos().add(0, 0.3, 0), 6, BossFx.GOLD, 30, true);
+			w.spawnParticles(ParticleTypes.NOTE, b.getX(), b.getEyeY() + 0.6, b.getZ(), 3, 0.4, 0.2, 0.4, 1);
+			for (ServerPlayerEntity p : players) {
+				if (p.squaredDistanceTo(b) < 16 * 16) {
+					p.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 30, 0, false, false));
+					p.addStatusEffect(new StatusEffectInstance(StatusEffects.MINING_FATIGUE, 30, 1, false, false));
+				}
+			}
+		}
+		if (speechTicks == 0) {
+			say(b, "diktatura.finale.say.speech_end");
+		}
+	}
+
 	// ------------------------------------------------------------------ ничья по-диктаторски
 
 	/** Вождь на 5% здоровья: «Стоп! Ничья!» — и награждает всех, кто дрался. */
@@ -319,6 +477,8 @@ public final class FinalFight {
 			return;
 		}
 		drawing = true;
+		speechTicks = 0;
+		taxUntil = 0;
 		MinecraftServer server = w.getServer();
 		b.setAiDisabled(true);
 		b.setTarget(null);
@@ -396,6 +556,8 @@ public final class FinalFight {
 		}
 		boss = null;
 		drawing = false;
+		speechTicks = 0;
+		taxUntil = 0;
 		PARTICIPANTS.clear();
 		if (restoreNpc) {
 			Diktatura.LOGGER.info("Финальный бой окончен, вождь возвращается на трон");

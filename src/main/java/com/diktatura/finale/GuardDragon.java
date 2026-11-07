@@ -52,7 +52,8 @@ public final class GuardDragon {
 	private static final String TAG_PHASE = "diktatura_guard_phase";
 
 	enum Attack {
-		METEORS, ROAR, DIVE, SPIKES, VORTEX, SWARM, GEESE, ANVILS, LASER, BIG_METEOR, GRAVITY
+		METEORS, ROAR, DIVE, SPIKES, VORTEX, SWARM, GEESE, ANVILS, LASER, BIG_METEOR, GRAVITY,
+		SENTENCE, MINES, WITNESSES, TRANSFER, BREATH
 	}
 
 	/** Вес атаки в фазах 1, 2, 3 (0 — в этой фазе её нет). */
@@ -70,6 +71,11 @@ public final class GuardDragon {
 		WEIGHTS.put(Attack.LASER, new int[] {0, 0, 2});
 		WEIGHTS.put(Attack.BIG_METEOR, new int[] {0, 0, 3});
 		WEIGHTS.put(Attack.GRAVITY, new int[] {0, 0, 1});
+		WEIGHTS.put(Attack.SENTENCE, new int[] {2, 2, 2});
+		WEIGHTS.put(Attack.BREATH, new int[] {2, 2, 2});
+		WEIGHTS.put(Attack.MINES, new int[] {0, 2, 2});
+		WEIGHTS.put(Attack.WITNESSES, new int[] {0, 1, 1});
+		WEIGHTS.put(Attack.TRANSFER, new int[] {0, 1, 2});
 	}
 
 	public static final class State {
@@ -264,6 +270,19 @@ public final class GuardDragon {
 			case LASER -> busy = DragonAttacks.laser(w, d, target);
 			case BIG_METEOR -> busy = DragonAttacks.bigMeteor(w, d, target);
 			case GRAVITY -> busy = DragonAttacks.gravity(players);
+			case SENTENCE -> busy = DragonAttacks.sentence(w, d, players);
+			case BREATH -> busy = DragonAttacks.breathLine(w, d, target);
+			case MINES -> {
+				for (ServerPlayerEntity p : players) {
+					busy = DragonAttacks.crystalMines(w, p, 2 + phase);
+				}
+			}
+			case WITNESSES -> {
+				for (ServerPlayerEntity p : players) {
+					busy = DragonAttacks.witnesses(w, p, 2);
+				}
+			}
+			case TRANSFER -> busy = DragonAttacks.transfer(w, target);
 		}
 		return busy;
 	}

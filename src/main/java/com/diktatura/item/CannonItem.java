@@ -86,7 +86,10 @@ public class CannonItem extends Item {
 			}
 		}
 		Vec3d impact = eye.add(dir.multiply(best));
-		if (target instanceof LivingEntity le) {
+		if (target instanceof com.diktatura.finale.DictatorBossEntity boss) {
+			// У вождя иммунитет к драконобою: оружие госохраны против своих не стреляет.
+			boss.deflectCannon(p, eye.add(dir.multiply(best)));
+		} else if (target instanceof LivingEntity le) {
 			le.timeUntilRegen = 0;
 			le.damage(w.getDamageSources().playerAttack(p), DAMAGE);
 			le.takeKnockback(0.4, -dir.x, -dir.z);
