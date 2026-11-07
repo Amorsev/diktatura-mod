@@ -35,6 +35,9 @@ public final class ModItems {
 	public static final Item CORRUPTED_GOOSE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.CORRUPTED_GOOSE,
 		0x3A3E4A, 0xAA1419, new Item.Settings());
 
+	/** Орден «За ничью с вождём» — награда финального боя. */
+	public static final Item ORDER = new OrderItem(new Item.Settings().maxCount(1).rarity(Rarity.EPIC));
+
 	public static final Item SNIPER_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.SNIPER,
 		0xC1C1C1, 0x2B3A1E, new Item.Settings());
 	public static final Item CURFEW_DOUBLE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.CURFEW_DOUBLE,
@@ -55,6 +58,7 @@ public final class ModItems {
 		Registry.register(Registries.ITEM, Diktatura.id("wild_goose_spawn_egg"), WILD_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("corrupted_goose_spawn_egg"), CORRUPTED_GOOSE_SPAWN_EGG);
 		Registry.register(Registries.ITEM, Diktatura.id("sniper_spawn_egg"), SNIPER_SPAWN_EGG);
+		Registry.register(Registries.ITEM, Diktatura.id("order"), ORDER);
 		Registry.register(Registries.ITEM, Diktatura.id("curfew_double_spawn_egg"), CURFEW_DOUBLE_SPAWN_EGG);
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(entries -> {
 			entries.add(WILD_GOOSE_SPAWN_EGG);
@@ -72,6 +76,7 @@ public final class ModItems {
 			entries.add(ERASER);
 			entries.add(SLIPPER);
 			entries.add(CANNON);
+			entries.add(ORDER);
 		});
 	}
 }

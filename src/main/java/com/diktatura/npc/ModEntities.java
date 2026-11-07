@@ -59,6 +59,16 @@ public final class ModEntities {
 			.maxTrackingRange(10)
 			.build(Diktatura.id("sniper").toString()));
 
+	/** Вождь в финальном бою. */
+	public static final EntityType<com.diktatura.finale.DictatorBossEntity> DICTATOR_BOSS = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("dictator_boss"),
+		EntityType.Builder.<com.diktatura.finale.DictatorBossEntity>create(com.diktatura.finale.DictatorBossEntity::new, SpawnGroup.MONSTER)
+			.dimensions(0.6f, 1.95f)
+			.eyeHeight(1.62f)
+			.makeFireImmune()
+			.maxTrackingRange(10)
+			.build(Diktatura.id("dictator_boss").toString()));
+
 	private ModEntities() {
 	}
 
@@ -69,6 +79,7 @@ public final class ModEntities {
 			.add(net.minecraft.entity.attribute.EntityAttributes.GENERIC_SCALE, 1.3));
 		com.diktatura.goose.GooseSpawner.register();
 		FabricDefaultAttributeRegistry.register(CURFEW_DOUBLE, com.diktatura.control.CurfewDoubleEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(DICTATOR_BOSS, com.diktatura.finale.DictatorBossEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(SNIPER, com.diktatura.control.SniperSkeletonEntity.createSniperAttributes());
 	}
 }

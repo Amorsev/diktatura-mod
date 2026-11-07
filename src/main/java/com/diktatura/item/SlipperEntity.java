@@ -28,6 +28,8 @@ import java.util.Set;
 /** Летящий тапок: без гравитации, бьёт всё на пути, через ~0,6 с возвращается к хозяину. */
 public class SlipperEntity extends ThrownItemEntity {
 	private boolean returning;
+	/** Тапок вождя в финальном бою: без критов и послабее. */
+	public boolean bossThrow;
 	private int flight;
 	private final Set<Integer> hit = new HashSet<>();
 
@@ -105,8 +107,8 @@ public class SlipperEntity extends ThrownItemEntity {
 		if (target == getOwner() || !hit.add(target.getId())) {
 			return;
 		}
-		boolean crit = random.nextFloat() < 0.2f;
-		target.damage(getDamageSources().thrown(this, getOwner()), crit ? 20f : 7f);
+		boolean crit = !bossThrow && random.nextFloat() < 0.2f;
+		target.damage(getDamageSources().thrown(this, getOwner()), crit ? 20f : bossThrow ? 4f : 7f);
 		if (target instanceof LivingEntity le) {
 			Vec3d push = getVelocity().normalize().multiply(crit ? 1.6 : 0.7);
 			le.addVelocity(push.x, 0.35, push.z);

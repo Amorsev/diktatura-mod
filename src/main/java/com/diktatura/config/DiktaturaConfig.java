@@ -69,6 +69,12 @@ public final class DiktaturaConfig {
 	public double sniperSkeletonChance = 0.1;
 	/** Препарат с искажениями (странные грибы, экранные эффекты). По умолчанию выключен. */
 	public boolean distortionDrug = false;
+	/** Финальный бой: дракон Края — госохрана вождя; после его гибели вождя можно вызвать на бой. */
+	public boolean finalFight = true;
+	public int dragonHealth = 400;
+	public int dictatorHealth = 300;
+	/** Сколько игровых дней законы не действуют на кавалеров ордена «За ничью с вождём». */
+	public int immunityDays = 3;
 
 	/** Скорость повозки в блоках за тик. */
 	public double transportSpeed = 1.2;

@@ -46,6 +46,8 @@ public final class PlayerRecord {
 	/** Простуда: накопленный холод (тики под дождём или в воде) и сколько ещё болеть. */
 	public int chill;
 	public int coldTicks;
+	/** Иммунитет от законов (орден «За ничью с вождём»): до какого игрового времени мира. */
+	public long immuneUntil;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
 
@@ -85,6 +87,7 @@ public final class PlayerRecord {
 		n.putInt("adTicks", adTicks);
 		n.putInt("chill", chill);
 		n.putInt("coldTicks", coldTicks);
+		n.putLong("immuneUntil", immuneUntil);
 		if (job != null) {
 			n.put("job", job);
 		}
@@ -124,6 +127,7 @@ public final class PlayerRecord {
 		r.adTicks = n.contains("adTicks") ? n.getInt("adTicks") : -1;
 		r.chill = n.getInt("chill");
 		r.coldTicks = n.getInt("coldTicks");
+		r.immuneUntil = n.getLong("immuneUntil");
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}

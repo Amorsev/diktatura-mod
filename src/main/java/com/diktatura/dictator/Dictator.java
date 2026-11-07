@@ -129,6 +129,11 @@ public final class Dictator {
 			return;
 		}
 		LAST_ASSAULT.put(player.getUuid(), now);
+		// Охрана пала (дракон госохраны повержен): удар — вызов на финальный бой, а не арест.
+		if (com.diktatura.finale.FinalFight.canStart(player.getServer())) {
+			com.diktatura.finale.FinalFight.start(player, npc);
+			return;
+		}
 		ServerWorld world = player.getServerWorld();
 		world.sendEntityDamage(npc, world.getDamageSources().playerAttack(player));
 		player.takeKnockback(0.9, npc.getX() - player.getX(), npc.getZ() - player.getZ());
@@ -243,7 +248,7 @@ public final class Dictator {
 
 	public static void ensureNpc(MinecraftServer server) {
 		DiktaturaState state = DiktaturaState.get(server);
-		if (!state.prisonGenerated) {
+		if (!state.prisonGenerated || com.diktatura.finale.FinalFight.isActive()) {
 			return;
 		}
 		ThroneHall.ensureGenerated(server);

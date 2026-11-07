@@ -42,5 +42,47 @@
     "sounds": [
       "diktatura:sfx/glitch_long"
     ]
+  },
+  "sfx.boss_boom": {
+    "subtitle": "subtitles.diktatura.boom",
+    "sounds": [
+      "diktatura:sfx/boss_boom"
+    ]
+  },
+  "sfx.shockwave": {
+    "subtitle": "subtitles.diktatura.shockwave",
+    "sounds": [
+      "diktatura:sfx/shockwave"
+    ]
+  },
+  "sfx.dragon_inhale": {
+    "subtitle": "subtitles.diktatura.inhale",
+    "sounds": [
+      "diktatura:sfx/dragon_inhale"
+    ]
+  },
+  "sfx.dragon_phase": {
+    "subtitle": "subtitles.diktatura.phase",
+    "sounds": [
+      "diktatura:sfx/dragon_phase"
+    ]
+  },
+  "sfx.meteor_fall": {
+    "subtitle": "subtitles.diktatura.meteor",
+    "sounds": [
+      "diktatura:sfx/meteor_fall"
+    ]
+  },
+  "sfx.crystal_rise": {
+    "subtitle": "subtitles.diktatura.crystal",
+    "sounds": [
+      "diktatura:sfx/crystal_rise"
+    ]
+  },
+  "sfx.vortex": {
+    "subtitle": "subtitles.diktatura.vortex",
+    "sounds": [
+      "diktatura:sfx/vortex"
+    ]
   }
 }

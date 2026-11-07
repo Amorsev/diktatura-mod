@@ -14,6 +14,13 @@ public final class ModSounds {
 	public static final SoundEvent CAPTCHA_OK = register("sfx.captcha_ok");
 	public static final SoundEvent CAPTCHA_FAIL = register("sfx.captcha_fail");
 	public static final SoundEvent GLITCH = register("sfx.glitch_long");
+	public static final SoundEvent BOSS_BOOM = register("sfx.boss_boom");
+	public static final SoundEvent SHOCKWAVE = register("sfx.shockwave");
+	public static final SoundEvent DRAGON_INHALE = register("sfx.dragon_inhale");
+	public static final SoundEvent DRAGON_PHASE = register("sfx.dragon_phase");
+	public static final SoundEvent METEOR_FALL = register("sfx.meteor_fall");
+	public static final SoundEvent CRYSTAL_RISE = register("sfx.crystal_rise");
+	public static final SoundEvent VORTEX = register("sfx.vortex");
 
 	private ModSounds() {
 	}

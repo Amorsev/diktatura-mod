@@ -51,6 +51,14 @@ public final class ClientFx {
 			ctx.fill(0, 0, side, h, 0xFF000000);
 			ctx.fill(w - side, 0, w, h, 0xFF000000);
 		}
+		if (active("end_rage")) {
+			// Последний рывок дракона: края экрана наливаются красным.
+			float pulse = MathHelper.sin(ticks * 0.08f) * 0.5f + 0.5f;
+			int a = (int) (0x30 + pulse * 0x30);
+			int edge = Math.max(8, Math.min(w, h) / 6);
+			ctx.fillGradient(0, 0, w, edge, a << 24 | 0x900000, 0x00900000);
+			ctx.fillGradient(0, h - edge, w, h, 0x00900000, a << 24 | 0x900000);
+		}
 		if (active("glitch")) {
 			int seed = (int) (ticks / 2);
 			java.util.Random r = new java.util.Random(seed * 31L);

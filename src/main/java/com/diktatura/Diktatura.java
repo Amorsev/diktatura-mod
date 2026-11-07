@@ -81,6 +81,9 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.bureau.Visits.registerEvents();
 		com.diktatura.bureau.Captcha.registerEvents();
 		com.diktatura.control.Enforcers.registerEvents();
+		com.diktatura.finale.BossFx.registerEvents();
+		com.diktatura.finale.GuardDragon.registerEvents();
+		com.diktatura.finale.FinalFight.registerEvents();
 		com.diktatura.mechanics.Timber.registerEvents();
 		com.diktatura.mechanics.CaveIns.registerEvents();
 		NpcInteractions.registerEvents();
@@ -105,6 +108,7 @@ public class Diktatura implements ModInitializer {
 			com.diktatura.mechanics.CaveIns.clear();
 			TransportSystem.shutdown(s);
 			LawEngine.clear();
+			com.diktatura.finale.GuardDragon.clear();
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(s -> server = null);
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((s, manager, success) -> Dictator.refresh(s));
@@ -140,6 +144,8 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.goose.GooseSpawner.tick(s);
 		com.diktatura.control.CurfewDoubles.tick(s);
 		com.diktatura.control.Trips.tick(s);
+		com.diktatura.finale.GuardDragon.tick(s);
+		com.diktatura.finale.FinalFight.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}

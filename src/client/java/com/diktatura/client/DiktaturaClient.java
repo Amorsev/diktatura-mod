@@ -42,6 +42,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);
 		EntityRendererRegistry.register(ModEntities.SNIPER, com.diktatura.client.control.SniperRenderer::new);
+		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
 			com.diktatura.control.ModControl.STRANGE_MUSHROOM, net.minecraft.client.render.RenderLayer.getCutout());
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
