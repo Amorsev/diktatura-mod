@@ -5,7 +5,9 @@
 	"mixins": [
 		"ItemEntityMixin",
 		"MobEntityAccessor",
-		"EnderDragonFightAccessor"
+		"EnderDragonFightAccessor",
+		"EnderDragonEntityMixin",
+		"EnderDragonPartMixin"
 	],
 	"client": [
 		"client.GameRendererMixin",

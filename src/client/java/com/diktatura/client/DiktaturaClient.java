@@ -47,6 +47,8 @@ public class DiktaturaClient implements ClientModInitializer {
 		com.diktatura.client.mimic.MimicRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.MIMIC, com.diktatura.client.mimic.MimicRenderer::new);
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
+		// Дракон госохраны: своя модель поверх ванильной (обычные драконы не меняются).
+		EntityRendererRegistry.register(net.minecraft.entity.EntityType.ENDER_DRAGON, com.diktatura.client.dragon.GuardDragonRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
 			com.diktatura.control.ModControl.STRANGE_MUSHROOM, net.minecraft.client.render.RenderLayer.getCutout());
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
