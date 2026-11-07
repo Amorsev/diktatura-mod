@@ -142,6 +142,10 @@ public final class LoyaltySystem {
 	}
 
 	private static void startRebellion(MinecraftServer server, DiktaturaState state, DiktaturaConfig cfg) {
+		// Ночью восстание превращается в Кровавую луну — до рассвета.
+		if (BloodMoon.start(server, false)) {
+			return;
+		}
 		state.rebellionTicks = cfg.rebellionMinutes * 1200;
 		state.rebellionCooldown = (cfg.rebellionMinutes + cfg.rebellionCooldownMinutes) * 1200;
 		server.getPlayerManager().broadcast(Text.translatable("diktatura.rebellion.start", cfg.rebellionMinutes)

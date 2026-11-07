@@ -766,5 +766,16 @@
   "diktatura.cmd.finale.started": "Финальный бой начат",
   "diktatura.cmd.finale.not_running": "Финальный бой сейчас не идёт",
   "diktatura.cmd.finale.stopped": "Финальный бой остановлен, вождь вернулся на трон",
-  "diktatura.cmd.finale.reset": "Охрана снова на посту: для боя с вождём нужно победить дракона"
+  "diktatura.cmd.finale.reset": "Охрана снова на посту: для боя с вождём нужно победить дракона",
+  "diktatura.bloodmoon.start": "КРОВАВАЯ ЛУНА",
+  "diktatura.bloodmoon.start.sub": "Ночь народного гнева: законы не действуют до рассвета. Мобов вдвое больше, спать нельзя",
+  "diktatura.bloodmoon.end": "ЛУНА ЗАШЛА",
+  "diktatura.bloodmoon.end.sub": "Законы снова в силе. Выжившим — %s тд за стойкость",
+  "diktatura.bloodmoon.no_sleep": "ЭТОЙ НОЧЬЮ НЕ СПИТСЯ",
+  "diktatura.bloodmoon.no_sleep.hint": "Кровавая луна: дождитесь рассвета",
+  "diktatura.money.reason.bloodmoon": "За стойкость в Кровавую луну",
+  "diktatura.cmd.bloodmoon.running": "Кровавая луна уже идёт",
+  "diktatura.cmd.bloodmoon.started": "Кровавая луна началась",
+  "diktatura.cmd.bloodmoon.not_running": "Кровавой луны сейчас нет",
+  "diktatura.cmd.bloodmoon.stopped": "Кровавая луна заканчивается"
 }

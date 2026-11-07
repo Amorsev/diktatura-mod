@@ -766,5 +766,16 @@
   "diktatura.cmd.finale.started": "Final fight started",
   "diktatura.cmd.finale.not_running": "The final fight isn't on",
   "diktatura.cmd.finale.stopped": "Final fight stopped, the Leader is back on the throne",
-  "diktatura.cmd.finale.reset": "The guard is back: beat the dragon to fight the Leader"
+  "diktatura.cmd.finale.reset": "The guard is back: beat the dragon to fight the Leader",
+  "diktatura.bloodmoon.start": "BLOOD MOON",
+  "diktatura.bloodmoon.start.sub": "Night of popular wrath: laws are suspended until dawn. Twice the mobs, no sleeping",
+  "diktatura.bloodmoon.end": "THE MOON HAS SET",
+  "diktatura.bloodmoon.end.sub": "Laws are back in force. Survivors get %s workdays for resilience",
+  "diktatura.bloodmoon.no_sleep": "NO SLEEP TONIGHT",
+  "diktatura.bloodmoon.no_sleep.hint": "Blood Moon: wait for dawn",
+  "diktatura.money.reason.bloodmoon": "For resilience during the Blood Moon",
+  "diktatura.cmd.bloodmoon.running": "The Blood Moon is already on",
+  "diktatura.cmd.bloodmoon.started": "The Blood Moon has begun",
+  "diktatura.cmd.bloodmoon.not_running": "There is no Blood Moon right now",
+  "diktatura.cmd.bloodmoon.stopped": "The Blood Moon is ending"
 }

@@ -71,6 +71,11 @@ public final class DiktaturaConfig {
 	public boolean distortionDrug = false;
 	/** Финальный бой: дракон Края — госохрана вождя; после его гибели вождя можно вызвать на бой. */
 	public boolean finalFight = true;
+	/** Кровавая луна: восстание, начавшееся ночью, длится до рассвета; плюс сама раз в N ночей (0 — только при восстании). */
+	public boolean bloodMoon = true;
+	public int bloodMoonEveryNights = 7;
+	/** В Кровавую луну рядом с игроками появляются дополнительные враждебные мобы. */
+	public boolean bloodMoonExtraMobs = true;
 	public int dragonHealth = 400;
 	public int dictatorHealth = 300;
 	/** Сколько игровых дней законы не действуют на кавалеров ордена «За ничью с вождём». */

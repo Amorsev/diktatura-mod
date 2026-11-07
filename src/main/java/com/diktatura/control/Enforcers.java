@@ -49,7 +49,7 @@ public final class Enforcers {
 				if (!z.getCommandTags().contains(TAG_ROLLED)) {
 					z.addCommandTag(TAG_ROLLED);
 					DiktaturaConfig cfg = DiktaturaConfig.get();
-					if (cfg.enforcerMobs && !z.isBaby() && world.random.nextDouble() < cfg.builderZombieChance) {
+					if (cfg.enforcerMobs && !z.isBaby() && world.random.nextDouble() < cfg.builderZombieChance * mult()) {
 						makeBuilder(z);
 					}
 				}
@@ -60,11 +60,16 @@ public final class Enforcers {
 				&& !sk.getCommandTags().contains(TAG_ROLLED)) {
 				sk.addCommandTag(TAG_ROLLED);
 				DiktaturaConfig cfg = DiktaturaConfig.get();
-				if (cfg.enforcerMobs && world.random.nextDouble() < cfg.sniperSkeletonChance) {
+				if (cfg.enforcerMobs && world.random.nextDouble() < cfg.sniperSkeletonChance * mult()) {
 					LawEngine.defer(() -> toSniper(world, sk));
 				}
 			}
 		});
+	}
+
+	/** В Кровавую луну силовиков вдвое с половиной больше. */
+	private static double mult() {
+		return com.diktatura.loyalty.BloodMoon.isActive() ? 2.5 : 1.0;
 	}
 
 	public static void makeBuilder(ZombieEntity z) {

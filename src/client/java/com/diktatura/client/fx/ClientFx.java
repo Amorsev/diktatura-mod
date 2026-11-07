@@ -51,6 +51,12 @@ public final class ClientFx {
 			ctx.fill(0, 0, side, h, 0xFF000000);
 			ctx.fill(w - side, 0, w, h, 0xFF000000);
 		}
+		if (active("bloodmoon")) {
+			// Кровавая луна: лёгкая красная дымка по краям.
+			int edge = Math.max(8, Math.min(w, h) / 8);
+			ctx.fillGradient(0, 0, w, edge, 0x30600000, 0x00600000);
+			ctx.fillGradient(0, h - edge, w, h, 0x00600000, 0x30600000);
+		}
 		if (active("end_rage")) {
 			// Последний рывок дракона: края экрана наливаются красным.
 			float pulse = MathHelper.sin(ticks * 0.08f) * 0.5f + 0.5f;

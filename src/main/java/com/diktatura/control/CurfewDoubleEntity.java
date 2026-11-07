@@ -50,6 +50,8 @@ public class CurfewDoubleEntity extends HostileEntity {
 	public static final int BOUNTY = 5;
 	/** Вызван тестовой командой: не исчезает днём и без закона (только если оригинал ушёл). */
 	public boolean testMode;
+	/** Пришёл в Кровавую луну: уходит, когда луна закончится. */
+	public boolean bloodMoon;
 
 	public CurfewDoubleEntity(EntityType<? extends HostileEntity> type, World world) {
 		super(type, world);
@@ -121,7 +123,8 @@ public class CurfewDoubleEntity extends HostileEntity {
 		long t = this.getWorld().getTimeOfDay() % 24000L;
 		boolean night = t >= 13000L && t <= 23000L;
 		if (o == null || o.getWorld() != this.getWorld() || squaredDistanceTo(o) > 80 * 80
-			|| (!testMode && (!night || !CurfewDoubles.curfewActive(o.getServer())))) {
+			|| (bloodMoon && !com.diktatura.loyalty.BloodMoon.isActive(o.getServer()))
+			|| (!testMode && !bloodMoon && (!night || !CurfewDoubles.curfewActive(o.getServer())))) {
 			vanish();
 			return;
 		}

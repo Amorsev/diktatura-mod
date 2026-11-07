@@ -180,6 +180,9 @@ public final class DiktaturaCommands {
 						.suggests((c, b) -> net.minecraft.command.CommandSource.suggestMatching(com.diktatura.finale.GuardDragon.attackNames(), b))
 						.executes(c -> com.diktatura.finale.GuardDragon.cmdAttack(c.getSource(),
 							com.mojang.brigadier.arguments.StringArgumentType.getString(c, "attack"))))))
+				.then(literal("bloodmoon").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("start").executes(c -> com.diktatura.loyalty.BloodMoon.cmdStart(c.getSource())))
+					.then(literal("stop").executes(c -> com.diktatura.loyalty.BloodMoon.cmdStop(c.getSource()))))
 				.then(literal("test").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("double").executes(c -> {
 						var p = c.getSource().getPlayerOrThrow();

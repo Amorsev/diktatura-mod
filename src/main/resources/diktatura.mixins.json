@@ -11,7 +11,9 @@
 		"client.GameRendererMixin",
 		"client.KeyboardInputMixin",
 		"client.MouseMixin",
-		"client.CameraMixin"
+		"client.CameraMixin",
+		"client.ClientWorldMixin",
+		"client.BackgroundRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

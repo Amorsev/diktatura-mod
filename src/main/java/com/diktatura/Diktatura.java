@@ -84,6 +84,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.finale.BossFx.registerEvents();
 		com.diktatura.finale.GuardDragon.registerEvents();
 		com.diktatura.finale.FinalFight.registerEvents();
+		com.diktatura.loyalty.BloodMoon.registerEvents();
 		com.diktatura.mechanics.Timber.registerEvents();
 		com.diktatura.mechanics.CaveIns.registerEvents();
 		NpcInteractions.registerEvents();
@@ -146,6 +147,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.control.Trips.tick(s);
 		com.diktatura.finale.GuardDragon.tick(s);
 		com.diktatura.finale.FinalFight.tick(s);
+		com.diktatura.loyalty.BloodMoon.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}
