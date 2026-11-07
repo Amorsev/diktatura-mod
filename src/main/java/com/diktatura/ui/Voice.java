@@ -25,7 +25,7 @@ public final class Voice {
 	/** Сколько тиков держать реплику на экране: 2 с минимум плюс время на чтение. */
 	public static int durationTicks(Text line) {
 		int len = line.getString().length();
-		return Math.min(20 * 12, 40 + len * 2);
+		return Math.min(20 * 20, 40 + len * 3);
 	}
 
 	/** НПС говорит вслух: звук из его точки, субтитры всем рядом. */

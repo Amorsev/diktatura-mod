@@ -84,8 +84,10 @@ public final class Subtitles {
 			if (!arrow.isEmpty()) {
 				Ui.text(ctx, tr, Text.literal(arrow), x + boxW - 12, y + 3, Ui.MUTED, a);
 			}
-			for (int j = 0; j < Math.min(lines, wrapped.size()); j++) {
-				ctx.drawTextWithShadow(tr, wrapped.get(j), x + 26, y + 13 + j * 10, Ui.alpha(Ui.TEXT, a));
+			// Длинная реплика сама «прокручивается»: видны последние напечатанные строки.
+			int from = Math.max(0, wrapped.size() - lines);
+			for (int j = from; j < wrapped.size(); j++) {
+				ctx.drawTextWithShadow(tr, wrapped.get(j), x + 26, y + 13 + (j - from) * 10, Ui.alpha(Ui.TEXT, a));
 			}
 			ctx.getMatrices().pop();
 		}

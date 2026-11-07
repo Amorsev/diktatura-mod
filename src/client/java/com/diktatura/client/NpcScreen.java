@@ -24,7 +24,15 @@ public class NpcScreen extends Screen {
 	private static final double CLOSE_DIST_SQ = 10.0 * 10.0;
 
 	private final UiPayloads.NpcScreen data;
-	private final long opened;
+	private long opened;
+	/** Прокрутка реплики (в пикселях) и прокручивал ли игрок сам (тогда не следуем за машинкой). */
+	private double lineScroll;
+	private boolean userScrolled;
+	private int lineX;
+	private int lineY;
+	private int lineW;
+	private static final int LINE_H = 50;
+	private List<OrderedText> infoLines = List.of();
 	private int left;
 	private int top;
 	private int winW;
@@ -45,7 +53,13 @@ public class NpcScreen extends Screen {
 		int cols = data.actions().size() > 6 ? 3 : 2;
 		winW = Math.min(cols == 3 ? 360 : 320, width - 20);
 		int rows = (data.actions().size() + cols - 1) / cols;
-		winH = Math.min(height - 20, 120 + data.info().size() * 10 + rows * 24);
+		// Сводка переносится по строкам, а не обрезается.
+		java.util.ArrayList<OrderedText> lines = new java.util.ArrayList<>();
+		for (Text t : data.info()) {
+			lines.addAll(textRenderer.wrapLines(t, winW - 20));
+		}
+		infoLines = lines;
+		winH = Math.min(height - 20, 124 + infoLines.size() * 10 + rows * 24);
 		left = (width - winW) / 2;
 		top = (height - winH) / 2;
 
@@ -128,24 +142,68 @@ public class NpcScreen extends Screen {
 		ctx.getMatrices().pop();
 		ctx.drawTextWithShadow(textRenderer, data.role(), tx, top + 25, Ui.MUTED);
 
-		// Реплика печатной машинкой
+		// Реплика печатной машинкой — в рамке с прокруткой колесом мыши.
 		String full = data.line().getString();
 		int shown = (int) Math.min(full.length(), (Ui.now() - opened) / CHAR_MS);
 		Text line = Text.literal("«" + full.substring(0, shown) + (shown < full.length() ? "" : "»"));
-		List<OrderedText> wrapped = textRenderer.wrapLines(line, tw);
-		int ly = top + 40;
-		for (int i = 0; i < Math.min(4, wrapped.size()); i++) {
-			ctx.drawTextWithShadow(textRenderer, wrapped.get(i), tx, ly, Ui.TEXT);
-			ly += 10;
+		lineX = tx;
+		lineY = top + 40;
+		lineW = tw - 6;
+		List<OrderedText> wrapped = textRenderer.wrapLines(line, lineW);
+		int maxScroll = Math.max(0, wrapped.size() * 10 - LINE_H);
+		if (!userScrolled) {
+			lineScroll = maxScroll;
 		}
+		lineScroll = Math.max(0, Math.min(maxScroll, lineScroll));
+		ctx.enableScissor(lineX, lineY, lineX + lineW + 6, lineY + LINE_H);
+		int ly0 = lineY - (int) Math.round(lineScroll);
+		for (int i = 0; i < wrapped.size(); i++) {
+			int y = ly0 + i * 10;
+			if (y > lineY - 10 && y < lineY + LINE_H) {
+				ctx.drawTextWithShadow(textRenderer, wrapped.get(i), tx, y, Ui.TEXT);
+			}
+		}
+		ctx.disableScissor();
+		if (maxScroll > 0) {
+			// Полоса прокрутки справа от реплики.
+			int barX = lineX + lineW + 3;
+			ctx.fill(barX, lineY, barX + 2, lineY + LINE_H, 0x30FFFFFF);
+			int thumbH = Math.max(8, LINE_H * LINE_H / (LINE_H + maxScroll));
+			int thumbY = lineY + (int) ((LINE_H - thumbH) * (lineScroll / maxScroll));
+			ctx.fill(barX, thumbY, barX + 2, thumbY + thumbH, data.accent() | 0xFF000000);
+			if (lineScroll < maxScroll) {
+				ctx.drawTextWithShadow(textRenderer, Text.literal("▼"), barX - 8, lineY + LINE_H - 8, Ui.MUTED);
+			}
+		}
+		int ly = lineY + LINE_H;
 
 		// Сводка
 		int iy = Math.max(ly + 6, top + 10 + phh + 6);
 		ctx.fill(left + 8, iy - 4, left + winW - 8, iy - 3, 0x40FFFFFF);
-		for (Text t : data.info()) {
-			ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, t, winW - 20), left + 10, iy, 0xFFC8C8C8);
+		for (OrderedText t : infoLines) {
+			ctx.drawTextWithShadow(textRenderer, t, left + 10, iy, 0xFFC8C8C8);
 			iy += 10;
 		}
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		if (verticalAmount != 0) {
+			userScrolled = true;
+			lineScroll -= verticalAmount * 10;
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		// Клик по реплике — показать её целиком сразу (без печатной машинки).
+		if (mouseX >= lineX && mouseX < lineX + lineW + 6 && mouseY >= lineY && mouseY < lineY + LINE_H) {
+			opened = 0;
+			return true;
+		}
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@Override
