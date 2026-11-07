@@ -9,15 +9,6 @@
 		"EnderDragonEntityMixin",
 		"EnderDragonPartMixin"
 	],
-	"client": [
-		"client.GameRendererMixin",
-		"client.GameRendererAccessor",
-		"client.KeyboardInputMixin",
-		"client.MouseMixin",
-		"client.CameraMixin",
-		"client.ClientWorldMixin",
-		"client.BackgroundRendererMixin"
-	],
 	"injectors": {
 		"defaultRequire": 1
 	}

@@ -25,7 +25,11 @@
 		]
 	},
 	"mixins": [
-		"diktatura.mixins.json"
+		"diktatura.mixins.json",
+		{
+			"config": "diktatura.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.16.0",

@@ -1,0 +1,17 @@
+{
+	"required": false,
+	"package": "com.diktatura.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"GameRendererMixin",
+		"GameRendererAccessor",
+		"KeyboardInputMixin",
+		"MouseMixin",
+		"CameraMixin",
+		"ClientWorldMixin",
+		"BackgroundRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
