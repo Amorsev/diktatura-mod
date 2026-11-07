@@ -1,0 +1,10 @@
+{
+  "entity.goose.honk": {
+    "subtitle": "subtitles.diktatura.goose.honk",
+    "sounds": ["diktatura:goose/honk_1", "diktatura:goose/honk_2", "diktatura:goose/honk_3"]
+  },
+  "entity.goose.hiss": {
+    "subtitle": "subtitles.diktatura.goose.hiss",
+    "sounds": ["diktatura:goose/hiss"]
+  }
+}

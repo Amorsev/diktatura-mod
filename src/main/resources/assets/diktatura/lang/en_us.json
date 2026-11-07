@@ -212,7 +212,6 @@
   "diktatura.dictator.decree_voice.2": "My decree is brilliant. It is not up for discussion.",
   "diktatura.dictator.decree_voice.3": "Citizens! Read the Book of Laws. That is an order.",
   "diktatura.book.tab.active": "In force",
-  "diktatura.book.tab.all": "All",
   "diktatura.book.tab.repealed": "Repealed",
   "diktatura.book.tab.licenses": "My licenses",
   "diktatura.book.search": "Search laws…",
@@ -593,5 +592,13 @@
   "law.diktatura.public_sneezing": "No sneezing in public",
   "law.diktatura.public_sneezing.desc": "Sneeze near other citizens — a 2-workday fine and 15 seconds in a cell. Be ill at home.",
   "license.diktatura.forest": "Forest licence",
-  "license.diktatura.forest.desc": "You may fell trees outside state orders. The tree will still come down whole — not our department."
+  "license.diktatura.forest.desc": "You may fell trees outside state orders. The tree will still come down whole — not our department.",
+  "entity.diktatura.wild_goose": "Wild Goose",
+  "entity.diktatura.corrupted_goose": "Service Goose",
+  "item.diktatura.wild_goose_spawn_egg": "Wild Goose Spawn Egg",
+  "item.diktatura.corrupted_goose_spawn_egg": "Service Goose Spawn Egg",
+  "subtitles.diktatura.goose.honk": "Goose honks",
+  "subtitles.diktatura.goose.hiss": "Goose hisses",
+  "diktatura.goose.stole": "A GOOSE STOLE IT",
+  "diktatura.goose.stole.hint": "%s — catch the thief before it gets away"
 }

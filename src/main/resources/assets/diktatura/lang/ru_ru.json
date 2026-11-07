@@ -212,7 +212,6 @@
   "diktatura.dictator.decree_voice.2": "Мой указ гениален. Обсуждению не подлежит.",
   "diktatura.dictator.decree_voice.3": "Граждане! Читайте книгу законов. Это приказ.",
   "diktatura.book.tab.active": "Действующие",
-  "diktatura.book.tab.all": "Все",
   "diktatura.book.tab.repealed": "Отменённые",
   "diktatura.book.tab.licenses": "Мои лицензии",
   "diktatura.book.search": "Поиск по законам…",
@@ -593,5 +592,13 @@
   "law.diktatura.public_sneezing": "Не чихать в общественных местах",
   "law.diktatura.public_sneezing.desc": "Чихнул рядом с другими гражданами — штраф 2 трудодня и 15 секунд в камере. Болейте дома.",
   "license.diktatura.forest": "Лесная лицензия",
-  "license.diktatura.forest.desc": "Можно рубить деревья вне госзаказа. Дерево всё равно упадёт целиком — это не к нам."
+  "license.diktatura.forest.desc": "Можно рубить деревья вне госзаказа. Дерево всё равно упадёт целиком — это не к нам.",
+  "entity.diktatura.wild_goose": "Дикий гусь",
+  "entity.diktatura.corrupted_goose": "Служебный гусь",
+  "item.diktatura.wild_goose_spawn_egg": "Яйцо призыва дикого гуся",
+  "item.diktatura.corrupted_goose_spawn_egg": "Яйцо призыва служебного гуся",
+  "subtitles.diktatura.goose.honk": "Гусь гогочет",
+  "subtitles.diktatura.goose.hiss": "Гусь шипит",
+  "diktatura.goose.stole": "ГУСЬ УКРАЛ",
+  "diktatura.goose.stole.hint": "%s — догоните наглеца, пока не удрал"
 }

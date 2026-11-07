@@ -118,6 +118,12 @@ public final class PrisonSystem {
 		}
 
 		if (inMountain) {
+			// В горе вход — из тоннеля: ворота открыты (из камер всё равно не сбежать).
+			for (int z = 9; z <= 11; z++) {
+				for (int y = 1; y <= 3; y++) {
+					world.setBlockState(origin.add(0, y, z), air, flags);
+				}
+			}
 			return;
 		}
 		// Площадка у входа и фундамент до земли.

@@ -29,6 +29,12 @@ public final class ModItems {
 	/** Госпушка «Драконобой»: очередь лучей при зажатой ПКМ. */
 	public static final Item CANNON = new CannonItem(new Item.Settings().maxDamage(1024).rarity(Rarity.EPIC));
 
+	/** Яйца призыва гусей (творческий режим). */
+	public static final Item WILD_GOOSE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.WILD_GOOSE,
+		0xE6E6E0, 0xF2A33A, new Item.Settings());
+	public static final Item CORRUPTED_GOOSE_SPAWN_EGG = new net.minecraft.item.SpawnEggItem(com.diktatura.npc.ModEntities.CORRUPTED_GOOSE,
+		0x3A3E4A, 0xAA1419, new Item.Settings());
+
 	private ModItems() {
 	}
 
@@ -41,6 +47,12 @@ public final class ModItems {
 		Registry.register(Registries.ITEM, Diktatura.id("eraser"), ERASER);
 		Registry.register(Registries.ITEM, Diktatura.id("slipper"), SLIPPER);
 		Registry.register(Registries.ITEM, Diktatura.id("cannon"), CANNON);
+		Registry.register(Registries.ITEM, Diktatura.id("wild_goose_spawn_egg"), WILD_GOOSE_SPAWN_EGG);
+		Registry.register(Registries.ITEM, Diktatura.id("corrupted_goose_spawn_egg"), CORRUPTED_GOOSE_SPAWN_EGG);
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(entries -> {
+			entries.add(WILD_GOOSE_SPAWN_EGG);
+			entries.add(CORRUPTED_GOOSE_SPAWN_EGG);
+		});
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
 			entries.add(LAW_BOOK);
 			entries.add(PARCEL);

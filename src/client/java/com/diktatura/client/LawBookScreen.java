@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Книга законов: вкладки «Действующие», «Все», «Отменённые», «Мои лицензии» и поиск
+ * Книга законов: вкладки «Действующие», «Отменённые» (будущие законы заранее не видны), «Мои лицензии» и поиск
  * по названию и описанию. Прокрутка колесом.
  */
 public class LawBookScreen extends Screen {
-	private enum Tab { ACTIVE, ALL, REPEALED, LICENSES }
+	private enum Tab { ACTIVE, REPEALED, LICENSES }
 
 	private static Tab lastTab = Tab.ACTIVE;
 
@@ -100,7 +100,6 @@ public class LawBookScreen extends Screen {
 	private List<String> source() {
 		return switch (tab) {
 			case ACTIVE -> ClientState.laws;
-			case ALL -> ClientState.allLaws.isEmpty() ? ClientState.laws : ClientState.allLaws;
 			case REPEALED -> ClientState.repealedLaws;
 			case LICENSES -> List.of();
 		};
@@ -176,17 +175,7 @@ public class LawBookScreen extends Screen {
 			for (String id : ids) {
 				int color = 0xFFFFD27F;
 				Text name = Text.literal(n++ + ". ").append(Text.translatable(Law.translationKey(id)));
-				if (tab == Tab.ALL) {
-					boolean active = ClientState.laws.contains(id);
-					boolean repealed = ClientState.repealedLaws.contains(id);
-					String mark = active ? "diktatura.book.mark.active" : repealed ? "diktatura.book.mark.repealed"
-						: "diktatura.book.mark.dormant";
-					Text m = Text.translatable(mark).formatted(active ? Formatting.GREEN : Formatting.DARK_GRAY);
-					ctx.drawTextWithShadow(textRenderer, m, left + boxW - textRenderer.getWidth(m), y, 0xFFFFFF);
-					if (!active) {
-						color = 0xFFA09070;
-					}
-				} else if (tab == Tab.REPEALED) {
+				if (tab == Tab.REPEALED) {
 					color = 0xFFA09070;
 				}
 				ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, name, boxW - 70), left, y, color);

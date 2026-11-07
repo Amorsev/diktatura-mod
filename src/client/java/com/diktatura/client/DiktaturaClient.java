@@ -37,6 +37,9 @@ public class DiktaturaClient implements ClientModInitializer {
 		registerReceivers();
 		EntityRendererRegistry.register(ModEntities.NPC, NpcRenderer::new);
 		EntityRendererRegistry.register(ModEntities.SLIPPER, net.minecraft.client.render.entity.FlyingItemEntityRenderer::new);
+		com.diktatura.client.goose.GooseRenderer.registerLayer();
+		EntityRendererRegistry.register(ModEntities.WILD_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "wild_goose"));
+		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientState.reset();
 			Alerts.clear();

@@ -195,18 +195,14 @@ public final class Visits {
 		world.spawnEntity(npc);
 		if (kind == Kind.CUSTOMS) {
 			for (int i = 0; i < 3; i++) {
-				net.minecraft.entity.passive.ChickenEntity goose = EntityType.CHICKEN.create(world);
+				com.diktatura.goose.CorruptedGooseEntity goose = com.diktatura.npc.ModEntities.CORRUPTED_GOOSE.create(world);
 				if (goose == null) {
 					continue;
 				}
 				goose.refreshPositionAndAngles(spot.getX() + 0.5 + i - 1, spot.getY(), spot.getZ() + 1.5, 0f, 0f);
-				goose.setCustomName(Text.translatable("diktatura.visit.customs.goose"));
-				goose.setInvulnerable(true);
+				goose.setOwner(npc);
+				goose.setSuspect(p);
 				goose.addCommandTag(GOOSE_TAG);
-				var scale = goose.getAttributeInstance(net.minecraft.entity.attribute.EntityAttributes.GENERIC_SCALE);
-				if (scale != null) {
-					scale.setBaseValue(1.7);
-				}
 				visit.geese.add(goose.getUuid());
 				world.spawnEntity(goose);
 			}
@@ -377,13 +373,18 @@ public final class Visits {
 		Text name = d != null ? d.displayName() : npc.getName();
 		var inv = p.getInventory();
 		int taken = 0;
+		ItemStack sample = ItemStack.EMPTY;
 		for (int i = 0; i < inv.size(); i++) {
 			ItemStack st = inv.getStack(i);
 			if (!st.isEmpty() && IMPORT.contains(st.getItem())) {
 				taken += st.getCount();
+				if (sample.isEmpty()) {
+					sample = st.copy();
+				}
 				inv.setStack(i, ItemStack.EMPTY);
 			}
 		}
+		showConfiscated(p, npc, sample);
 		if (taken > 0) {
 			Voice.say(npc, name, Text.translatable("diktatura.visit.customs.import", taken), d != null ? d.soundEvent() : null,
 				d != null ? d.pitch() : 1f);
@@ -405,34 +406,43 @@ public final class Visits {
 		}
 		ItemStack st = inv.getStack(slots.get(p.getRandom().nextInt(slots.size())));
 		Text what = st.getName();
+		showConfiscated(p, npc, st);
 		st.decrement(1);
 		Voice.say(npc, name, Text.translatable("diktatura.visit.customs.duty", what), d != null ? d.soundEvent() : null,
 			d != null ? d.pitch() : 1f);
 		Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.visit.customs.duty.title"), what, 5);
 	}
 
-	/** Гуси ходят за таможенником и иногда гогочут. */
+	/** Гуси ходят за таможенником сами (свой ИИ); здесь — только редкий гогот для атмосферы. */
 	private static void herdGeese(MinecraftServer server, Visit v, NpcEntity npc) {
 		if (v.geese.isEmpty() || v.ticks % 20 != 0) {
 			return;
 		}
 		for (UUID id : v.geese) {
-			if (find(server, id) instanceof net.minecraft.entity.mob.MobEntity goose) {
-				if (goose.squaredDistanceTo(npc) > 3 * 3) {
-					goose.getNavigation().startMovingTo(npc, 1.3);
-				}
-				if (goose.getRandom().nextInt(6) == 0) {
-					goose.getWorld().playSound(null, goose.getX(), goose.getY(), goose.getZ(), SoundEvents.ENTITY_CHICKEN_HURT,
-						SoundCategory.NEUTRAL, 1.0f, 0.45f);
-				}
+			if (find(server, id) instanceof com.diktatura.goose.CorruptedGooseEntity goose && goose.getRandom().nextInt(8) == 0) {
+				goose.honk(0.75f + goose.getRandom().nextFloat() * 0.2f);
 			}
+		}
+	}
+
+	/** Конфискат — в клюв служебному гусю (для наглядности). */
+	private static void showConfiscated(ServerPlayerEntity p, NpcEntity npc, ItemStack stack) {
+		Visit v = ACTIVE.get(npc.getUuid());
+		if (v == null || v.geese.isEmpty() || stack.isEmpty()) {
+			return;
+		}
+		UUID id = v.geese.get(p.getRandom().nextInt(v.geese.size()));
+		if (find(p.getServer(), id) instanceof com.diktatura.goose.CorruptedGooseEntity goose) {
+			goose.showConfiscated(stack);
 		}
 	}
 
 	private static void dismissGeese(MinecraftServer server, Visit v) {
 		for (UUID id : v.geese) {
 			Entity e = find(server, id);
-			if (e instanceof net.minecraft.entity.mob.MobEntity goose) {
+			if (e instanceof com.diktatura.goose.CorruptedGooseEntity goose) {
+				goose.vanish();
+			} else if (e instanceof net.minecraft.entity.mob.MobEntity goose) {
 				leave(goose);
 			}
 		}

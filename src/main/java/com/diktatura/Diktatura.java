@@ -62,8 +62,9 @@ public class Diktatura implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		DiktaturaConfig.load();
-		ModItems.register();
+		com.diktatura.goose.ModSounds.register();
 		ModEntities.register();
+		ModItems.register();
 		Network.registerPayloads();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());
@@ -129,6 +130,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.bureau.Propaganda.tick(s);
 		com.diktatura.mechanics.CaveIns.tick(s);
 		com.diktatura.mechanics.Colds.tick(s);
+		com.diktatura.goose.GooseSpawner.tick(s);
 		EventSystem.tick(s);
 		Network.tick(s);
 	}

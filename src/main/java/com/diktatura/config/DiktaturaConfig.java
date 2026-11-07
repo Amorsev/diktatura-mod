@@ -57,6 +57,8 @@ public final class DiktaturaConfig {
 	public int prisonOffsetZ = 0;
 	/** В новом мире строить столицу горой: тюрьма внутри, зал, кабинеты и казино на вершине. */
 	public boolean capitalMountain = true;
+	/** Дикие гуси-воры: подселять стайки рядом с игроками (природный спавн на лугах — всегда). */
+	public boolean wildGeese = true;
 
 	/** Скорость повозки в блоках за тик. */
 	public double transportSpeed = 1.2;

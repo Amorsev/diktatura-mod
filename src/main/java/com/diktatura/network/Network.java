@@ -69,7 +69,8 @@ public final class Network {
 			return;
 		}
 		DiktaturaState state = DiktaturaState.get(server);
-		List<String> all = LawRegistry.all().stream().map(l -> l.key()).toList();
+		// Полный список законов клиенту не отправляется: будущие указы не должны быть видны заранее.
+		List<String> all = List.of();
 		List<String> repealed = state.repealedLaws.stream()
 			.filter(id -> LawRegistry.get(id) != null && !state.activeLaws.contains(id)).toList();
 		ServerPlayNetworking.send(p, new UiPayloads.LawList(all, repealed));

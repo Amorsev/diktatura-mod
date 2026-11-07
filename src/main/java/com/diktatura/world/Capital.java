@@ -15,6 +15,7 @@ import net.minecraft.block.LanternBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.block.WallSignBlock;
 import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -220,52 +221,70 @@ public final class Capital {
 
 	// ================================================================== тоннель и лестница
 
-	/** Тоннель от ворот тюрьмы (запад) до подножия, с порталом и вывеской. */
+	/** Верхний твёрдый блок в столбце (по реальному рельефу, после генерации горы). */
+	private static int surface(ServerWorld world, int x, int z) {
+		int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
+		// Стволы ёлок, трава и прочее — не рельеф: спускаемся до настоящей земли.
+		for (int i = 0; i < 24; i++) {
+			BlockState s = world.getBlockState(new BlockPos(x, y, z));
+			if (!(s.isIn(BlockTags.LOGS) || s.isIn(BlockTags.LEAVES) || s.isReplaceable())) {
+				break;
+			}
+			y--;
+		}
+		return y;
+	}
+
+	/** Самая высокая поверхность поперёк прохода шириной 2·half+1. */
+	private static int surfaceAcross(ServerWorld world, int x, int z, int half) {
+		int m = Integer.MIN_VALUE;
+		for (int dz = -half; dz <= half; dz++) {
+			m = Math.max(m, surface(world, x, z + dz));
+		}
+		return m;
+	}
+
+	/**
+	 * Тоннель от ворот тюрьмы (запад) до подножия, с порталом и вывеской. Копается, пока
+	 * над ним есть гора или естественный рельеф выше пола; за порталом — площадка и, если
+	 * земля ниже, ступени вниз до неё. Так выход никогда не упирается в стену и не висит в воздухе.
+	 */
 	private static void tunnel(ServerWorld world, BlockPos prison, int cx, int cz, int ground) {
 		int flags = Block.NOTIFY_LISTENERS;
 		BlockState wall = Blocks.STONE_BRICKS.getDefaultState();
 		BlockState floor = Blocks.POLISHED_ANDESITE.getDefaultState();
 		BlockState air = Blocks.AIR.getDefaultState();
 		int z0 = prison.getZ() + TUNNEL_Z;
+		int limit = prison.getX() - PLATEAU - SLOPE - 60;
 		int x = prison.getX() - 1;
-		int exitX = x;
-		// Идём на запад, пока над тоннелем есть гора (высота > 5), и ещё 3 блока.
-		while (heightAt(x, z0, cx, cz) > 5 && x > prison.getX() - PLATEAU - SLOPE - 4) {
+		while (x > limit && (heightAt(x, z0, cx, cz) > 5 || surfaceAcross(world, x, z0, 3) > ground + 1)) {
 			x--;
 		}
-		exitX = x - 3;
+		int exitX = x - 1;
 		for (int tx = prison.getX() - 1; tx >= exitX; tx--) {
 			boolean lamp = (prison.getX() - tx) % 6 == 3;
 			for (int dz = -3; dz <= 3; dz++) {
 				for (int y = 0; y <= 5; y++) {
 					BlockPos p = new BlockPos(tx, ground + y, z0 + dz);
 					boolean side = Math.abs(dz) == 3;
-					BlockState s;
+					BlockState st;
 					if (y == 0) {
-						s = side ? wall : floor;
+						st = side ? wall : floor;
 					} else if (y == 5 || side) {
-						s = wall;
+						st = wall;
 					} else {
-						s = air;
+						st = air;
 					}
-					world.setBlockState(p, s, flags);
+					world.setBlockState(p, st, flags);
 				}
-				// Фундамент под тоннелем, если он выходит над оврагом.
-				for (int y = -1; y > -20; y--) {
-					BlockPos p = new BlockPos(tx, ground + y, z0 + dz);
-					BlockState s = world.getBlockState(p);
-					if (!s.isReplaceable() && s.getFluidState().isEmpty()) {
-						break;
-					}
-					world.setBlockState(p, wall, flags);
-				}
+				fill(world, tx, ground - 1, z0 + dz, wall);
 			}
 			if (lamp) {
 				world.setBlockState(new BlockPos(tx, ground + 4, z0 - 2), Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true), flags);
 				world.setBlockState(new BlockPos(tx, ground + 4, z0 + 2), Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true), flags);
 			}
 		}
-		// Портал у подножия: арка из резного кирпича и вывеска.
+		// Портал: арка из резного кирпича и вывеска.
 		for (int dz = -3; dz <= 3; dz++) {
 			for (int y = 0; y <= 6; y++) {
 				boolean frame = Math.abs(dz) == 3 || y == 6 || (y == 5 && Math.abs(dz) == 2);
@@ -273,6 +292,31 @@ public final class Capital {
 					world.setBlockState(new BlockPos(exitX, ground + y, z0 + dz), Blocks.CHISELED_STONE_BRICKS.getDefaultState(), flags);
 				}
 			}
+		}
+		// Площадка перед порталом (5 блоков) — расчищена до неба, на уровне пола.
+		int px = exitX - 1;
+		for (; px >= exitX - 5; px--) {
+			for (int dz = -2; dz <= 2; dz++) {
+				world.setBlockState(new BlockPos(px, ground, z0 + dz), floor, flags);
+				fill(world, px, ground - 1, z0 + dz, wall);
+				for (int y = 1; y <= 6; y++) {
+					world.setBlockState(new BlockPos(px, ground + y, z0 + dz), air, flags);
+				}
+			}
+		}
+		// Если земля дальше ниже площадки — ступени вниз, пока не встанем на неё.
+		int y = ground;
+		while (y > ground - 30 && surfaceAcross(world, px, z0, 2) < y - 1) {
+			y--;
+			for (int dz = -2; dz <= 2; dz++) {
+				world.setBlockState(new BlockPos(px, y, z0 + dz), Blocks.STONE_BRICK_STAIRS.getDefaultState()
+					.with(StairsBlock.FACING, Direction.EAST), flags);
+				fill(world, px, y - 1, z0 + dz, wall);
+				for (int yy = 1; yy <= 4; yy++) {
+					world.setBlockState(new BlockPos(px, y + yy, z0 + dz), air, flags);
+				}
+			}
+			px--;
 		}
 		BlockPos sign = new BlockPos(exitX - 1, ground + 5, z0);
 		world.setBlockState(sign.east(), Blocks.CHISELED_STONE_BRICKS.getDefaultState(), flags);
@@ -286,6 +330,18 @@ public final class Capital {
 		}
 	}
 
+	/** Засыпать вниз от (x, y, z) до твёрдой земли (фундамент, насыпь). */
+	private static void fill(ServerWorld world, int x, int yTop, int z, BlockState block) {
+		for (int y = yTop; y > yTop - 40; y--) {
+			BlockPos q = new BlockPos(x, y, z);
+			BlockState s = world.getBlockState(q);
+			if (!s.isReplaceable() && s.getFluidState().isEmpty()) {
+				break;
+			}
+			world.setBlockState(q, block, Block.NOTIFY_LISTENERS);
+		}
+	}
+
 	/** Лестница по западному склону от подножия до плато: не круче одного блока на шаг. */
 	private static void stairs(ServerWorld world, int cx, int cz, int ground, int top) {
 		int flags = Block.NOTIFY_LISTENERS;
@@ -296,17 +352,18 @@ public final class Capital {
 		int endX = cx - PLATEAU + 2;
 		int n = endX - startX + 1;
 		int[] y = new int[n];
+		// Высота лестницы — по настоящему рельефу (гора + природные холмы у подножия).
 		for (int i = 0; i < n; i++) {
-			y[i] = ground + heightAt(startX + i, z0, cx, cz);
+			y[i] = Math.min(top, surfaceAcross(world, startX + i, z0, 2));
 		}
 		y[n - 1] = top;
-		// Сверху вниз: каждый следующий шаг вниз не больше чем на блок (где склон круче — насыпь).
+		// Сверху вниз: подъём не больше блока на шаг (где круче — насыпь)...
 		for (int i = n - 2; i >= 0; i--) {
 			y[i] = Math.max(y[i], y[i + 1] - 1);
 		}
-		// Снизу вверх: не выше вершины.
-		for (int i = 0; i < n; i++) {
-			y[i] = Math.min(y[i], top);
+		// ...и снизу вверх: спуск тоже не больше блока (после бугра — насыпь, а не обрыв).
+		for (int i = 1; i < n; i++) {
+			y[i] = Math.min(top, Math.max(y[i], y[i - 1] - 1));
 		}
 		for (int i = 0; i < n; i++) {
 			int x = startX + i;
@@ -337,6 +394,10 @@ public final class Capital {
 					// Ступень: следующий блок выше — ставим ступеньку на этот уровень + 1.
 					world.setBlockState(p.up(), Blocks.STONE_BRICK_STAIRS.getDefaultState()
 						.with(StairsBlock.FACING, Direction.EAST), flags);
+				} else if (i > 0 && y[i - 1] > y[i]) {
+					// Спуск после бугра: ступенька, обращённая назад (на запад).
+					world.setBlockState(p.up(), Blocks.STONE_BRICK_STAIRS.getDefaultState()
+						.with(StairsBlock.FACING, Direction.WEST), flags);
 				}
 			}
 		}
@@ -380,6 +441,13 @@ public final class Capital {
 		for (int x = Math.min(fromX, toX); x <= Math.max(fromX, toX); x++) {
 			for (int dz = -1; dz <= 1; dz++) {
 				world.setBlockState(new BlockPos(x, top, z + dz), Blocks.STONE_BRICKS.getDefaultState(), Block.NOTIFY_LISTENERS);
+				// Над дорожкой — чисто (ёлки и неровности плато не перегораживают проход).
+				for (int y = 1; y <= 4; y++) {
+					BlockPos q = new BlockPos(x, top + y, z + dz);
+					if (!world.getBlockState(q).isAir()) {
+						world.setBlockState(q, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS);
+					}
+				}
 			}
 		}
 	}
