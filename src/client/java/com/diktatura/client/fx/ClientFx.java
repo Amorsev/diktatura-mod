@@ -226,7 +226,7 @@ public final class ClientFx {
 		for (int i = 0; i < 3; i++) {
 			int n = (base + i * 7) % COMMENTS;
 			int cy = h - 136 + i * 12;
-			Text line = Text.literal(citizen(base * 31 + i * 17) + "  ").styled(st -> st.withColor(0xAAAAAA))
+			Text line = citizen(base * 31 + i * 17).copy().append("  ").styled(st -> st.withColor(0xAAAAAA))
 				.append(Text.translatable("diktatura.trip.tiktok.comment." + n).styled(st -> st.withColor(0xFFFFFF)));
 			int lw = Math.min(tr.getWidth(line) + 6, vw - 40);
 			ctx.fill(lx - 2, cy - 2, lx - 2 + lw, cy + 9, 0x50000000);
