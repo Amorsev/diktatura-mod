@@ -814,5 +814,19 @@
   "subtitles.diktatura.ore2": "Руда: «Не трогай меня!»",
   "subtitles.diktatura.ore3": "Руда: «Помогите!»",
   "subtitles.diktatura.ore4": "Руда: «Я ещё пожить хочу!»",
-  "subtitles.diktatura.tiny_steps": "Топот маленьких ножек"
+  "subtitles.diktatura.tiny_steps": "Топот маленьких ножек",
+  "subtitles.diktatura.food": "Еда кричит",
+  "diktatura.food.scream.0": "Не ешь меня!",
+  "diktatura.food.scream.1": "А-а-а-а! Нет!",
+  "diktatura.food.scream.2": "У меня есть семья!",
+  "diktatura.food.scream.3": "Я молодой ещё!",
+  "diktatura.food.scream.4": "Только не в рот!",
+  "diktatura.food.propaganda.0": "Съешь меня во славу вождя!",
+  "diktatura.food.propaganda.1": "Я выращен по пятилетнему плану. Перевыполнен на 300%%!",
+  "diktatura.food.propaganda.2": "Жуй медленно: еда — государственная собственность.",
+  "diktatura.food.propaganda.3": "Горжусь, что меня съест сознательный гражданин!",
+  "diktatura.food.propaganda.4": "Не забудь поблагодарить вождя за обед.",
+  "diktatura.food.propaganda.5": "Калорий во мне ровно столько, сколько разрешено.",
+  "diktatura.food.propaganda.6": "Я — паёк. Паёк — это любовь государства.",
+  "diktatura.food.propaganda.7": "Вкус утверждён министерством. Жалобы не принимаются."
 }

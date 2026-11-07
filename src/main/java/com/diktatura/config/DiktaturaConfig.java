@@ -76,6 +76,8 @@ public final class DiktaturaConfig {
 	public int bloodMoonEveryNights = 7;
 	/** В Кровавую луну рядом с игроками появляются дополнительные враждебные мобы. */
 	public boolean bloodMoonExtraMobs = true;
+	/** Кричащая еда: шанс, что еда заговорит, когда её начинают есть (0 — выключить). */
+	public double screamingFoodChance = 0.3;
 	/** Эмиграция руды: при добыче руда может отрастить ножки и убежать (шахтёрская лицензия вдвое снижает шанс). */
 	public boolean runawayOre = true;
 	public double runawayDiamondChance = 0.35;

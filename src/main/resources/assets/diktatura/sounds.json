@@ -116,5 +116,35 @@
       "diktatura:sfx/tiny_steps_2",
       "diktatura:sfx/tiny_steps_3"
     ]
+  },
+  "voice.food1": {
+    "subtitle": "subtitles.diktatura.food",
+    "sounds": [
+      "diktatura:voice/food1"
+    ]
+  },
+  "voice.food2": {
+    "subtitle": "subtitles.diktatura.food",
+    "sounds": [
+      "diktatura:voice/food2"
+    ]
+  },
+  "voice.food3": {
+    "subtitle": "subtitles.diktatura.food",
+    "sounds": [
+      "diktatura:voice/food3"
+    ]
+  },
+  "voice.food4": {
+    "subtitle": "subtitles.diktatura.food",
+    "sounds": [
+      "diktatura:voice/food4"
+    ]
+  },
+  "voice.food5": {
+    "subtitle": "subtitles.diktatura.food",
+    "sounds": [
+      "diktatura:voice/food5"
+    ]
   }
 }

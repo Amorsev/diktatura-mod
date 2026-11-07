@@ -85,6 +85,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.finale.GuardDragon.registerEvents();
 		com.diktatura.finale.FinalFight.registerEvents();
 		com.diktatura.loyalty.BloodMoon.registerEvents();
+		com.diktatura.mechanics.ScreamingFood.registerEvents();
 		com.diktatura.ore.OreEmigration.registerEvents();
 		com.diktatura.mechanics.Timber.registerEvents();
 		com.diktatura.mechanics.CaveIns.registerEvents();
@@ -119,6 +120,7 @@ public class Diktatura implements ModInitializer {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, s) -> {
 			com.diktatura.bureau.Captcha.forget(handler.player.getUuid());
 			com.diktatura.control.CurfewDoubles.forget(handler.player.getUuid());
+			com.diktatura.mechanics.ScreamingFood.forget(handler.player.getUuid());
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, s) -> {
 			ServerPlayerEntity player = handler.player;
