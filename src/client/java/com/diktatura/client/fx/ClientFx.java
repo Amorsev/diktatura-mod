@@ -15,6 +15,9 @@ import java.util.Map;
 /** Экранные эффекты на клиенте: какой эффект до какого тика действует. */
 public final class ClientFx {
 	private static final Map<String, Long> UNTIL = new HashMap<>();
+	private static final Map<String, Long> START = new HashMap<>();
+	/** Комментарии зрителей «вертикального видео» (ключи diktatura.trip.tiktok.comment.N). */
+	private static final int COMMENTS = 16;
 	private static long ticks;
 
 	private ClientFx() {
@@ -23,14 +26,26 @@ public final class ClientFx {
 	public static void set(String id, int duration) {
 		if (duration <= 0) {
 			UNTIL.remove(id);
+			START.remove(id);
 		} else {
 			UNTIL.put(id, ticks + duration);
+			START.put(id, ticks);
 		}
 	}
 
 	public static boolean active(String id) {
 		Long t = UNTIL.get(id);
 		return t != null && t > ticks;
+	}
+
+	/** Какая доля эффекта уже прошла (0..1). */
+	public static float progress(String id) {
+		Long until = UNTIL.get(id);
+		Long start = START.get(id);
+		if (until == null || start == null || until <= start) {
+			return 0f;
+		}
+		return MathHelper.clamp((ticks - start) / (float) (until - start), 0f, 1f);
 	}
 
 	public static float time(float tickDelta) {
@@ -71,10 +86,7 @@ public final class ClientFx {
 			renderLag(ctx, tr, w, h);
 		}
 		if (active("tiktok")) {
-			int frame = Math.min(w, h * 9 / 16);
-			int side = (w - frame) / 2;
-			ctx.fill(0, 0, side, h, 0xFF000000);
-			ctx.fill(w - side, 0, w, h, 0xFF000000);
+			renderTikTok(ctx, MinecraftClient.getInstance().textRenderer, w, h);
 		}
 		if (active("bloodmoon")) {
 			// Кровавая луна: лёгкая красная дымка по краям.
@@ -156,5 +168,121 @@ public final class ClientFx {
 		if ((ticks / 15) % 2 == 0) {
 			Ui.centered(ctx, tr, Text.translatable("diktatura.trip.lag.title"), w / 2, h / 2 - 34, 0xFFFFE070, 1f);
 		}
+	}
+
+	/**
+	 * «Вертикальное видео» (по мотивам референса Gr1tW4lk, MIT): кадр 9:16 и интерфейс видеоленты
+	 * в духе госТВ — канал вождя, накрученные лайки, добровольно-принудительные комментарии граждан.
+	 */
+	private static void renderTikTok(DrawContext ctx, TextRenderer tr, int w, int h) {
+		int vw = Math.min(w, h * 9 / 16);
+		int bar = (w - vw) / 2;
+		ctx.fill(0, 0, bar, h, 0xFF000000);
+		ctx.fill(w - bar, 0, w, h, 0xFF000000);
+
+		// Вкладки сверху: «Подписки» серые, «Одобренное» выделено и подчёркнуто.
+		Text subs = Text.translatable("diktatura.trip.tiktok.tab.subs");
+		Text main = Text.translatable("diktatura.trip.tiktok.tab.main").styled(st -> st.withBold(true));
+		int gap = 10;
+		int total = tr.getWidth(subs) + gap + tr.getWidth(main);
+		int tx = w / 2 - total / 2;
+		ctx.drawText(tr, subs, tx, 8, 0xFFB0B0B0, true);
+		int mx = tx + tr.getWidth(subs) + gap;
+		ctx.drawText(tr, main, mx, 8, 0xFFFFFFFF, true);
+		ctx.fill(mx, 19, mx + tr.getWidth(main), 20, 0xFFFFFFFF);
+
+		// Справа: аватар канала с «подписаться» и столбик кнопок со счётчиками.
+		int right = w - bar - 16;
+		int iy = h / 2 - 54;
+		ctx.fill(right - 9, iy - 5, right + 9, iy + 13, 0xFFFFFFFF);
+		ctx.fill(right - 8, iy - 4, right + 8, iy + 12, 0xFF8A1620);
+		ctx.drawItem(new ItemStack(com.diktatura.item.ModItems.SCEPTER), right - 8, iy - 4);
+		ctx.fill(right - 4, iy + 10, right + 4, iy + 16, 0xFFFF2D55);
+		ctx.drawText(tr, Text.literal("+"), right - 2, iy + 9, 0xFFFFFFFF, false);
+		// Лайки накручены: число растёт на глазах, как и положено госканалу.
+		long likes = 1_300_000L + ticks * 1337L;
+		String[] labels = {compact(likes), "48K", "0"};
+		for (int i = 0; i < 3; i++) {
+			int cy = iy + 30 + i * 34;
+			switch (i) {
+				case 0 -> drawHeart(ctx, right - 7, cy, 2, 0xFFFF2D55);
+				case 1 -> drawBubble(ctx, right - 7, cy);
+				default -> drawShare(ctx, right - 7, cy);
+			}
+			Text label = i == 2 ? Text.translatable("diktatura.trip.tiktok.share") : Text.literal(labels[i]);
+			Ui.centered(ctx, tr, label, right, cy + 15, 0xFFFFFFFF, 1f);
+		}
+
+		// Подпись к видео над хотбаром.
+		int lx = bar + 6;
+		int capY = h - 92;
+		Ui.text(ctx, tr, Text.translatable("diktatura.trip.tiktok.channel").styled(st -> st.withBold(true)), lx, capY, 0xFFFFFFFF, 1f);
+		Ui.textFit(ctx, tr, Text.translatable("diktatura.trip.tiktok.caption"), lx, capY + 11, vw - 44, 0xFFDDDDDD, 1f);
+		Ui.textFit(ctx, tr, Text.translatable("diktatura.trip.tiktok.sound"), lx, capY + 22, vw - 44, 0xFFBBBBBB, 1f);
+
+		// Бегущие комментарии граждан: сменяются каждые ~1,2 секунды.
+		int base = (int) (ticks / 25);
+		for (int i = 0; i < 3; i++) {
+			int n = (base + i * 7) % COMMENTS;
+			int cy = h - 136 + i * 12;
+			Text line = Text.literal(citizen(base * 31 + i * 17) + "  ").styled(st -> st.withColor(0xAAAAAA))
+				.append(Text.translatable("diktatura.trip.tiktok.comment." + n).styled(st -> st.withColor(0xFFFFFF)));
+			int lw = Math.min(tr.getWidth(line) + 6, vw - 40);
+			ctx.fill(lx - 2, cy - 2, lx - 2 + lw, cy + 9, 0x50000000);
+			ctx.drawText(tr, Ui.fit(tr, line, vw - 46), lx + 1, cy, 0xFFFFFFFF, true);
+		}
+
+		// Сердечки всплывают от кнопки лайка и тают.
+		for (int i = 0; i < 6; i++) {
+			float life = ((ticks + i * 13) % 60) / 60f;
+			int hx = right - 18 - (int) (MathHelper.sin((ticks + i * 40) * 0.1f) * 8);
+			int hy = (int) (h - 60 - life * 140);
+			drawHeart(ctx, hx, hy, 1, (int) ((1 - life) * 255) << 24 | 0xFF2D55);
+		}
+
+		// Полоса прогресса «видео» — сколько осталось трипа.
+		ctx.fill(bar, h - 3, w - bar, h - 1, 0x40FFFFFF);
+		ctx.fill(bar, h - 3, bar + (int) (vw * progress("tiktok")), h - 1, 0xFFFFFFFF);
+	}
+
+	/** Ник зрителя: «гражданин_4821». */
+	private static Text citizen(int seed) {
+		return Text.translatable("diktatura.trip.tiktok.user", Math.floorMod(seed, 9000) + 1000);
+	}
+
+	private static String compact(long n) {
+		if (n >= 1_000_000L) {
+			return String.format(java.util.Locale.ROOT, "%.1fM", n / 1_000_000.0);
+		}
+		return n >= 1000 ? (n / 1000) + "K" : Long.toString(n);
+	}
+
+	private static void drawHeart(DrawContext ctx, int x, int y, int s, int color) {
+		int[][] px = {{1, 0}, {2, 0}, {4, 0}, {5, 0}, {0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1}, {5, 1}, {6, 1},
+			{0, 2}, {1, 2}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}, {1, 3}, {2, 3}, {3, 3}, {4, 3}, {5, 3},
+			{2, 4}, {3, 4}, {4, 4}, {3, 5}};
+		for (int[] p : px) {
+			ctx.fill(x + p[0] * s, y + p[1] * s, x + p[0] * s + s, y + p[1] * s + s, color);
+		}
+	}
+
+	/** Облачко комментариев. */
+	private static void drawBubble(DrawContext ctx, int x, int y) {
+		ctx.fill(x + 1, y, x + 13, y + 9, 0xFFFFFFFF);
+		ctx.fill(x, y + 1, x + 14, y + 8, 0xFFFFFFFF);
+		ctx.fill(x + 3, y + 9, x + 6, y + 11, 0xFFFFFFFF);
+		ctx.fill(x + 3, y + 4, x + 5, y + 6, 0xFF222222);
+		ctx.fill(x + 6, y + 4, x + 8, y + 6, 0xFF222222);
+		ctx.fill(x + 9, y + 4, x + 11, y + 6, 0xFF222222);
+	}
+
+	/** Стрелка «поделиться». */
+	private static void drawShare(DrawContext ctx, int x, int y) {
+		ctx.fill(x + 8, y, x + 9, y + 11, 0xFFFFFFFF);
+		for (int i = 0; i < 6; i++) {
+			ctx.fill(x + 8 + i, y + i, x + 9 + i, y + 11 - i, 0xFFFFFFFF);
+		}
+		ctx.fill(x + 2, y + 4, x + 8, y + 7, 0xFFFFFFFF);
+		ctx.fill(x, y + 6, x + 3, y + 11, 0xFFFFFFFF);
 	}
 }
