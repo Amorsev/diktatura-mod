@@ -238,6 +238,13 @@ public final class Offices {
 		if (!world.isChunkLoaded(signPos.getX() >> 4, signPos.getZ() >> 4)) {
 			return;
 		}
+		// Табличку могла снести дорожка площади (столицы, построенные в 0.2.16–0.2.19) — ставим обратно.
+		if (!(world.getBlockEntity(signPos) instanceof SignBlockEntity) && world.getBlockState(signPos).isAir()
+			&& world.getBlockState(signPos.east()).isSolidBlock(world, signPos.east())) {
+			world.setBlockState(signPos, Blocks.SPRUCE_WALL_SIGN.getDefaultState()
+				.with(net.minecraft.block.WallSignBlock.FACING, net.minecraft.util.math.Direction.WEST), Block.NOTIFY_LISTENERS);
+			force = true;
+		}
 		boolean open = isOpen(server, o);
 		int minutes = Math.max(1, (state.officeTicks[o.ordinal()] + 1199) / 1200);
 		String cache = open + ":" + minutes;

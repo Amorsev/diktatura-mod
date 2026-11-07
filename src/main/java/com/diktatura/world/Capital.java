@@ -483,8 +483,9 @@ public final class Capital {
 			}
 		}
 		// Ответвления к входам: два кабинета, казино, портик зала; и к лестнице с запада.
-		path(world, x1 + 2, offices.getX() - 1, offices.getZ() + 3, top);
-		path(world, x1 + 2, offices.getX() - 1, offices.getZ() + 10, top);
+		// До -2: в столбце x = -1 у двери висит табличка кабинета, расчистка над дорожкой её сносила.
+		path(world, x1 + 2, offices.getX() - 2, offices.getZ() + 3, top);
+		path(world, x1 + 2, offices.getX() - 2, offices.getZ() + 10, top);
 		path(world, x1 + 2, casino.getX() - 1, casino.getZ() + 5, top);
 		path(world, x1 + 2, hall.getX() - 5, hall.getZ() + GrandThroneHall.DOOR_Z, top);
 		path(world, cx - PLATEAU + 2, x0 - 2, cz + STAIRS_DZ, top);
