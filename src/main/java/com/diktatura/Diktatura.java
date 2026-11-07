@@ -66,6 +66,7 @@ public class Diktatura implements ModInitializer {
 		ModEntities.register();
 		ModItems.register();
 		com.diktatura.control.ModControl.register();
+		com.diktatura.job.RoyalBlocks.register();
 		Network.registerPayloads();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());
@@ -114,6 +115,7 @@ public class Diktatura implements ModInitializer {
 			TransportSystem.shutdown(s);
 			LawEngine.clear();
 			com.diktatura.finale.GuardDragon.clear();
+			com.diktatura.job.RoyalSite.clearRuntime();
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(s -> server = null);
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((s, manager, success) -> Dictator.refresh(s));

@@ -924,5 +924,22 @@
   "diktatura.config.coldMinutes": "Cold lasts, min",
   "diktatura.config.useUpgrader": "Values from Upgrader",
   "diktatura.config.upgraderValueClass": "Upgrader: class",
-  "diktatura.config.upgraderValueMethod": "Upgrader: method"
+  "diktatura.config.upgraderValueMethod": "Upgrader: method",
+  "block.diktatura.royal_block": "Universal Super Modular Royal Block",
+  "block.diktatura.royal_block.lore1": "Can only be placed according to the royal blueprint",
+  "block.diktatura.royal_block.lore2": "Modular. Universal. Royally super.",
+  "diktatura.royal.title": "ROYAL CONSTRUCTION",
+  "diktatura.royal.sub": "Project: %s. Place blocks at the blue marks",
+  "diktatura.royal.start": "You have been taken to the royal construction site. Project: %s, blocks: %s. Place royal blocks at the blue marks. Deadline: %s min.",
+  "diktatura.royal.wrong_spot": "Royal blocks can only be placed at the marked blueprint spots",
+  "diktatura.royal.done": "CONSTRUCTION COMPLETE",
+  "diktatura.royal.done.sub": "Your work will be highly valued — as the work of His Majesty — and sold at a higher price. Thank you!",
+  "diktatura.royal.legacy": "The old construction job was cancelled: builders now work on the royal site. Take the job again.",
+  "diktatura.job.builder.obelisk": "Leader's obelisk",
+  "diktatura.job.builder.arch": "triumphal arch",
+  "diktatura.job.builder.tower": "vigilance tower",
+  "diktatura.job.builder.bust": "bust of the Leader",
+  "diktatura.job.builder.bridge": "friendship bridge",
+  "diktatura.job.builder.throne": "His Majesty's throne",
+  "diktatura.job.builder.pyramid": "five-year-plan pyramid"
 }

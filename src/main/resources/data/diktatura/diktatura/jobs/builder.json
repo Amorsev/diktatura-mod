@@ -5,19 +5,269 @@
   "minutes": 12,
   "reward": 40,
   "late_fine": 8,
-  "min_accuracy": 50,
-  "blueprint": {
-    "label": "diktatura.job.builder.gazebo",
-    "layers": [
-      ["CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC"],
-      ["P...P", ".....", ".....", ".....", "P...P"],
-      ["P...P", ".....", ".....", ".....", "P...P"],
-      ["SSSSS", "S...S", "S...S", "S...S", "SSSSS"]
-    ],
-    "palette": {
-      "C": "minecraft:cobblestone",
-      "P": "minecraft:oak_log",
-      "S": "minecraft:stone_brick_slab"
+  "blueprints": [
+    {
+      "label": "diktatura.job.builder.gazebo",
+      "layers": [
+        [
+          "X...X",
+          ".....",
+          ".....",
+          ".....",
+          "X...X"
+        ],
+        [
+          "X...X",
+          ".....",
+          ".....",
+          ".....",
+          "X...X"
+        ],
+        [
+          "X...X",
+          ".....",
+          ".....",
+          ".....",
+          "X...X"
+        ],
+        [
+          "XXXXX",
+          "XXXXX",
+          "XXXXX",
+          "XXXXX",
+          "XXXXX"
+        ],
+        [
+          ".....",
+          ".XXX.",
+          ".XXX.",
+          ".XXX.",
+          "....."
+        ],
+        [
+          ".....",
+          ".....",
+          "..X..",
+          ".....",
+          "....."
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.obelisk",
+      "layers": [
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.arch",
+      "layers": [
+        [
+          "XX...XX"
+        ],
+        [
+          "XX...XX"
+        ],
+        [
+          "XX...XX"
+        ],
+        [
+          "XX...XX"
+        ],
+        [
+          "XXXXXXX"
+        ],
+        [
+          ".XXXXX."
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.tower",
+      "layers": [
+        [
+          "XXX",
+          "X.X",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "X.X",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "X.X",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "X.X",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "X.X",
+          "XXX"
+        ],
+        [
+          "X.X",
+          "...",
+          "X.X"
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.bust",
+      "layers": [
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "...",
+          ".X.",
+          "..."
+        ],
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "...",
+          "XXX",
+          "..."
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.bridge",
+      "layers": [
+        [
+          "X.......X"
+        ],
+        [
+          "X.......X"
+        ],
+        [
+          "XXXXXXXXX"
+        ],
+        [
+          "X.X.X.X.X"
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.throne",
+      "layers": [
+        [
+          "XXX",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "X.X",
+          "XXX",
+          "XXX"
+        ],
+        [
+          "X.X",
+          "...",
+          "XXX"
+        ],
+        [
+          "...",
+          "...",
+          "XXX"
+        ],
+        [
+          "...",
+          "...",
+          "X.X"
+        ]
+      ]
+    },
+    {
+      "label": "diktatura.job.builder.pyramid",
+      "layers": [
+        [
+          "XXXXX",
+          "XXXXX",
+          "XXXXX",
+          "XXXXX",
+          "XXXXX"
+        ],
+        [
+          ".....",
+          ".XXX.",
+          ".XXX.",
+          ".XXX.",
+          "....."
+        ],
+        [
+          ".....",
+          ".....",
+          "..X..",
+          ".....",
+          "....."
+        ]
+      ]
     }
-  }
+  ]
 }

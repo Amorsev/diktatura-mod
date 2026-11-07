@@ -136,7 +136,7 @@ public final class Jobs {
 			}
 			rec.job.putInt("t", rec.job.getInt("t") - 20);
 			if (def.type() == Type.BUILDER) {
-				builderTick(p, rec, def);
+				RoyalSite.tick(p, rec, def);
 				if (rec.job == null) {
 					continue;
 				}
@@ -165,7 +165,8 @@ public final class Jobs {
 			return false;
 		}
 		Random rnd = p.getRandom();
-		int variant = def.variants().isEmpty() ? 0 : rnd.nextInt(def.variants().size());
+		int variant = def.type() == Type.BUILDER ? rnd.nextInt(Math.max(1, def.blueprints().size()))
+			: def.variants().isEmpty() ? 0 : rnd.nextInt(def.variants().size());
 		NbtCompound job = new NbtCompound();
 		job.putString("id", def.id());
 		job.putInt("v", variant);
@@ -187,13 +188,7 @@ public final class Jobs {
 				p.getInventory().offerOrDrop(new ItemStack(ModItems.PARCEL));
 				info = Text.translatable("diktatura.job.courier.start", dest.getX(), dest.getZ(), def.minutes());
 			}
-			case BUILDER -> {
-				BlockPos anchor = builderAnchor(p, def);
-				job.putInt("tx", anchor.getX());
-				job.putInt("ty", anchor.getY());
-				job.putInt("tz", anchor.getZ());
-				info = Text.translatable("diktatura.job.builder.start", def.minutes(), def.minAccuracy());
-			}
+			case BUILDER -> info = RoyalSite.start(p, def, variant, job);
 			default -> info = Text.translatable("diktatura.job.count.start", def.goalFor(variant),
 				Text.translatable(def.labelFor(variant)), def.minutes());
 		}
@@ -204,8 +199,18 @@ public final class Jobs {
 		return true;
 	}
 
+	/** Королевская стройка улетела: заплатить и вернуть игрока. */
+	static void finishBuilder(ServerPlayerEntity p) {
+		PlayerRecord rec = DiktaturaState.get(p.getServer()).player(p);
+		JobDef def = def(rec);
+		if (def == null || def.type() != Type.BUILDER || rec.job == null) {
+			return;
+		}
+		complete(p, rec, def, def.rewardFor(rec.job.getInt("v")));
+	}
+
 	/** Работа выполнена: заплатить и закрыть. */
-	private static void complete(ServerPlayerEntity p, PlayerRecord rec, JobDef def, int pay) {
+	static void complete(ServerPlayerEntity p, PlayerRecord rec, JobDef def, int pay) {
 		int variant = rec.job.getInt("v");
 		cleanup(p, rec);
 		rec.job = null;
@@ -274,11 +279,12 @@ public final class Jobs {
 		DiktaturaState.get(p.getServer()).markDirty();
 	}
 
-	/** Убрать следы работы: получателя и посылки. */
+	/** Убрать следы работы: получателя, посылки, королевскую стройку. */
 	private static void cleanup(ServerPlayerEntity p, PlayerRecord rec) {
 		if (rec.job == null) {
 			return;
 		}
+		RoyalSite.cleanup(p, rec);
 		if (rec.job.containsUuid("r")) {
 			UUID id = rec.job.getUuid("r");
 			rec.job.remove("r");
@@ -403,81 +409,6 @@ public final class Jobs {
 		return rec.job != null && rec.job.containsUuid("r") && rec.job.getUuid("r").equals(npc.getUuid());
 	}
 
-	// ================================================================== строитель
-
-	private static BlockPos builderAnchor(ServerPlayerEntity p, JobDef def) {
-		int sx = 1;
-		int sz = 1;
-		for (BlockPos o : def.blueprint().offsets()) {
-			sx = Math.max(sx, o.getX() + 1);
-			sz = Math.max(sz, o.getZ() + 1);
-		}
-		Direction facing = p.getHorizontalFacing();
-		BlockPos center = p.getBlockPos().offset(facing, Math.max(sx, sz) / 2 + 2);
-		return center.add(-sx / 2, 0, -sz / 2);
-	}
-
-	private static int builderMatched(ServerWorld world, BlockPos anchor, JobDef def, List<BlockPos> missing) {
-		int ok = 0;
-		JobRegistry.Blueprint bp = def.blueprint();
-		for (int i = 0; i < bp.size(); i++) {
-			BlockPos pos = anchor.add(bp.offsets().get(i));
-			if (world.getBlockState(pos).isOf(bp.blocks().get(i))) {
-				ok++;
-			} else if (missing != null) {
-				missing.add(pos);
-			}
-		}
-		return ok;
-	}
-
-	private static void builderTick(ServerPlayerEntity p, PlayerRecord rec, JobDef def) {
-		BlockPos anchor = target(rec);
-		ServerWorld world = p.getServer().getOverworld();
-		if (anchor == null || p.getServerWorld() != world || !world.isChunkLoaded(anchor.getX() >> 4, anchor.getZ() >> 4)) {
-			return;
-		}
-		List<BlockPos> missing = new ArrayList<>();
-		int ok = builderMatched(world, anchor, def, missing);
-		rec.job.putInt("p", ok);
-		if (ok >= def.blueprint().size()) {
-			complete(p, rec, def, def.reward());
-			return;
-		}
-		// Подсветка недостроенного: только строителю и только вблизи.
-		if (p.squaredDistanceTo(anchor.getX(), anchor.getY(), anchor.getZ()) < 48 * 48) {
-			for (int i = 0; i < Math.min(60, missing.size()); i++) {
-				BlockPos m = missing.get(i);
-				world.spawnParticles(p, ParticleTypes.HAPPY_VILLAGER, true, m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5,
-					1, 0.15, 0.15, 0.15, 0.0);
-			}
-		}
-	}
-
-	/** Сдать стройку у биржи: оплата по точности, если она не ниже min_accuracy. */
-	public static void turnIn(ServerPlayerEntity p) {
-		PlayerRecord rec = DiktaturaState.get(p.getServer()).player(p);
-		JobDef def = def(rec);
-		if (def == null || def.type() != Type.BUILDER) {
-			return;
-		}
-		BlockPos anchor = target(rec);
-		ServerWorld world = p.getServer().getOverworld();
-		if (anchor == null || !world.isChunkLoaded(anchor.getX() >> 4, anchor.getZ() >> 4)) {
-			Hud.alert(p, AlertKind.INFO, Text.translatable("diktatura.job.builder.far"), Text.empty(), 4);
-			return;
-		}
-		int ok = builderMatched(world, anchor, def, null);
-		int total = def.blueprint().size();
-		int accuracy = ok * 100 / total;
-		if (accuracy < def.minAccuracy()) {
-			Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.job.builder.rejected", accuracy),
-				Text.translatable("diktatura.job.builder.need", def.minAccuracy()), 6);
-			return;
-		}
-		complete(p, rec, def, Math.max(1, def.reward() * accuracy / 100));
-	}
-
 	// ================================================================== служащий биржи
 
 	/** Откуда считать расстояние до получателя: кабинет Кадрова (или тронный зал, если кабинетов ещё нет). */
@@ -528,9 +459,6 @@ public final class Jobs {
 				if (cur.type() == Type.COURIER && t != null) {
 					info.add(Text.translatable("diktatura.job.address", t.getX(), t.getZ()));
 				}
-				if (cur.type() == Type.BUILDER) {
-					actions.add(new UiPayloads.NpcAction("turnin", Text.translatable("diktatura.job.turnin"), true));
-				}
 				actions.add(new UiPayloads.NpcAction("refuse", Text.translatable("diktatura.job.refuse", REFUSE_FINE), true));
 			}
 			actions.add(new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
@@ -551,7 +479,6 @@ public final class Jobs {
 				return true;
 			}
 			switch (action) {
-				case "turnin" -> turnIn(player);
 				case "refuse" -> refuse(player);
 				default -> {
 					return false;

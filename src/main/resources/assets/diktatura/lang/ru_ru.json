@@ -988,5 +988,22 @@
   "diktatura.config.upgraderValueClass": "Upgrader: класс",
   "diktatura.config.upgraderValueClass.desc": "Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически.",
   "diktatura.config.upgraderValueMethod": "Upgrader: метод",
-  "diktatura.config.upgraderValueMethod.desc": "Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически."
+  "diktatura.config.upgraderValueMethod.desc": "Явно заданный класс и статический метод Upgrader (ItemStack или Item → число). Пусто — искать автоматически.",
+  "block.diktatura.royal_block": "Универсальный супер модульный королевский блок",
+  "block.diktatura.royal_block.lore1": "Ставится только по королевскому чертежу",
+  "block.diktatura.royal_block.lore2": "Модулен. Универсален. Королевски супер.",
+  "diktatura.royal.title": "КОРОЛЕВСКАЯ СТРОЙКА",
+  "diktatura.royal.sub": "Объект: %s. Ставьте блоки в голубые точки",
+  "diktatura.royal.start": "Вас доставили на королевскую стройплощадку. Объект: %s, блоков: %s. Ставьте королевские блоки в отмеченные голубым точки. Срок — %s мин.",
+  "diktatura.royal.wrong_spot": "Королевский блок ставится только в отмеченные точки чертежа",
+  "diktatura.royal.done": "СТРОЙКА ЗАВЕРШЕНА",
+  "diktatura.royal.done.sub": "Ваши труды будут высоко оценены — под видом трудов Его Величества — и проданы дороже. Спасибо!",
+  "diktatura.royal.legacy": "Старая стройка отменена: теперь строители работают на королевской площадке. Возьмите работу заново.",
+  "diktatura.job.builder.obelisk": "обелиск вождя",
+  "diktatura.job.builder.arch": "триумфальная арка",
+  "diktatura.job.builder.tower": "башня бдительности",
+  "diktatura.job.builder.bust": "бюст вождя",
+  "diktatura.job.builder.bridge": "мост дружбы",
+  "diktatura.job.builder.throne": "трон Его Величества",
+  "diktatura.job.builder.pyramid": "пирамида пятилетки"
 }

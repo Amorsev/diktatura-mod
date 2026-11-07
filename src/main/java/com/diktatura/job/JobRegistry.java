@@ -52,10 +52,26 @@ public final class JobRegistry {
 	public record Variant(String label, int goal, int reward, Predicate<BlockState> blocks) {
 	}
 
-	/** Чертёж для строителя: смещения от угла и нужный блок в каждой точке. */
-	public record Blueprint(String label, List<BlockPos> offsets, List<Block> blocks) {
+	/** Чертёж для строителя: смещения от угла (каждая точка — королевский блок) и своя награда (-1 — по размеру). */
+	public record Blueprint(String label, List<BlockPos> offsets, List<Block> blocks, int reward) {
 		public int size() {
 			return offsets.size();
+		}
+
+		public int width() {
+			int w = 1;
+			for (BlockPos o : offsets) {
+				w = Math.max(w, o.getX() + 1);
+			}
+			return w;
+		}
+
+		public int depth() {
+			int d = 1;
+			for (BlockPos o : offsets) {
+				d = Math.max(d, o.getZ() + 1);
+			}
+			return d;
 		}
 	}
 
@@ -68,9 +84,20 @@ public final class JobRegistry {
 	 */
 	public record JobDef(String id, Type type, String name, int order, int minutes, int reward, int unitReward,
 	                     int lateFine, int minDistance, int maxDistance, int minAccuracy,
-	                     List<Variant> variants, Blueprint blueprint) {
+	                     List<Variant> variants, List<Blueprint> blueprints) {
+
+		public Blueprint blueprint(int variant) {
+			if (blueprints.isEmpty()) {
+				return null;
+			}
+			return blueprints.get(Math.floorMod(variant, blueprints.size()));
+		}
 
 		public int rewardFor(int variant) {
+			if (type == Type.BUILDER && blueprint(variant) != null) {
+				Blueprint bp = blueprint(variant);
+				return bp.reward() >= 0 ? bp.reward() : Math.max(10, reward * bp.size() / 35);
+			}
 			if (variant >= 0 && variant < variants.size() && variants.get(variant).reward() >= 0) {
 				return variants.get(variant).reward();
 			}
@@ -80,15 +107,15 @@ public final class JobRegistry {
 		public int goalFor(int variant) {
 			return switch (type) {
 				case COURIER -> 1;
-				case BUILDER -> blueprint == null ? 1 : blueprint.size();
+				case BUILDER -> blueprint(variant) == null ? 1 : blueprint(variant).size();
 				default -> variant >= 0 && variant < variants.size() ? variants.get(variant).goal() : 1;
 			};
 		}
 
 		/** Ключ перевода «что делаем» для заголовка: вариант, чертёж или пусто. */
 		public String labelFor(int variant) {
-			if (type == Type.BUILDER && blueprint != null) {
-				return blueprint.label();
+			if (type == Type.BUILDER && blueprint(variant) != null) {
+				return blueprint(variant).label();
 			}
 			if (variant >= 0 && variant < variants.size()) {
 				return variants.get(variant).label();
@@ -143,8 +170,11 @@ public final class JobRegistry {
 		};
 	}
 
+	/**
+	 * Чертёж: слои снизу вверх, строки — по Z, символ — по X. Любой символ, кроме «.» и пробела, —
+	 * точка для королевского блока (палитра больше не нужна: вся стройка из одного блока).
+	 */
 	private static Blueprint blueprint(JsonObject o) {
-		JsonObject palette = o.getAsJsonObject("palette");
 		JsonArray layers = o.getAsJsonArray("layers");
 		List<BlockPos> offsets = new ArrayList<>();
 		List<Block> blocks = new ArrayList<>();
@@ -153,22 +183,17 @@ public final class JobRegistry {
 			for (int z = 0; z < rows.size(); z++) {
 				String row = rows.get(z).getAsString();
 				for (int x = 0; x < row.length(); x++) {
-					String key = String.valueOf(row.charAt(x));
-					if (!palette.has(key)) {
-						continue;
-					}
-					Identifier id = Identifier.tryParse(palette.get(key).getAsString());
-					Block b = id == null ? null : Registries.BLOCK.getOrEmpty(id).orElse(null);
-					if (b == null) {
-						Diktatura.LOGGER.warn("Неизвестный блок в чертеже: {}", palette.get(key));
+					char c = row.charAt(x);
+					if (c == '.' || c == ' ') {
 						continue;
 					}
 					offsets.add(new BlockPos(x, y, z));
-					blocks.add(b);
+					blocks.add(RoyalBlocks.BLOCK);
 				}
 			}
 		}
-		return new Blueprint(Json.s(o, "label", "diktatura.job.builder"), List.copyOf(offsets), List.copyOf(blocks));
+		return new Blueprint(Json.s(o, "label", "diktatura.job.builder"), List.copyOf(offsets), List.copyOf(blocks),
+			Json.i(o, "reward", -1));
 	}
 
 	private static JobDef parse(Identifier id, JsonObject o) {
@@ -181,18 +206,28 @@ public final class JobRegistry {
 					Json.i(v, "reward", -1), blocks(v.has("blocks") ? v.getAsJsonArray("blocks") : new JsonArray())));
 			}
 		}
-		Blueprint bp = o.has("blueprint") ? blueprint(o.getAsJsonObject("blueprint")) : null;
+		List<Blueprint> bps = new ArrayList<>();
+		if (o.has("blueprints")) {
+			for (JsonElement el : o.getAsJsonArray("blueprints")) {
+				Blueprint b = blueprint(el.getAsJsonObject());
+				if (b.size() > 0) {
+					bps.add(b);
+				}
+			}
+		} else if (o.has("blueprint")) {
+			bps.add(blueprint(o.getAsJsonObject("blueprint")));
+		}
 		if (type.countsBlocks() && variants.isEmpty()) {
 			throw new IllegalArgumentException("нужен хотя бы один вариант (variants)");
 		}
-		if (type == Type.BUILDER && (bp == null || bp.size() == 0)) {
-			throw new IllegalArgumentException("строителю нужен чертёж (blueprint)");
+		if (type == Type.BUILDER && bps.isEmpty()) {
+			throw new IllegalArgumentException("строителю нужен хотя бы один чертёж (blueprints)");
 		}
 		return new JobDef(id.toString(), type, Json.s(o, "name", "diktatura.job." + id.getPath()),
 			Json.i(o, "order", 100), Math.max(1, Json.i(o, "minutes", 5)), Math.max(0, Json.i(o, "reward", 10)),
 			Math.max(0, Json.i(o, "unit_reward", 0)), Math.max(0, Json.i(o, "late_fine", 0)),
 			Math.max(16, Json.i(o, "min_distance", 80)), Math.max(32, Json.i(o, "max_distance", 180)),
-			Math.max(1, Math.min(100, Json.i(o, "min_accuracy", 50))), List.copyOf(variants), bp);
+			Math.max(1, Math.min(100, Json.i(o, "min_accuracy", 50))), List.copyOf(variants), List.copyOf(bps));
 	}
 
 	public static final class ReloadListener implements SimpleSynchronousResourceReloadListener {

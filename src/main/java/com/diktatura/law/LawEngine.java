@@ -165,6 +165,10 @@ public final class LawEngine {
 		if (p.isSpectator() || (cfg.exemptCreative && p.isCreative()) || (cfg.exemptOps && p.hasPermissionLevel(2))) {
 			return false;
 		}
+		if (com.diktatura.job.RoyalSite.onSite(rec)) {
+			// На королевской стройке законы не действуют: здесь трудится Его Величество.
+			return false;
+		}
 		if (rec.immuneUntil > 0 && p.getServer() != null && rec.immuneUntil > p.getServer().getOverworld().getTime()) {
 			// Орден «За ничью с вождём»: законы на кавалера временно не действуют.
 			return false;
