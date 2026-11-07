@@ -102,7 +102,7 @@ public final class PrisonSystem {
 				for (int y = 1; y < maxY; y++) {
 					BlockPos p = origin.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}
@@ -121,7 +121,7 @@ public final class PrisonSystem {
 			// В горе вход — из тоннеля: ворота открыты (из камер всё равно не сбежать).
 			for (int z = 9; z <= 11; z++) {
 				for (int y = 1; y <= 3; y++) {
-					world.setBlockState(origin.add(0, y, z), air, flags);
+					world.setBlockState(origin.add(0, y, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 				}
 			}
 			return;

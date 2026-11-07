@@ -241,6 +241,7 @@ public final class Dictator {
 		}
 		if (Diktatura.ticks() % 200 == 0) {
 			ensureNpc(server);
+			com.diktatura.world.Capital.sweepOnce(server);
 		}
 	}
 

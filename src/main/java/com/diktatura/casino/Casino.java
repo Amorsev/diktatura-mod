@@ -131,6 +131,10 @@ public final class Casino {
 		if (state.casinoVersion < CasinoBuilding.VERSION && w.isChunkLoaded(o.getX() >> 4, o.getZ() >> 4) && BUSY.isEmpty()) {
 			// Новый интерьер: три стола. Перестраиваем казино на том же месте один раз.
 			CasinoBuilding.build(w, o);
+			// Убрать предметы, которые могли выпасть при перестройке (старые версии оставляли ковры).
+			w.getEntitiesByClass(net.minecraft.entity.ItemEntity.class,
+				new net.minecraft.util.math.Box(o).expand(CasinoBuilding.SIZE_X + 4, CasinoBuilding.SIZE_Y + 8, CasinoBuilding.SIZE_X + 4),
+				e -> true).forEach(Entity::discard);
 			state.casinoVersion = CasinoBuilding.VERSION;
 			state.markDirty();
 			Diktatura.LOGGER.info("Госказино перестроено: три стола (версия {})", CasinoBuilding.VERSION);

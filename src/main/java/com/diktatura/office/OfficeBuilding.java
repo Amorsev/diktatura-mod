@@ -101,7 +101,7 @@ public final class OfficeBuilding {
 				for (int y = 1; y < SIZE_Y + 8; y++) {
 					BlockPos p = o.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}

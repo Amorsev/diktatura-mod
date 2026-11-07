@@ -58,7 +58,7 @@ public final class GrandThroneHall {
 				for (int y = 1; y < SIZE_Y + 2; y++) {
 					BlockPos p = o.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}
@@ -175,7 +175,7 @@ public final class GrandThroneHall {
 		// Вход: проём 5×6 и портик с колоннами и ступенями.
 		for (int z = DOOR_Z - 2; z <= DOOR_Z + 2; z++) {
 			for (int y = 1; y <= 6; y++) {
-				world.setBlockState(o.add(0, y, z), air, flags);
+				world.setBlockState(o.add(0, y, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 			}
 			world.setBlockState(o.add(0, 7, z), gold, flags);
 		}

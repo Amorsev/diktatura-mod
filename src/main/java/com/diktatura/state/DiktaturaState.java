@@ -48,6 +48,8 @@ public final class DiktaturaState extends PersistentState {
 	public boolean casinoGenerated;
 	/** Версия интерьера казино (2 — три стола: рулетка, слоты, кости). */
 	public int casinoVersion;
+	/** Мусор (выпавшие при стройке фонари и ковры) с плато столицы уже убран. */
+	public boolean capitalSwept;
 	/** Финальный бой: дракон госохраны повержен, вождь без защиты (можно вызвать на бой). */
 	public boolean guardDown;
 	public BlockPos casinoOrigin = BlockPos.ORIGIN;
@@ -119,6 +121,7 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putBoolean("officeScheduleStarted", officeScheduleStarted);
 		nbt.putBoolean("casinoGenerated", casinoGenerated);
 		nbt.putInt("casinoVersion", casinoVersion);
+		nbt.putBoolean("capitalSwept", capitalSwept);
 		nbt.putBoolean("guardDown", guardDown);
 		nbt.putLong("casinoOrigin", casinoOrigin.asLong());
 		for (int i = 0; i < officeOpen.length; i++) {
@@ -178,6 +181,7 @@ public final class DiktaturaState extends PersistentState {
 		s.officeScheduleStarted = nbt.getBoolean("officeScheduleStarted");
 		s.casinoGenerated = nbt.getBoolean("casinoGenerated");
 		s.casinoVersion = nbt.getInt("casinoVersion");
+		s.capitalSwept = nbt.getBoolean("capitalSwept");
 		s.guardDown = nbt.getBoolean("guardDown");
 		s.casinoOrigin = BlockPos.fromLong(nbt.getLong("casinoOrigin"));
 		for (int i = 0; i < s.officeOpen.length; i++) {

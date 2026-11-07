@@ -85,7 +85,7 @@ public final class CasinoBuilding {
 				for (int y = 1; y < SIZE_Y + 8; y++) {
 					BlockPos p = o.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}
@@ -110,7 +110,7 @@ public final class CasinoBuilding {
 		// Вход 3×3 с запада.
 		for (int z = 4; z <= 6; z++) {
 			for (int y = 1; y <= 3; y++) {
-				world.setBlockState(o.add(0, y, z), air, flags);
+				world.setBlockState(o.add(0, y, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 			}
 		}
 		// Стол рулетки: зелёное сукно на плитах (колесо появляется во время игры).

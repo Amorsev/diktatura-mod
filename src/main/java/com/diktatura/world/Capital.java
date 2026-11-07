@@ -92,10 +92,12 @@ public final class Capital {
 		BlockPos hall = new BlockPos(cx - GrandThroneHall.SIZE_X / 2, top, cz - GrandThroneHall.SIZE_Z / 2);
 		BlockPos offices = new BlockPos(cx - 9, top, hall.getZ() - 6 - OfficeBuilding.SIZE_Z);
 		BlockPos casino = new BlockPos(cx - 9, top, hall.getZ() + GrandThroneHall.SIZE_Z + 6);
-		plaza(world, hall, offices, casino, top);
+		// Сначала здания, потом площадь: расчистка под здания не должна сносить фонари проспекта.
 		GrandThroneHall.build(world, hall);
 		OfficeBuilding.build(world, offices);
 		CasinoBuilding.build(world, casino);
+		plaza(world, hall, offices, casino, top);
+		sweepLitter(world, cx, cz, top);
 
 		state.throneOrigin = hall;
 		state.throneGenerated = true;
@@ -104,6 +106,8 @@ public final class Capital {
 		state.officesGenerated = true;
 		state.casinoOrigin = casino;
 		state.casinoGenerated = true;
+		state.casinoVersion = CasinoBuilding.VERSION;
+		state.capitalSwept = true;
 		state.markDirty();
 		Diktatura.LOGGER.info("Столица построена: гора у {} (вершина y={}), за {} мс",
 			new BlockPos(cx, ground, cz).toShortString(), top, System.currentTimeMillis() - started);
@@ -143,8 +147,57 @@ public final class Capital {
 		return Math.max(0, (int) Math.round(h));
 	}
 
+	/**
+	 * Убрать с плато выпавшие при стройке предметы (фонари, ковры, саженцы и т. п.):
+	 * при замене блоков их опоры иногда исчезают раньше них самих.
+	 */
+	public static int sweepLitter(ServerWorld world, int cx, int cz, int top) {
+		return sweepLitter(world, cx, cz, top, e -> true);
+	}
+
+	/** Только «строительный мусор»: фонари, ковры, знамёна, цепи, факелы, саженцы, палки, яблоки, семена. */
+	private static boolean isLitter(net.minecraft.entity.ItemEntity e) {
+		var st = e.getStack();
+		var item = st.getItem();
+		return st.isIn(net.minecraft.registry.tag.ItemTags.WOOL_CARPETS) || st.isIn(net.minecraft.registry.tag.ItemTags.BANNERS)
+			|| st.isIn(net.minecraft.registry.tag.ItemTags.SAPLINGS) || item == net.minecraft.item.Items.LANTERN
+			|| item == net.minecraft.item.Items.CHAIN || item == net.minecraft.item.Items.TORCH || item == net.minecraft.item.Items.STICK
+			|| item == net.minecraft.item.Items.APPLE || item == net.minecraft.item.Items.WHEAT_SEEDS
+			|| item == net.minecraft.item.Items.SPRUCE_SAPLING;
+	}
+
+	private static int sweepLitter(ServerWorld world, int cx, int cz, int top, java.util.function.Predicate<net.minecraft.entity.ItemEntity> filter) {
+		net.minecraft.util.math.Box box = new net.minecraft.util.math.Box(cx - PLATEAU - SLOPE, top - HEIGHT - 4, cz - PLATEAU - SLOPE - SPINE,
+			cx + PLATEAU + SLOPE, top + 40, cz + PLATEAU + SLOPE + SPINE);
+		var items = world.getEntitiesByClass(net.minecraft.entity.ItemEntity.class, box, filter);
+		items.forEach(net.minecraft.entity.Entity::discard);
+		return items.size();
+	}
+
+	/** Для мира, построенного до исправления: один раз убрать мусор, когда столица загружена. */
+	public static void sweepOnce(MinecraftServer server) {
+		DiktaturaState state = DiktaturaState.get(server);
+		if (state.capitalSwept || !state.capitalGenerated || !state.throneGenerated) {
+			return;
+		}
+		ServerWorld world = server.getOverworld();
+		BlockPos hall = state.throneOrigin;
+		int cx = hall.getX() + GrandThroneHall.SIZE_X / 2;
+		int cz = hall.getZ() + GrandThroneHall.SIZE_Z / 2;
+		if (!world.isChunkLoaded(cx >> 4, cz >> 4) || !world.isChunkLoaded(state.casinoOrigin.getX() >> 4, state.casinoOrigin.getZ() >> 4)) {
+			return;
+		}
+		int n = sweepLitter(world, cx, cz, hall.getY(), Capital::isLitter);
+		state.capitalSwept = true;
+		state.markDirty();
+		if (n > 0) {
+			Diktatura.LOGGER.info("Столица: убрано выпавших при стройке предметов — {}", n);
+		}
+	}
+
 	private static void mountain(ServerWorld world, int cx, int cz, int ground, Random rnd) {
-		int flags = Block.NOTIFY_LISTENERS;
+		// Без обновлений соседей и без выпадения предметов: иначе трава, цветы и листва роняют добычу.
+		int flags = Block.NOTIFY_LISTENERS | Block.FORCE_STATE | Block.SKIP_DROPS;
 		BlockState stone = Blocks.STONE.getDefaultState();
 		BlockState dirt = Blocks.DIRT.getDefaultState();
 		BlockState grass = Blocks.GRASS_BLOCK.getDefaultState();
@@ -174,7 +227,7 @@ public final class Capital {
 				for (int y = target + 1; y <= clearTo; y++) {
 					BlockPos p = new BlockPos(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}
@@ -300,7 +353,7 @@ public final class Capital {
 				world.setBlockState(new BlockPos(px, ground, z0 + dz), floor, flags);
 				fill(world, px, ground - 1, z0 + dz, wall);
 				for (int y = 1; y <= 6; y++) {
-					world.setBlockState(new BlockPos(px, ground + y, z0 + dz), air, flags);
+					world.setBlockState(new BlockPos(px, ground + y, z0 + dz), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 				}
 			}
 		}
@@ -313,7 +366,7 @@ public final class Capital {
 					.with(StairsBlock.FACING, Direction.EAST), flags);
 				fill(world, px, y - 1, z0 + dz, wall);
 				for (int yy = 1; yy <= 4; yy++) {
-					world.setBlockState(new BlockPos(px, y + yy, z0 + dz), air, flags);
+					world.setBlockState(new BlockPos(px, y + yy, z0 + dz), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 				}
 			}
 			px--;
@@ -383,7 +436,7 @@ public final class Capital {
 				world.setBlockState(p, path, flags);
 				// Над лестницей — проход 3 блока (вырезается в склоне).
 				for (int yy = 1; yy <= 4; yy++) {
-					world.setBlockState(p.up(yy), air, flags);
+					world.setBlockState(p.up(yy), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 				}
 				if (edge) {
 					world.setBlockState(p.up(), Blocks.STONE_BRICK_WALL.getDefaultState(), flags);
@@ -445,7 +498,7 @@ public final class Capital {
 				for (int y = 1; y <= 4; y++) {
 					BlockPos q = new BlockPos(x, top + y, z + dz);
 					if (!world.getBlockState(q).isAir()) {
-						world.setBlockState(q, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS);
+						world.setBlockState(q, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}

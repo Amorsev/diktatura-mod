@@ -101,7 +101,7 @@ public final class ThroneHall {
 				for (int y = 1; y < SIZE_Y + 10; y++) {
 					BlockPos p = o.add(x, y, z);
 					if (!world.getBlockState(p).isAir()) {
-						world.setBlockState(p, air, flags);
+						world.setBlockState(p, air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 					}
 				}
 			}
@@ -134,7 +134,7 @@ public final class ThroneHall {
 		// Вход с запада: проём 3×3.
 		for (int z = 5; z <= 7; z++) {
 			for (int y = 1; y <= 3; y++) {
-				world.setBlockState(o.add(0, y, z), air, flags);
+				world.setBlockState(o.add(0, y, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 			}
 		}
 
