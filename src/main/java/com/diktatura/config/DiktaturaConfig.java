@@ -76,6 +76,10 @@ public final class DiktaturaConfig {
 	public int bloodMoonEveryNights = 7;
 	/** В Кровавую луну рядом с игроками появляются дополнительные враждебные мобы. */
 	public boolean bloodMoonExtraMobs = true;
+	/** Эмиграция руды: при добыче руда может отрастить ножки и убежать (шахтёрская лицензия вдвое снижает шанс). */
+	public boolean runawayOre = true;
+	public double runawayDiamondChance = 0.35;
+	public double runawayOreChance = 0.06;
 	public int dragonHealth = 400;
 	public int dictatorHealth = 300;
 	/** Сколько игровых дней законы не действуют на кавалеров ордена «За ничью с вождём». */

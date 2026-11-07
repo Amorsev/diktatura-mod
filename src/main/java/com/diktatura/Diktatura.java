@@ -85,6 +85,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.finale.GuardDragon.registerEvents();
 		com.diktatura.finale.FinalFight.registerEvents();
 		com.diktatura.loyalty.BloodMoon.registerEvents();
+		com.diktatura.ore.OreEmigration.registerEvents();
 		com.diktatura.mechanics.Timber.registerEvents();
 		com.diktatura.mechanics.CaveIns.registerEvents();
 		NpcInteractions.registerEvents();

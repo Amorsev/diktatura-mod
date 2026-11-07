@@ -804,5 +804,15 @@
   "diktatura.casino.dice.result2": "Вы: %s+%s=%s · дом: %s+%s=%s",
   "diktatura.casino.label.win": "Выигрыш: +%s тд",
   "diktatura.casino.label.lose": "Проигрыш: −%s тд",
-  "diktatura.casino.lose.title": "−%s ТД"
+  "diktatura.casino.lose.title": "−%s ТД",
+  "entity.diktatura.runaway_ore": "Руда-эмигрант",
+  "diktatura.ore.ran": "РУДА ЭМИГРИРУЕТ!",
+  "diktatura.ore.ran.hint": "Догоните, пока не пересекла границу: задержанная руда — двойной улов",
+  "diktatura.ore.caught": "ЭМИГРАНТ ЗАДЕРЖАН",
+  "diktatura.ore.caught.hint": "Двойной улов в пользу гражданина",
+  "subtitles.diktatura.ore1": "Руда: «А-а-а-а!»",
+  "subtitles.diktatura.ore2": "Руда: «Не трогай меня!»",
+  "subtitles.diktatura.ore3": "Руда: «Помогите!»",
+  "subtitles.diktatura.ore4": "Руда: «Я ещё пожить хочу!»",
+  "subtitles.diktatura.tiny_steps": "Топот маленьких ножек"
 }

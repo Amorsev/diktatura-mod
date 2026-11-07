@@ -69,6 +69,14 @@ public final class ModEntities {
 			.maxTrackingRange(10)
 			.build(Diktatura.id("dictator_boss").toString()));
 
+	/** Руда-эмигрант на ножках. */
+	public static final EntityType<com.diktatura.ore.RunawayOreEntity> RUNAWAY_ORE = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("runaway_ore"),
+		EntityType.Builder.<com.diktatura.ore.RunawayOreEntity>create(com.diktatura.ore.RunawayOreEntity::new, SpawnGroup.MISC)
+			.dimensions(0.8f, 1.3f)
+			.maxTrackingRange(8)
+			.build(Diktatura.id("runaway_ore").toString()));
+
 	private ModEntities() {
 	}
 
@@ -80,6 +88,7 @@ public final class ModEntities {
 		com.diktatura.goose.GooseSpawner.register();
 		FabricDefaultAttributeRegistry.register(CURFEW_DOUBLE, com.diktatura.control.CurfewDoubleEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(DICTATOR_BOSS, com.diktatura.finale.DictatorBossEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(RUNAWAY_ORE, com.diktatura.ore.RunawayOreEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(SNIPER, com.diktatura.control.SniperSkeletonEntity.createSniperAttributes());
 	}
 }

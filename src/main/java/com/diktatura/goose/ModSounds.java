@@ -21,6 +21,9 @@ public final class ModSounds {
 	public static final SoundEvent METEOR_FALL = register("sfx.meteor_fall");
 	public static final SoundEvent CRYSTAL_RISE = register("sfx.crystal_rise");
 	public static final SoundEvent VORTEX = register("sfx.vortex");
+	public static final SoundEvent TINY_STEPS = register("sfx.tiny_steps");
+	public static final SoundEvent[] ORE_SCREAMS = {register("voice.ore1"), register("voice.ore2"), register("voice.ore3"),
+		register("voice.ore4")};
 
 	private ModSounds() {
 	}

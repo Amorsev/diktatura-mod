@@ -804,5 +804,15 @@
   "diktatura.casino.dice.result2": "You: %s+%s=%s · house: %s+%s=%s",
   "diktatura.casino.label.win": "Won: +%s workdays",
   "diktatura.casino.label.lose": "Lost: −%s workdays",
-  "diktatura.casino.lose.title": "−%s WORKDAYS"
+  "diktatura.casino.lose.title": "−%s WORKDAYS",
+  "entity.diktatura.runaway_ore": "Emigrant Ore",
+  "diktatura.ore.ran": "THE ORE IS EMIGRATING!",
+  "diktatura.ore.ran.hint": "Catch it before it crosses the border: detained ore drops double",
+  "diktatura.ore.caught": "EMIGRANT DETAINED",
+  "diktatura.ore.caught.hint": "Double haul in the citizen's favour",
+  "subtitles.diktatura.ore1": "Ore: \"Aaaaah!\"",
+  "subtitles.diktatura.ore2": "Ore: \"Don't touch me!\"",
+  "subtitles.diktatura.ore3": "Ore: \"Help!\"",
+  "subtitles.diktatura.ore4": "Ore: \"I want to live!\"",
+  "subtitles.diktatura.tiny_steps": "Tiny feet patter"
 }

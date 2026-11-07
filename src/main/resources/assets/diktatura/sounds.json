@@ -84,5 +84,37 @@
     "sounds": [
       "diktatura:sfx/vortex"
     ]
+  },
+  "voice.ore1": {
+    "subtitle": "subtitles.diktatura.ore1",
+    "sounds": [
+      "diktatura:voice/ore_block1"
+    ]
+  },
+  "voice.ore2": {
+    "subtitle": "subtitles.diktatura.ore2",
+    "sounds": [
+      "diktatura:voice/ore_block2"
+    ]
+  },
+  "voice.ore3": {
+    "subtitle": "subtitles.diktatura.ore3",
+    "sounds": [
+      "diktatura:voice/ore_block3"
+    ]
+  },
+  "voice.ore4": {
+    "subtitle": "subtitles.diktatura.ore4",
+    "sounds": [
+      "diktatura:voice/ore_block4"
+    ]
+  },
+  "sfx.tiny_steps": {
+    "subtitle": "subtitles.diktatura.tiny_steps",
+    "sounds": [
+      "diktatura:sfx/tiny_steps_1",
+      "diktatura:sfx/tiny_steps_2",
+      "diktatura:sfx/tiny_steps_3"
+    ]
   }
 }
