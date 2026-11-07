@@ -305,6 +305,9 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura bureau tax | courier | customs | ad | cows | anvils | aid | cold | sneeze | cavein` — вызвать ведомство или механику прямо сейчас
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
+- `/diktatura finale guard_down | start | stop | reset` — снять охрану, сразу начать бой с вождём, остановить его, вернуть охрану
+- `/diktatura finale dragon_attack <атака>` — дракон госохраны проводит атаку сейчас (нужен дракон в Крае)
+- `/diktatura test double | captcha | trip <эффект>` — двойник-агент (днём тоже), капча без блока, грибной эффект (даже если опция выключена)
 
 ## Настройки
 
@@ -337,3 +340,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - Учитывать ли сундуки в пороге богатства. Ender-сундук уже включается флагом
   `include_ender_chest`, обычные сундуки не учитываются.
 - Своя модель и текстура вождя (сейчас это житель-простак с именем), звуки, текстура книги.
+
+## Лицензия
+
+MIT (см. `LICENSE`). Части мода основаны на моде-референсе Gr1tW4lk (MIT), звуки — CC0; подробности в `CREDITS.md`.

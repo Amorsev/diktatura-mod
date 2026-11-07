@@ -177,6 +177,13 @@ public final class Captcha {
 		}
 	}
 
+	/** Тестовая капча (команда): без блока, просто проверить окно и ответ. */
+	public static void test(ServerPlayerEntity p) {
+		if (ServerPlayNetworking.canSend(p, FxPayloads.Captcha.ID)) {
+			send(p, p.getBlockPos(), p.getServerWorld().getTime());
+		}
+	}
+
 	/** Игрок вышел — забыть его проверки. */
 	public static void forget(UUID id) {
 		PENDING.remove(id);

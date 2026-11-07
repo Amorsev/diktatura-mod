@@ -226,6 +226,63 @@ public final class FinalFight {
 		}
 	}
 
+	// ------------------------------------------------------------------ команды для проверки
+
+	public static int cmdGuardDown(net.minecraft.server.command.ServerCommandSource src) {
+		MinecraftServer server = src.getServer();
+		DiktaturaState state = DiktaturaState.get(server);
+		state.guardDown = true;
+		state.markDirty();
+		Hud.headlineAll(server, HeadlineStyle.EMERGENCY, Text.translatable("diktatura.finale.guard_down"),
+			Text.translatable("diktatura.finale.guard_down.sub"), 6);
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.finale.guard_down"), true);
+		return 1;
+	}
+
+	/** Сразу начать бой: охрана снимается, вождь встаёт с трона против вызвавшего. */
+	public static int cmdStart(net.minecraft.server.command.ServerCommandSource src) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayerEntity p = src.getPlayerOrThrow();
+		MinecraftServer server = src.getServer();
+		if (boss != null) {
+			src.sendError(Text.translatable("diktatura.cmd.finale.running"));
+			return 0;
+		}
+		DiktaturaState state = DiktaturaState.get(server);
+		state.guardDown = true;
+		state.markDirty();
+		Dictator.ensureNpc(server);
+		Entity npc = state.dictator == null ? null : server.getOverworld().getEntity(state.dictator);
+		if (npc == null) {
+			src.sendError(Text.translatable("diktatura.cmd.finale.no_npc"));
+			return 0;
+		}
+		start(p, npc);
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.finale.started"), true);
+		return 1;
+	}
+
+	public static int cmdStop(net.minecraft.server.command.ServerCommandSource src) {
+		if (boss == null) {
+			src.sendError(Text.translatable("diktatura.cmd.finale.not_running"));
+			return 0;
+		}
+		reset(src.getServer(), true);
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.finale.stopped"), true);
+		return 1;
+	}
+
+	/** Вернуть охрану на пост (бой снова только после дракона). */
+	public static int cmdReset(net.minecraft.server.command.ServerCommandSource src) {
+		if (boss != null) {
+			reset(src.getServer(), true);
+		}
+		DiktaturaState state = DiktaturaState.get(src.getServer());
+		state.guardDown = false;
+		state.markDirty();
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.finale.reset"), true);
+		return 1;
+	}
+
 	// ------------------------------------------------------------------ приёмы вождя
 
 	private static void slippers(ServerWorld w, DictatorBossEntity b, ServerPlayerEntity target, int count) {

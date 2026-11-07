@@ -171,6 +171,35 @@ public final class DiktaturaCommands {
 					.then(literal("cows").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.COWS)))
 					.then(literal("anvils").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.ANVILS)))
 					.then(literal("aid").executes(c -> bureauWeather(c, com.diktatura.bureau.Weather.Kind.AID))))
+				.then(literal("finale").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("guard_down").executes(c -> com.diktatura.finale.FinalFight.cmdGuardDown(c.getSource())))
+					.then(literal("start").executes(c -> com.diktatura.finale.FinalFight.cmdStart(c.getSource())))
+					.then(literal("stop").executes(c -> com.diktatura.finale.FinalFight.cmdStop(c.getSource())))
+					.then(literal("reset").executes(c -> com.diktatura.finale.FinalFight.cmdReset(c.getSource())))
+					.then(literal("dragon_attack").then(argument("attack", com.mojang.brigadier.arguments.StringArgumentType.word())
+						.suggests((c, b) -> net.minecraft.command.CommandSource.suggestMatching(com.diktatura.finale.GuardDragon.attackNames(), b))
+						.executes(c -> com.diktatura.finale.GuardDragon.cmdAttack(c.getSource(),
+							com.mojang.brigadier.arguments.StringArgumentType.getString(c, "attack"))))))
+				.then(literal("test").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("double").executes(c -> {
+						var p = c.getSource().getPlayerOrThrow();
+						var d = com.diktatura.control.CurfewDoubles.spawnFor(p.getServerWorld(), p);
+						if (d != null) {
+							d.testMode = true;
+						}
+						return d != null ? 1 : 0;
+					}))
+					.then(literal("captcha").executes(c -> {
+						com.diktatura.bureau.Captcha.test(c.getSource().getPlayerOrThrow());
+						return 1;
+					}))
+					.then(literal("trip").then(argument("effect", com.mojang.brigadier.arguments.StringArgumentType.word())
+						.suggests((c, b) -> net.minecraft.command.CommandSource.suggestMatching(com.diktatura.control.Trips.IDS, b))
+						.executes(c -> {
+							com.diktatura.control.Trips.apply(c.getSource().getPlayerOrThrow(),
+								com.mojang.brigadier.arguments.StringArgumentType.getString(c, "effect"), 20 * 30);
+							return 1;
+						}))))
 				.then(literal("casino").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tp").executes(c -> {
 						ServerPlayerEntity p = c.getSource().getPlayerOrThrow();

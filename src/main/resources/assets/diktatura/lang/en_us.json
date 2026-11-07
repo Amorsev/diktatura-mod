@@ -756,5 +756,15 @@
   "diktatura.finale.speech": "FIVE-HOUR REPORT",
   "diktatura.finale.speech.sub": "Listeners wilt, the Leader heals. Interrupt him!",
   "diktatura.finale.say.interrupted": "Interrupting the Leader?! Outrageous!",
-  "diktatura.finale.say.speech_end": "…and that concludes the introduction."
+  "diktatura.finale.say.speech_end": "…and that concludes the introduction.",
+  "diktatura.cmd.finale.no_attack": "No such attack: %s",
+  "diktatura.cmd.finale.no_dragon": "Needs a living dragon in the End and at least one player there",
+  "diktatura.cmd.finale.attack": "State Guard Dragon: attack %s",
+  "diktatura.cmd.finale.guard_down": "Guard removed: hitting the Leader now starts the final fight",
+  "diktatura.cmd.finale.running": "The final fight is already on",
+  "diktatura.cmd.finale.no_npc": "The Leader isn't on the throne (throne hall not built or chunk not loaded)",
+  "diktatura.cmd.finale.started": "Final fight started",
+  "diktatura.cmd.finale.not_running": "The final fight isn't on",
+  "diktatura.cmd.finale.stopped": "Final fight stopped, the Leader is back on the throne",
+  "diktatura.cmd.finale.reset": "The guard is back: beat the dragon to fight the Leader"
 }

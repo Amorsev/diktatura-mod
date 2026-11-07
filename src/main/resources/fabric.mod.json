@@ -9,6 +9,7 @@
 		"sources": "https://github.com/Amorsev/diktatura-mod"
 	},
 	"icon": "assets/diktatura/icon.png",
+	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
 		"main": ["com.diktatura.Diktatura"],

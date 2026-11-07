@@ -48,6 +48,8 @@ public class CurfewDoubleEntity extends HostileEntity {
 	private static final DustParticleEffect RED = new DustParticleEffect(new Vector3f(0.6f, 0f, 0f), 0.8f);
 	public static final int FINE = 2;
 	public static final int BOUNTY = 5;
+	/** Вызван тестовой командой: не исчезает днём и без закона (только если оригинал ушёл). */
+	public boolean testMode;
 
 	public CurfewDoubleEntity(EntityType<? extends HostileEntity> type, World world) {
 		super(type, world);
@@ -118,7 +120,8 @@ public class CurfewDoubleEntity extends HostileEntity {
 		ServerPlayerEntity o = owner();
 		long t = this.getWorld().getTimeOfDay() % 24000L;
 		boolean night = t >= 13000L && t <= 23000L;
-		if (o == null || o.getWorld() != this.getWorld() || squaredDistanceTo(o) > 80 * 80 || !night || !CurfewDoubles.curfewActive(o.getServer())) {
+		if (o == null || o.getWorld() != this.getWorld() || squaredDistanceTo(o) > 80 * 80
+			|| (!testMode && (!night || !CurfewDoubles.curfewActive(o.getServer())))) {
 			vanish();
 			return;
 		}

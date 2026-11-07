@@ -424,6 +424,38 @@ public final class GuardDragon {
 		Tasks.clear();
 	}
 
+	public static java.util.List<String> attackNames() {
+		java.util.List<String> out = new ArrayList<>();
+		for (Attack a : Attack.values()) {
+			out.add(a.name().toLowerCase(java.util.Locale.ROOT));
+		}
+		return out;
+	}
+
+	/** Команда: заставить дракона госохраны провести атаку прямо сейчас. */
+	public static int cmdAttack(net.minecraft.server.command.ServerCommandSource src, String name) {
+		Attack a;
+		try {
+			a = Attack.valueOf(name.toUpperCase(java.util.Locale.ROOT));
+		} catch (IllegalArgumentException e) {
+			src.sendError(Text.translatable("diktatura.cmd.finale.no_attack", name));
+			return 0;
+		}
+		ServerWorld end = src.getServer().getWorld(World.END);
+		EnderDragonEntity d = end == null ? null
+			: end.getEntitiesByType(TypeFilter.instanceOf(EnderDragonEntity.class), e -> e.isAlive()).stream().findFirst().orElse(null);
+		List<ServerPlayerEntity> players = end == null ? List.of()
+			: end.getPlayers(p -> p.isAlive() && !p.isSpectator());
+		if (d == null || players.isEmpty()) {
+			src.sendError(Text.translatable("diktatura.cmd.finale.no_dragon"));
+			return 0;
+		}
+		ServerPlayerEntity target = players.get(end.random.nextInt(players.size()));
+		run(end, d, state(d), a, target, players);
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.finale.attack", name), false);
+		return 1;
+	}
+
 	public static void alertAll(MinecraftServer server, String key) {
 		Hud.alertAll(server, AlertKind.EVENT, Text.translatable(key), Text.empty(), 4);
 	}

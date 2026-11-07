@@ -756,5 +756,15 @@
   "diktatura.finale.speech": "ПЯТИЧАСОВОЙ ДОКЛАД",
   "diktatura.finale.speech.sub": "Слушатели вянут, вождь лечится. Перебейте его!",
   "diktatura.finale.say.interrupted": "Перебивать вождя?! Это возмутительно!",
-  "diktatura.finale.say.speech_end": "…на этом вступление окончено."
+  "diktatura.finale.say.speech_end": "…на этом вступление окончено.",
+  "diktatura.cmd.finale.no_attack": "Нет такой атаки: %s",
+  "diktatura.cmd.finale.no_dragon": "Нужен живой дракон в Крае и хотя бы один игрок там",
+  "diktatura.cmd.finale.attack": "Дракон госохраны: атака %s",
+  "diktatura.cmd.finale.guard_down": "Охрана снята: теперь удар по вождю начинает финальный бой",
+  "diktatura.cmd.finale.running": "Финальный бой уже идёт",
+  "diktatura.cmd.finale.no_npc": "Вождь не найден на троне (тронный зал ещё не построен или чанк не загружен)",
+  "diktatura.cmd.finale.started": "Финальный бой начат",
+  "diktatura.cmd.finale.not_running": "Финальный бой сейчас не идёт",
+  "diktatura.cmd.finale.stopped": "Финальный бой остановлен, вождь вернулся на трон",
+  "diktatura.cmd.finale.reset": "Охрана снова на посту: для боя с вождём нужно победить дракона"
 }
