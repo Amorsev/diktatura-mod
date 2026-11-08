@@ -47,7 +47,7 @@ public final class TransportSystem {
 		final Consumer<ServerPlayerEntity> onArrive;
 		final boolean hop;
 		boolean hopped;
-		MinecartEntity cart;
+		WagonEntity cart;
 		int ticks;
 
 		Journey(UUID player, RegistryKey<World> dim, Vec3d target, Consumer<ServerPlayerEntity> onArrive, boolean hop) {
@@ -82,15 +82,11 @@ public final class TransportSystem {
 	}
 
 	private static void spawnCart(Journey j, ServerWorld world, Vec3d pos) {
-		MinecartEntity cart = EntityType.MINECART.create(world);
+		WagonEntity cart = com.diktatura.npc.ModEntities.WAGON.create(world);
 		if (cart == null) {
 			return;
 		}
 		cart.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0f, 0.0f);
-		cart.setNoGravity(true);
-		cart.noClip = true;
-		cart.setInvulnerable(true);
-		cart.setSilent(true);
 		cart.addCommandTag(WAGON_TAG);
 		cart.setCustomName(Text.translatable("entity.diktatura.wagon"));
 		world.spawnEntity(cart);
@@ -185,7 +181,8 @@ public final class TransportSystem {
 		double speed = DiktaturaConfig.get().transportSpeed;
 
 		int ground = world.getTopY(Heightmap.Type.MOTION_BLOCKING, MathHelper.floor(pos.x), MathHelper.floor(pos.z));
-		double desiredY = hd > 12 ? Math.max(ground + 3, t.y + 3) : Math.max(t.y, t.y + hd / 4.0);
+		// Заключённый бежит почти по земле: чуть выше рельефа, чтобы не цепляться за кочки.
+		double desiredY = hd > 12 ? Math.max(ground + 1.2, t.y + 1) : Math.max(t.y, t.y + hd / 6.0);
 		double ny = pos.y + MathHelper.clamp(desiredY - pos.y, -0.5, 0.8);
 		double stepLen = Math.min(speed, hd);
 		double nx = pos.x;
@@ -257,12 +254,17 @@ public final class TransportSystem {
 	/** Удалить вагоны, оставшиеся после аварийного завершения. */
 	private static void cleanupStrayWagons(MinecraftServer server) {
 		for (ServerWorld w : server.getWorlds()) {
-			for (MinecartEntity cart : w.getEntitiesByType(EntityType.MINECART, c -> c.getCommandTags().contains(WAGON_TAG))) {
+			for (WagonEntity cart : w.getEntitiesByType(com.diktatura.npc.ModEntities.WAGON, c -> true)) {
 				boolean used = journeys.values().stream().anyMatch(j -> j.cart == cart);
 				if (!used) {
 					cart.removeAllPassengers();
 					cart.discard();
 				}
+			}
+			// Вагонетки из старых версий (до 0.2.26), если остались в мире.
+			for (MinecartEntity cart : w.getEntitiesByType(EntityType.MINECART, c -> c.getCommandTags().contains(WAGON_TAG))) {
+				cart.removeAllPassengers();
+				cart.discard();
 			}
 		}
 	}

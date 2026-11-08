@@ -21,8 +21,9 @@ RES = os.path.join(ROOT, 'src/main/resources/assets/diktatura')
 JAVA_OUT = os.path.join(ROOT, 'src/client/java/com/diktatura/client/npc/NpcModelData.java')
 
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
-        'employer', 'licensor', 'recipient']
+        'employer', 'licensor', 'recipient', 'prisoner']
 ITEMS = ['scepter', 'megaphone', 'slipper', 'law_book']
+WAGON_OUT = os.path.join(ROOT, 'src/client/java/com/diktatura/client/transport/WagonModelData.java')
 
 
 def method_body(java):
@@ -50,6 +51,14 @@ def main(src):
     with open(JAVA_OUT, 'w', encoding='utf-8') as f:
         f.write(java)
 
+    # Повозка госперевозки: своя модель (не гуманоид) и текстура 128x256.
+    with open(os.path.join(src, 'wagon.java'), encoding='utf-8') as f:
+        body = method_body(f.read())
+    with open(WAGON_OUT, 'w', encoding='utf-8') as f:
+        f.write(WAGON_HEADER + f'\tpublic static TexturedModelData wagon() {{\n{body}\n\t}}\n}}\n')
+    shutil.copy(os.path.join(src, 'wagon.bbmodel'), os.path.join(HERE, 'models', 'wagon.bbmodel'))
+    shutil.copy(os.path.join(HERE, 'out', 'wagon.png'), os.path.join(RES, 'textures/entity/wagon.png'))
+
     for item in ITEMS:
         with open(os.path.join(src, f'item_{item}.json'), encoding='utf-8') as f:
             model = json.load(f)
@@ -64,7 +73,7 @@ def main(src):
             f.write('\n')
         shutil.copy(os.path.join(HERE, 'out', f'item_{item}.png'), os.path.join(RES, 'textures/item', f'{item}_model.png'))
         shutil.copy(os.path.join(src, f'item_{item}.bbmodel'), os.path.join(HERE, 'models', f'item_{item}.bbmodel'))
-    print('ok:', len(NPCS), 'НПС,', len(ITEMS), 'предмета')
+    print('ok:', len(NPCS), 'НПС, повозка,', len(ITEMS), 'предмета')
 
 
 def camel(s):
@@ -91,6 +100,27 @@ public final class NpcModelData {
 	}
 
 '''
+
+WAGON_HEADER = '''package com.diktatura.client.transport;
+
+import net.minecraft.client.model.Dilation;
+import net.minecraft.client.model.ModelData;
+import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.model.TexturedModelData;
+
+/**
+ * Модель повозки госперевозки, сделанная в Blockbench (исходник — blockbench/models/wagon.bbmodel).
+ * Файл создан скриптом blockbench/import_models.py из экспорта Blockbench «1.17+ Yarn» — не править руками.
+ */
+@SuppressWarnings("unused")
+public final class WagonModelData {
+	private WagonModelData() {
+	}
+
+'''
+
 
 if __name__ == '__main__':
     main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'export'))

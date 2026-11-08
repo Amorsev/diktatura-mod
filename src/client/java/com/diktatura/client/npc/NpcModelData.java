@@ -16,7 +16,7 @@ public final class NpcModelData {
 	private NpcModelData() {
 	}
 
-	public static final String[] IDS = {"dictator", "tax_inspector", "customs", "courier", "croupier", "dice_croupier", "slots_operator", "employer", "licensor", "recipient"};
+	public static final String[] IDS = {"dictator", "tax_inspector", "customs", "courier", "croupier", "dice_croupier", "slots_operator", "employer", "licensor", "recipient", "prisoner"};
 
 	public static TexturedModelData of(String id) {
 		return switch (id) {
@@ -30,6 +30,7 @@ public final class NpcModelData {
 			case "employer" -> employer();
 			case "licensor" -> licensor();
 			case "recipient" -> recipient();
+			case "prisoner" -> prisoner();
 			default -> throw new IllegalArgumentException(id);
 		};
 	}
@@ -269,6 +270,29 @@ public final class NpcModelData {
 		ModelPartData right_leg = modelPartData.addChild("right_leg", ModelPartBuilder.create().uv(88, 0).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(-1.9F, 12.0F, 0.0F));
 
 		ModelPartData left_leg = modelPartData.addChild("left_leg", ModelPartBuilder.create().uv(104, 0).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(1.9F, 12.0F, 0.0F));
+		return TexturedModelData.of(modelData, 128, 128);
+	}
+
+	static TexturedModelData prisoner() {
+		ModelData modelData = new ModelData();
+		ModelPartData modelPartData = modelData.getRoot();
+		ModelPartData head = modelPartData.addChild("head", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+
+		ModelPartData hat = modelPartData.addChild("hat", ModelPartBuilder.create().uv(0, 16).cuboid(-4.0F, -10.0F, -4.0F, 8.0F, 3.0F, 8.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+
+		ModelPartData body = modelPartData.addChild("body", ModelPartBuilder.create().uv(32, 0).cuboid(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.0F))
+		.uv(32, 16).cuboid(-4.0F, 9.0F, -2.0F, 8.0F, 2.0F, 4.0F, new Dilation(0.3F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+
+		ModelPartData right_arm = modelPartData.addChild("right_arm", ModelPartBuilder.create().uv(56, 0).cuboid(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(-5.0F, 2.0F, 0.0F));
+
+		ModelPartData left_arm = modelPartData.addChild("left_arm", ModelPartBuilder.create().uv(72, 0).cuboid(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(5.0F, 2.0F, 0.0F));
+
+		ModelPartData right_leg = modelPartData.addChild("right_leg", ModelPartBuilder.create().uv(88, 0).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F))
+		.uv(56, 16).cuboid(-2.0F, 9.0F, -2.0F, 4.0F, 1.0F, 4.0F, new Dilation(0.35F))
+		.uv(88, 16).cuboid(-0.1F, 8.8F, -0.5F, 4.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(-1.9F, 12.0F, 0.0F));
+
+		ModelPartData left_leg = modelPartData.addChild("left_leg", ModelPartBuilder.create().uv(104, 0).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.0F))
+		.uv(72, 16).cuboid(-2.0F, 9.0F, -2.0F, 4.0F, 1.0F, 4.0F, new Dilation(0.35F)), ModelTransform.pivot(1.9F, 12.0F, 0.0F));
 		return TexturedModelData.of(modelData, 128, 128);
 	}
 }

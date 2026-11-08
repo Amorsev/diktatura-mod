@@ -37,13 +37,14 @@ def mix(a, b, t):
 # ---------------------------------------------------------------- холст и развёртка куба
 
 class Canvas:
-    def __init__(self, seed):
-        self.img = Image.new('RGBA', (TEX, TEX), (0, 0, 0, 0))
+    def __init__(self, seed, height=TEX):
+        self.height = height
+        self.img = Image.new('RGBA', (TEX, height), (0, 0, 0, 0))
         self.px = self.img.load()
         self.rnd = random.Random(seed)
 
     def put(self, x, y, c, noise=4):
-        if 0 <= x < TEX and 0 <= y < TEX:
+        if 0 <= x < TEX and 0 <= y < self.height:
             n = self.rnd.randint(-noise, noise) if noise else 0
             self.px[x, y] = tuple(max(0, min(255, v + n)) for v in c[:3]) + (255,)
 
@@ -96,9 +97,10 @@ SIDES = ('east', 'north', 'west', 'south')
 # ---------------------------------------------------------------- модель
 
 class Model:
-    def __init__(self, npc_id, seed=1):
+    def __init__(self, npc_id, seed=1, height=TEX):
         self.id = npc_id
-        self.cv = Canvas(seed)
+        self.height = height
+        self.cv = Canvas(seed, height)
         self.groups = []      # (name, parent, origin, rotation)
         self.cubes = []       # dict
         self.shelf = [0, 0, 0]  # x, y, высота полки — простая упаковка UV
@@ -111,7 +113,7 @@ class Model:
         x, y, sh = self.shelf
         if x + fw > TEX:
             x, y, sh = 0, y + sh, 0
-        if y + fh > TEX:
+        if y + fh > self.height:
             raise RuntimeError(f'{self.id}: не хватило места на текстуре')
         self.shelf = [x + fw, y, max(sh, fh)]
         return x, y
@@ -133,7 +135,7 @@ class Model:
         self.cv.img.save(path)
         buf = io.BytesIO()
         self.cv.img.save(buf, 'PNG')
-        data = {'id': self.id, 'groups': self.groups, 'cubes': self.cubes,
+        data = {'id': self.id, 'height': self.height, 'groups': self.groups, 'cubes': self.cubes,
                 'texture': 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode()}
         with open(os.path.join(OUT, self.id + '.js'), 'w', encoding='utf-8') as f:
             f.write(BUILD_JS.replace('__DATA__', json.dumps(data)))
@@ -150,7 +152,7 @@ Project.geometry_name = D.id;
 Project.modded_entity_version = '1.17_yarn';
 Project.box_uv = true;
 Project.texture_width = 128;
-Project.texture_height = 128;
+Project.texture_height = D.height || 128;
 const tex = new Texture({name: D.id + '.png'}).fromDataURL(D.texture).add(false);
 const groups = {};
 for (const [name, parent, origin, rotation] of D.groups) {
@@ -640,8 +642,61 @@ def recipient():
     return m
 
 
+def _stripes(f, a, b, period=2, skip=()):
+    """Полосатая роба: горизонтальные полосы по высоте грани."""
+    for n, face in f.items():
+        if n in skip:
+            continue
+        for y in range(face.h):
+            face.row(y, a if (y // period) % 2 == 0 else b, 3)
+
+
+def prisoner():
+    m = Model('prisoner', 404)
+    white = hexc('#E6E2D6')
+    black = hexc('#26242A')
+    stubble = hexc('#4A3E36')
+
+    def torso(f):
+        _stripes(f, white, black)
+        fr = f['north']
+        # Нашивка с номером: белая табличка с «чёрными цифрами».
+        fr.fill(WHITE, 2, 2, 5, 4, 8)
+        for x in (4, 6):
+            fr.set(x, 3, BLACK, 1)
+        fr.set(5, 3, BLACK, 1)
+        fr.set(4, 4, BLACK, 1)
+        fr.set(6, 4, BLACK, 1)
+
+    def arm(f):
+        _stripes(f, white, black, skip=('down',))
+        for n in SIDES:
+            f[n].fill(SKIN, 4, 9, 12)
+        f['down'].fill(SKIN, 3)
+
+    def leg(f):
+        _stripes(f, white, black, skip=('down',))
+        for n in SIDES:
+            f[n].fill(hexc('#3A2A1E'), 3, 10, 12)
+        f['down'].fill(hexc('#2A1E14'), 2)
+
+    base_body(
+        m,
+        head_painter(stubble, eyes=(70, 60, 50), hair_rows=1, side_hair=False, brows=hexc('#3A2E26')),
+        torso, arm, arm, leg, leg,
+    )
+    # Полосатая шапочка-«таблетка», хомут-упряжь через грудь, кандалы на ногах.
+    m.cube('hat', 'cap', (-4, 31, -4), (4, 34, 4), lambda f: _stripes(f, white, black, period=1))
+    m.cube('body', 'harness', (-4, 13, -2), (4, 15, 2), solid(hexc('#6A4426'), 4,
+           front=lambda fr: (fr.set(3, 0, hexc('#9A9AA2')), fr.set(4, 0, hexc('#9A9AA2')))), inflate=0.3)
+    for grp, x0 in (('right_leg', -0.1), ('left_leg', -3.9)):
+        m.cube(grp, f'shackle_{grp}', (x0, 2, -2), (x0 + 4, 3, 2), solid(hexc('#7A7A84'), 6), inflate=0.35)
+    m.cube('right_leg', 'chain', (-2, 2.2, -0.5), (2, 3.2, 0.5), solid(hexc('#5A5A62'), 6))
+    return m
+
+
 ALL = [dictator, tax_inspector, customs, courier, croupier, dice_croupier, slots_operator, employer, licensor,
-       recipient]
+       recipient, prisoner]
 
 if __name__ == '__main__':
     for fn in ALL:

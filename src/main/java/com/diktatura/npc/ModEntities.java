@@ -17,6 +17,17 @@ public final class ModEntities {
 			.build(Diktatura.id("npc").toString()));
 
 	/** Летящий тапок правосудия. */
+	/** Повозка госперевозки с запряжённым заключённым. */
+	public static final EntityType<com.diktatura.transport.WagonEntity> WAGON = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("wagon"),
+		EntityType.Builder.<com.diktatura.transport.WagonEntity>create(com.diktatura.transport.WagonEntity::new, SpawnGroup.MISC)
+			.dimensions(1.4f, 1.0f)
+			.passengerAttachments(new net.minecraft.util.math.Vec3d(0.0, 0.8, -0.7))
+			.disableSaving()
+			.maxTrackingRange(10)
+			.trackingTickInterval(1)
+			.build());
+
 	public static final EntityType<com.diktatura.item.SlipperEntity> SLIPPER = Registry.register(Registries.ENTITY_TYPE,
 		Diktatura.id("slipper"),
 		EntityType.Builder.<com.diktatura.item.SlipperEntity>create(com.diktatura.item.SlipperEntity::new, SpawnGroup.MISC)

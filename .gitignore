@@ -34,3 +34,4 @@ replay_*.log
 javac.*.args
 blockbench/out/
 blockbench/export/
+blockbench/__pycache__/

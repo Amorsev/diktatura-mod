@@ -39,6 +39,8 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.SLIPPER, net.minecraft.client.render.entity.FlyingItemEntityRenderer::new);
 		com.diktatura.client.goose.GooseRenderer.registerLayer();
 		com.diktatura.client.npc.NpcModels.registerLayers();
+		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
+			com.diktatura.client.transport.WagonRenderer.LAYER, com.diktatura.client.transport.WagonModelData::wagon);
 		EntityRendererRegistry.register(ModEntities.WILD_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "wild_goose"));
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);
@@ -48,6 +50,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		com.diktatura.client.mimic.MimicRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.MIMIC, com.diktatura.client.mimic.MimicRenderer::new);
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
+		EntityRendererRegistry.register(ModEntities.WAGON, com.diktatura.client.transport.WagonRenderer::new);
 		// Дракон госохраны: своя модель поверх ванильной (обычные драконы не меняются).
 		EntityRendererRegistry.register(net.minecraft.entity.EntityType.ENDER_DRAGON, com.diktatura.client.dragon.GuardDragonRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
