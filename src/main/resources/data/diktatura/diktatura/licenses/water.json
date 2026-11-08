@@ -2,7 +2,7 @@
   "name": "license.diktatura.water",
   "desc": "license.diktatura.water.desc",
   "order": 7,
-  "price": 8,
-  "days": 1,
+  "price": 20,
+  "days": 2,
   "revoke_on_arrest": true
 }

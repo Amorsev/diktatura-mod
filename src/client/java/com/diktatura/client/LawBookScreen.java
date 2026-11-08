@@ -22,7 +22,8 @@ import java.util.Locale;
  * по названию и описанию. Прокрутка колесом.
  */
 public class LawBookScreen extends Screen {
-	private enum Tab { ACTIVE, REPEALED, LICENSES }
+	/** ACTIVITIES — скрытый раздел: появляется после первого нарушения лицензируемого занятия. */
+	private enum Tab { ACTIVE, REPEALED, LICENSES, ACTIVITIES }
 
 	private static Tab lastTab = Tab.ACTIVE;
 
@@ -31,6 +32,7 @@ public class LawBookScreen extends Screen {
 	private String query = "";
 	private TextFieldWidget search;
 	private final List<ButtonWidget> tabButtons = new ArrayList<>();
+	private final List<Tab> shownTabs = new ArrayList<>();
 	private int scroll;
 	private int contentHeight;
 	private int boxW;
@@ -56,10 +58,18 @@ public class LawBookScreen extends Screen {
 		listBottom = height - 32;
 
 		tabButtons.clear();
-		Tab[] tabs = Tab.values();
-		int tw = (boxW - (tabs.length - 1) * 3) / tabs.length;
-		for (int i = 0; i < tabs.length; i++) {
-			Tab t = tabs[i];
+		shownTabs.clear();
+		for (Tab t : Tab.values()) {
+			if (t != Tab.ACTIVITIES || !ClientState.activities.isEmpty()) {
+				shownTabs.add(t);
+			}
+		}
+		if (!shownTabs.contains(tab)) {
+			tab = Tab.ACTIVE;
+		}
+		int tw = (boxW - (shownTabs.size() - 1) * 3) / shownTabs.size();
+		for (int i = 0; i < shownTabs.size(); i++) {
+			Tab t = shownTabs.get(i);
 			ButtonWidget b = ButtonWidget.builder(Text.translatable("diktatura.book.tab." + t.name().toLowerCase(Locale.ROOT)),
 				btn -> selectTab(t)).dimensions(left + i * (tw + 3), tabsY, tw, 18).build();
 			tabButtons.add(addDrawableChild(b));
@@ -92,7 +102,7 @@ public class LawBookScreen extends Screen {
 
 	private void updateTabs() {
 		for (int i = 0; i < tabButtons.size(); i++) {
-			tabButtons.get(i).active = Tab.values()[i] != tab;
+			tabButtons.get(i).active = shownTabs.get(i) != tab;
 		}
 	}
 
@@ -107,7 +117,7 @@ public class LawBookScreen extends Screen {
 		return switch (tab) {
 			case ACTIVE -> ClientState.laws;
 			case REPEALED -> ClientState.repealedLaws;
-			case LICENSES -> List.of();
+			case LICENSES, ACTIVITIES -> List.of();
 		};
 	}
 
@@ -137,7 +147,37 @@ public class LawBookScreen extends Screen {
 		ctx.enableScissor(left - 4, listTop - 2, left + boxW + 4, listBottom);
 		int y = listTop - scroll;
 		int start = y;
-		if (tab == Tab.LICENSES) {
+		if (tab == Tab.ACTIVITIES) {
+			for (OrderedText line : textRenderer.wrapLines(Text.translatable("diktatura.book.activities.intro"), boxW)) {
+				ctx.drawTextWithShadow(textRenderer, line, left, y, 0xA0A0A0);
+				y += 10;
+			}
+			y += 6;
+			int n = 1;
+			for (UiPayloads.ActivityEntry a : ClientState.activities) {
+				ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, Text.literal(n++ + ". ").append(a.name()), boxW),
+					left, y, 0xFFFFD27F);
+				y += 11;
+				for (OrderedText line : textRenderer.wrapLines(a.desc(), boxW - 8)) {
+					ctx.drawTextWithShadow(textRenderer, line, left + 8, y, 0xD8D8D8);
+					y += 10;
+				}
+				for (OrderedText line : textRenderer.wrapLines(
+					Text.translatable("diktatura.book.activity.license", a.license(), a.price(), a.days()), boxW - 8)) {
+					ctx.drawTextWithShadow(textRenderer, line, left + 8, y, 0xFF8FB8E0);
+					y += 10;
+				}
+				for (OrderedText line : textRenderer.wrapLines(Text.translatable("diktatura.book.activity.fine", a.fine()), boxW - 8)) {
+					ctx.drawTextWithShadow(textRenderer, line, left + 8, y, 0xFFE09090);
+					y += 10;
+				}
+				Text status = a.secondsLeft() > 0
+					? Text.translatable("diktatura.book.activity.have", longTime(a.secondsLeft()))
+					: Text.translatable("diktatura.book.activity.none");
+				ctx.drawTextWithShadow(textRenderer, status, left + 8, y, a.secondsLeft() > 0 ? 0xFF8FD08F : 0xFFFF7070);
+				y += 16;
+			}
+		} else if (tab == Tab.LICENSES) {
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("diktatura.hud.balance", ClientState.balance), left, y, 0xFFFFD27F);
 			y += 14;
 			if (ClientState.licenses.isEmpty()) {

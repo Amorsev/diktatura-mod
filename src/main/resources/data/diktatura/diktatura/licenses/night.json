@@ -1,8 +1,0 @@
-{
-  "name": "license.diktatura.night",
-  "desc": "license.diktatura.night.desc",
-  "order": 3,
-  "price": 15,
-  "days": 2,
-  "revoke_on_arrest": true
-}

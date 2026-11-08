@@ -2,7 +2,7 @@
   "name": "license.diktatura.forest",
   "desc": "license.diktatura.forest.desc",
   "order": 10,
-  "price": 15,
+  "price": 35,
   "days": 2,
   "revoke_on_arrest": true
 }

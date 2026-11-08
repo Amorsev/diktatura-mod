@@ -2,7 +2,7 @@
   "name": "license.diktatura.portal",
   "desc": "license.diktatura.portal.desc",
   "order": 2,
-  "price": 25,
-  "days": 1,
+  "price": 50,
+  "days": 2,
   "revoke_on_arrest": true
 }

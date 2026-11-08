@@ -2,7 +2,7 @@
   "name": "license.diktatura.mining",
   "desc": "license.diktatura.mining.desc",
   "order": 1,
-  "price": 30,
+  "price": 60,
   "days": 3,
   "revoke_on_arrest": true
 }

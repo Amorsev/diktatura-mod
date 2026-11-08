@@ -13,6 +13,5 @@
   "prevent": true,
   "enabled_by_default": false,
   "permanent": false,
-  "weight": 10,
-  "exempt_license": "diktatura:garden"
+  "weight": 10
 }

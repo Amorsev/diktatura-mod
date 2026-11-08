@@ -2,7 +2,7 @@
   "name": "license.diktatura.gambling",
   "desc": "license.diktatura.gambling.desc",
   "order": 9,
-  "price": 20,
+  "price": 40,
   "days": 2,
   "revoke_on_arrest": true
 }

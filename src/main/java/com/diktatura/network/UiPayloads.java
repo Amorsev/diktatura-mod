@@ -202,8 +202,12 @@ public final class UiPayloads {
 	public record LicenseEntry(Text name, Text desc, int secondsLeft, List<String> laws) {
 	}
 
-	/** Сервер → клиент: лицензии игрока для вкладки «Мои лицензии». */
-	public record LicenseList(List<LicenseEntry> entries) implements CustomPayload {
+	/** Открытое игроком лицензируемое занятие: что это, какая лицензия нужна, штраф, остаток своей лицензии (0 — нет). */
+	public record ActivityEntry(Text name, Text desc, Text license, int price, String days, int fine, int secondsLeft) {
+	}
+
+	/** Сервер → клиент: лицензии игрока («Мои лицензии») и открытые лицензируемые занятия (скрытый раздел). */
+	public record LicenseList(List<LicenseEntry> entries, List<ActivityEntry> activities) implements CustomPayload {
 		public static final Id<LicenseList> ID = new Id<>(Diktatura.id("licenses"));
 		public static final PacketCodec<RegistryByteBuf, LicenseList> CODEC = PacketCodec.of(LicenseList::write, LicenseList::read);
 
@@ -215,6 +219,16 @@ public final class UiPayloads {
 				buf.writeVarInt(e.secondsLeft());
 				writeStrings(buf, e.laws());
 			}
+			buf.writeVarInt(activities.size());
+			for (ActivityEntry a : activities) {
+				writeText(buf, a.name());
+				writeText(buf, a.desc());
+				writeText(buf, a.license());
+				buf.writeVarInt(a.price());
+				buf.writeString(a.days());
+				buf.writeVarInt(a.fine());
+				buf.writeVarInt(a.secondsLeft());
+			}
 		}
 
 		private static LicenseList read(RegistryByteBuf buf) {
@@ -223,7 +237,13 @@ public final class UiPayloads {
 			for (int i = 0; i < n; i++) {
 				out.add(new LicenseEntry(readText(buf), readText(buf), buf.readVarInt(), readStrings(buf)));
 			}
-			return new LicenseList(out);
+			int m = buf.readVarInt();
+			List<ActivityEntry> acts = new ArrayList<>(m);
+			for (int i = 0; i < m; i++) {
+				acts.add(new ActivityEntry(readText(buf), readText(buf), readText(buf), buf.readVarInt(), buf.readString(),
+					buf.readVarInt(), buf.readVarInt()));
+			}
+			return new LicenseList(out, acts);
 		}
 
 		@Override

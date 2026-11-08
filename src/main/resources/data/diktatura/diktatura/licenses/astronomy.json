@@ -1,8 +1,0 @@
-{
-  "name": "license.diktatura.astronomy",
-  "desc": "license.diktatura.astronomy.desc",
-  "order": 8,
-  "price": 5,
-  "days": 1,
-  "revoke_on_arrest": true
-}

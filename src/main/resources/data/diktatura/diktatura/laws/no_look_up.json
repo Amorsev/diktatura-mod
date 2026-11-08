@@ -19,6 +19,5 @@
   "prevent": false,
   "enabled_by_default": true,
   "permanent": false,
-  "weight": 10,
-  "exempt_license": "diktatura:astronomy"
+  "weight": 10
 }

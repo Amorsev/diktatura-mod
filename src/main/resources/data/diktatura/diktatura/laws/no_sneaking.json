@@ -21,6 +21,5 @@
   "prevent": false,
   "enabled_by_default": false,
   "permanent": false,
-  "weight": 10,
-  "exempt_license": "diktatura:sport"
+  "weight": 10
 }

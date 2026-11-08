@@ -1,8 +1,0 @@
-{
-  "name": "license.diktatura.garden",
-  "desc": "license.diktatura.garden.desc",
-  "order": 5,
-  "price": 12,
-  "days": 2,
-  "revoke_on_arrest": true
-}

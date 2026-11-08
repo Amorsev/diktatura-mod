@@ -77,6 +77,7 @@ public class Diktatura implements ModInitializer {
 		Dictator.registerEvents();
 		Jobs.registerEvents();
 		Licenses.registerEvents();
+		com.diktatura.license.LicensedActivities.registerEvents();
 		com.diktatura.office.Offices.registerEvents();
 		com.diktatura.casino.Casino.registerEvents();
 		com.diktatura.bureau.Visits.registerEvents();
@@ -144,6 +145,8 @@ public class Diktatura implements ModInitializer {
 		Dictator.tick(s);
 		Jobs.tick(s);
 		Licenses.tick(s);
+		com.diktatura.license.LicensedActivities.tick(s);
+		com.diktatura.mechanics.Timber.tick(s);
 		com.diktatura.office.Offices.tick(s);
 		com.diktatura.casino.Casino.tick(s);
 		com.diktatura.bureau.Visits.tick(s);

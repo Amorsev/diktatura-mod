@@ -164,13 +164,26 @@ public final class Licenses {
 				continue;
 			}
 			LicenseDef def = LicenseRegistry.get(id);
-			out.add(new UiPayloads.LicenseEntry(
-				def == null ? Text.literal(id) : Text.translatable(def.name()),
-				def == null ? Text.empty() : Text.translatable(def.desc()),
+			if (def == null) {
+				continue; // лицензия, которой больше нет в моде (например, отменённая в 0.2.29)
+			}
+			out.add(new UiPayloads.LicenseEntry(Text.translatable(def.name()), Text.translatable(def.desc()),
 				(int) Math.min(Integer.MAX_VALUE, left / 20),
 				lawsFor(id).stream().map(Law::key).toList()));
 		}
-		ServerPlayNetworking.send(p, new UiPayloads.LicenseList(out));
+		List<UiPayloads.ActivityEntry> acts = new ArrayList<>();
+		for (LicensedActivities.Activity a : LicensedActivities.ALL) {
+			if (!rec.activities.contains(a.id())) {
+				continue;
+			}
+			LicenseDef def = LicenseRegistry.get(a.license());
+			long left = rec.licenses.contains(a.license()) ? rec.licenses.getLong(a.license()) - now : 0;
+			acts.add(new UiPayloads.ActivityEntry(Text.translatable(a.key()), Text.translatable(a.key() + ".desc"),
+				def == null ? Text.literal(a.license()) : Text.translatable(def.name()),
+				def == null ? 0 : def.price(), def == null ? "?" : days(def.days()), a.fine(),
+				(int) Math.max(0, Math.min(Integer.MAX_VALUE, left / 20))));
+		}
+		ServerPlayNetworking.send(p, new UiPayloads.LicenseList(out, acts));
 	}
 
 	private static String days(double d) {

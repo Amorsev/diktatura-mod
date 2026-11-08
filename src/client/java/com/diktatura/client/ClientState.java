@@ -27,6 +27,8 @@ public final class ClientState {
 	public static List<String> laws = List.of();
 	public static int balance;
 	public static List<UiPayloads.LicenseEntry> licenses = List.of();
+	/** Открытые лицензируемые занятия (скрытый раздел книги законов). */
+	public static List<UiPayloads.ActivityEntry> activities = List.of();
 	/** Текущая работа: пустой заголовок — работы нет. */
 	public static Text jobTitle = Text.empty();
 	public static int jobProgress;
@@ -75,11 +77,13 @@ public final class ClientState {
 
 	static void updateLicenses(UiPayloads.LicenseList p) {
 		licenses = List.copyOf(p.entries());
+		activities = List.copyOf(p.activities());
 	}
 
 	static void reset() {
 		received = false;
 		licenses = List.of();
+		activities = List.of();
 		jobTitle = Text.empty();
 		allLaws = List.of();
 		repealedLaws = List.of();
