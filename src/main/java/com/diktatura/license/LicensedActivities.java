@@ -70,10 +70,13 @@ public final class LicensedActivities {
 			if (!(world instanceof ServerWorld w) || !(player instanceof ServerPlayerEntity p) || p.isCreative()) {
 				return;
 			}
-			if (state.isIn(BlockTags.LOGS) && isTree(w, pos)) {
-				violate(p, FOREST);
-			} else if (isOre(state)) {
-				violate(p, MINING);
+			// Рубку деревьев проверяет Timber (он же знает, дерево это или постройка из брёвен).
+			if (isOre(state)) {
+				try {
+					violate(p, MINING);
+				} catch (RuntimeException e) {
+					Diktatura.LOGGER.error("Ошибка проверки шахтёрской лицензии", e);
+				}
 			}
 		});
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {

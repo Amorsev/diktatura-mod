@@ -1,5 +1,6 @@
 package com.diktatura.mechanics;
 
+import com.diktatura.Diktatura;
 import com.diktatura.casino.CasinoFx;
 import com.diktatura.config.DiktaturaConfig;
 import com.diktatura.license.LicensedActivities;
@@ -74,19 +75,36 @@ public final class Timber {
 
 	public static void registerEvents() {
 		PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, be) -> {
-			if (world instanceof ServerWorld w && player instanceof ServerPlayerEntity sp && state.isIn(BlockTags.LOGS)
-				&& DiktaturaConfig.get().timber && !sp.isSneaking()) {
-				fell(w, sp, pos);
+			if (!(world instanceof ServerWorld w) || !(player instanceof ServerPlayerEntity sp) || !state.isIn(BlockTags.LOGS)) {
+				return;
+			}
+			try {
+				Tree tree = scan(w, pos);
+				if (tree == null) {
+					return; // не дерево: постройка из брёвен или уже поваленный ствол
+				}
+				if (!sp.isCreative()) {
+					LicensedActivities.violate(sp, LicensedActivities.FOREST);
+				}
+				if (DiktaturaConfig.get().timber && !sp.isSneaking()) {
+					fell(w, sp, pos, tree);
+				}
+			} catch (RuntimeException e) {
+				Diktatura.LOGGER.error("Ошибка падающего дерева", e);
 			}
 		});
+	}
+
+	/** Ствол (брёвна от места сруба вверх и вбок) и крона (природная листва рядом со стволом). */
+	private record Tree(List<BlockPos> logs, List<BlockPos> leaves) {
 	}
 
 	private static boolean naturalLeaves(BlockState s) {
 		return s.isIn(BlockTags.LEAVES) && !(s.contains(LeavesBlock.PERSISTENT) && s.get(LeavesBlock.PERSISTENT));
 	}
 
-	private static void fell(ServerWorld w, ServerPlayerEntity p, BlockPos start) {
-		// Ствол: связанные брёвна от места сруба вверх и вбок.
+	/** Найти дерево над местом сруба; null — если рядом со стволом нет природной листвы. */
+	private static Tree scan(ServerWorld w, BlockPos start) {
 		List<BlockPos> logs = new ArrayList<>();
 		Set<BlockPos> seen = new HashSet<>();
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>();
@@ -106,14 +124,13 @@ public final class Timber {
 				}
 			}
 		}
-		if (logs.isEmpty()) {
-			return;
-		}
-		// Крона: природная листва в двух блоках от ствола.
+		// Крона: природная листва в трёх блоках от ствола (и от места сруба — у низких деревьев).
 		List<BlockPos> leaves = new ArrayList<>();
 		Set<BlockPos> leafSeen = new HashSet<>();
-		for (BlockPos log : logs) {
-			for (BlockPos n : BlockPos.iterate(log.add(-2, -1, -2), log.add(2, 2, 2))) {
+		List<BlockPos> around = new ArrayList<>(logs);
+		around.add(start);
+		for (BlockPos log : around) {
+			for (BlockPos n : BlockPos.iterate(log.add(-3, -1, -3), log.add(3, 3, 3))) {
 				if (leaves.size() >= MAX_LEAVES) {
 					break;
 				}
@@ -124,8 +141,14 @@ public final class Timber {
 				}
 			}
 		}
-		if (leaves.isEmpty()) {
-			return; // не дерево (постройка из брёвен)
+		return leaves.isEmpty() ? null : new Tree(logs, leaves);
+	}
+
+	private static void fell(ServerWorld w, ServerPlayerEntity p, BlockPos start, Tree tree) {
+		List<BlockPos> logs = tree.logs();
+		List<BlockPos> leaves = tree.leaves();
+		if (logs.isEmpty()) {
+			return; // срублено последнее бревно — падать нечему
 		}
 
 		// Куда падать: на игрока — лесоруб должен успеть отскочить.

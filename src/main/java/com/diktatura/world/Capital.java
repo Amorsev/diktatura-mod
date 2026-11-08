@@ -86,7 +86,7 @@ public final class Capital {
 		state.prisonOrigin = prison;
 		state.prisonGenerated = true;
 		tunnel(world, prison, cx, cz, ground);
-		stairs(world, cx, cz, ground, top);
+		stairs(world, prison, cx, cz, ground, top);
 
 		// Плато: зал посередине, кабинеты к северу, казино к югу; площадь перед ними с запада.
 		BlockPos hall = new BlockPos(cx - GrandThroneHall.SIZE_X / 2, top, cz - GrandThroneHall.SIZE_Z / 2);
@@ -309,8 +309,11 @@ public final class Capital {
 		BlockState air = Blocks.AIR.getDefaultState();
 		int z0 = prison.getZ() + TUNNEL_Z;
 		int limit = prison.getX() - PLATEAU - SLOPE - 60;
+		// Тоннель доходит минимум до подножия лестницы: оттуда к ней ведёт переход (см. stairs),
+		// так что выход из тюрьмы открыт, даже если вокруг природные горы.
+		int stairsFoot = cx - PLATEAU - SLOPE - 2;
 		int x = prison.getX() - 1;
-		while (x > limit && (heightAt(x, z0, cx, cz) > 5 || surfaceAcross(world, x, z0, 3) > ground + 1)) {
+		while (x > limit && (x > stairsFoot - 6 || heightAt(x, z0, cx, cz) > 5 || surfaceAcross(world, x, z0, 3) > ground + 1)) {
 			x--;
 		}
 		int exitX = x - 1;
@@ -395,8 +398,13 @@ public final class Capital {
 		}
 	}
 
-	/** Лестница по западному склону от подножия до плато: не круче одного блока на шаг. */
-	private static void stairs(ServerWorld world, int cx, int cz, int ground, int top) {
+	/**
+	 * Лестница по западному склону от подножия до плато: не круче одного блока на шаг.
+	 * Начинается на уровне пола тюремного тоннеля, и к ней от тоннеля ведёт переход — тюрьма и
+	 * тронный зал связаны, а выход никогда не замурован природным рельефом (лестница и переход
+	 * прорезают его насквозь).
+	 */
+	private static void stairs(ServerWorld world, BlockPos prison, int cx, int cz, int ground, int top) {
 		int flags = Block.NOTIFY_LISTENERS;
 		BlockState path = Blocks.STONE_BRICKS.getDefaultState();
 		BlockState air = Blocks.AIR.getDefaultState();
@@ -405,10 +413,14 @@ public final class Capital {
 		int endX = cx - PLATEAU + 2;
 		int n = endX - startX + 1;
 		int[] y = new int[n];
-		// Высота лестницы — по настоящему рельефу (гора + природные холмы у подножия).
+		// Высота лестницы — по настоящему рельефу, но в коридоре: снизу не выше «пол тоннеля + шаг»,
+		// сверху не ниже, чем нужно, чтобы успеть подняться на плато.
 		for (int i = 0; i < n; i++) {
-			y[i] = Math.min(top, surfaceAcross(world, startX + i, z0, 2));
+			int lo = Math.max(ground, top - (n - 1 - i));
+			int hi = Math.max(lo, ground + i);
+			y[i] = MathHelper.clamp(Math.min(top, surfaceAcross(world, startX + i, z0, 2)), lo, hi);
 		}
+		y[0] = ground;
 		y[n - 1] = top;
 		// Сверху вниз: подъём не больше блока на шаг (где круче — насыпь)...
 		for (int i = n - 2; i >= 0; i--) {
@@ -453,6 +465,29 @@ public final class Capital {
 						.with(StairsBlock.FACING, Direction.WEST), flags);
 				}
 			}
+		}
+		connector(world, prison.getZ() + TUNNEL_Z, z0, startX, ground);
+	}
+
+	/** Переход вдоль подножия от тюремного тоннеля к нижней ступени лестницы (5 блоков шириной). */
+	private static void connector(ServerWorld world, int tunnelZ, int stairsZ, int stairsX, int ground) {
+		int flags = Block.NOTIFY_LISTENERS;
+		BlockState floor = Blocks.POLISHED_ANDESITE.getDefaultState();
+		BlockState wall = Blocks.STONE_BRICKS.getDefaultState();
+		BlockState air = Blocks.AIR.getDefaultState();
+		int zFrom = Math.min(tunnelZ, stairsZ) - 2;
+		int zTo = Math.max(tunnelZ, stairsZ) + 2;
+		for (int x = stairsX - 5; x <= stairsX - 1; x++) {
+			for (int z = zFrom; z <= zTo; z++) {
+				world.setBlockState(new BlockPos(x, ground, z), floor, flags);
+				fill(world, x, ground - 1, z, wall);
+				for (int yy = 1; yy <= 4; yy++) {
+					world.setBlockState(new BlockPos(x, ground + yy, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
+				}
+			}
+		}
+		for (int z = zFrom; z <= zTo; z += 4) {
+			world.setBlockState(new BlockPos(stairsX - 5, ground + 1, z), Blocks.LANTERN.getDefaultState(), flags);
 		}
 	}
 
