@@ -31,6 +31,12 @@ import java.util.Set;
 
 public class DiktaturaClient implements ClientModInitializer {
 	private static KeyBinding openLaws;
+	/** Клавиша H: спрятать панели мода (законы, лояльность), баннеры и заголовки остаются. */
+	private static KeyBinding toggleHud;
+	private static boolean panelsHidden;
+	private static int pendingAd = -1;
+	private static int pendingAdSeconds;
+	private static long pendingAdUntil;
 
 	@Override
 	public void onInitializeClient() {
@@ -70,7 +76,9 @@ public class DiktaturaClient implements ClientModInitializer {
 			int w = ctx.getScaledWindowWidth();
 			int h = ctx.getScaledWindowHeight();
 			if (!mc.options.hudHidden) {
-				safe("status", () -> StatusHud.render(ctx));
+				if (!panelsHidden) {
+					safe("status", () -> StatusHud.render(ctx));
+				}
 				safe("subtitles", () -> Subtitles.render(ctx, w, h));
 				safe("alerts", () -> Alerts.render(ctx, w));
 				safe("headlines", () -> Headlines.render(ctx, w, h));
@@ -91,10 +99,24 @@ public class DiktaturaClient implements ClientModInitializer {
 
 		openLaws = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.diktatura.laws",
 			InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_L, "category.diktatura"));
+		toggleHud = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.diktatura.hud",
+			InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, "category.diktatura"));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			Overlays.tick(client);
 			com.diktatura.client.fx.ClientFx.tick(client);
 			com.diktatura.client.fx.PhantomInspector.tick(client);
+			while (toggleHud.wasPressed()) {
+				panelsHidden = !panelsHidden;
+			}
+			// Отложенная реклама: показать, как только закроют окно (но не позже чем через минуту).
+			if (pendingAd >= 0) {
+				if (System.currentTimeMillis() > pendingAdUntil || client.player == null) {
+					pendingAd = -1;
+				} else if (client.currentScreen == null) {
+					client.setScreen(new AdScreen(pendingAd, pendingAdSeconds));
+					pendingAd = -1;
+				}
+			}
 			while (openLaws.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(new LawBookScreen());
@@ -138,9 +160,13 @@ public class DiktaturaClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Ad.ID,
 			(payload, context) -> context.client().execute(() -> {
 				MinecraftClient mc = context.client();
-				// Реклама не перебивает другие окна (книгу, сундук, окно НПС) — подождёт до следующего раза.
+				// Реклама не перебивает другие окна (книгу, сундук, окно НПС, чат) — дождётся, пока их закроют.
 				if (mc.currentScreen == null && mc.player != null) {
 					mc.setScreen(new AdScreen(payload.ad(), payload.seconds()));
+				} else {
+					pendingAd = payload.ad();
+					pendingAdSeconds = payload.seconds();
+					pendingAdUntil = System.currentTimeMillis() + 60_000L;
 				}
 			}));
 		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.FxPayloads.Fx.ID,

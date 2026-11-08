@@ -35,3 +35,4 @@ javac.*.args
 blockbench/out/
 blockbench/export/
 blockbench/__pycache__/
+forUPLOAD/

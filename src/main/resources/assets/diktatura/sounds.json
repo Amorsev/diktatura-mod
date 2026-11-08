@@ -177,5 +177,16 @@
     "sounds": [
       "diktatura:sfx/tiktok_swoosh"
     ]
+  },
+  "sfx.ad_jingle": {
+    "subtitle": "subtitles.diktatura.ad",
+    "sounds": [
+      "diktatura:sfx/ad_jingle"
+    ]
+  },
+  "sfx.popup_close": {
+    "sounds": [
+      "diktatura:sfx/popup_close"
+    ]
   }
 }

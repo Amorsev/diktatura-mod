@@ -17,6 +17,8 @@ public final class ModSounds {
 	public static final SoundEvent GLITCH_SHORT = register("sfx.glitch_short");
 	public static final SoundEvent LAG_STUTTER = register("sfx.lag_stutter");
 	public static final SoundEvent TIKTOK_SWOOSH = register("sfx.tiktok_swoosh");
+	public static final SoundEvent AD_JINGLE = register("sfx.ad_jingle");
+	public static final SoundEvent POPUP_CLOSE = register("sfx.popup_close");
 	public static final SoundEvent BOSS_BOOM = register("sfx.boss_boom");
 	public static final SoundEvent SHOCKWAVE = register("sfx.shockwave");
 	public static final SoundEvent DRAGON_INHALE = register("sfx.dragon_inhale");
