@@ -34,7 +34,7 @@ import java.util.UUID;
  * лицензии всегда — это не законы, вождь их не вводит и не отменяет. Игрок узнаёт о них, только
  * нарушив: первое нарушение открывает скрытый раздел книги законов «Лицензируемые занятия»,
  * и каждое новое нарушение добавляет туда запись о своей лицензии.
- * Без лицензии — штраф в трудоднях (нечем платить — минус лояльность). Игорная лицензия по-прежнему
+ * Без лицензии — штраф в трудоднях, хоть в долг (баланс уходит в минус). Игорная лицензия по-прежнему
  * работает через закон «Азартные игры — только по лицензии».
  */
 public final class LicensedActivities {
@@ -145,13 +145,9 @@ public final class LicensedActivities {
 		LAST.put(key, now);
 		LicenseRegistry.LicenseDef def = LicenseRegistry.get(a.license());
 		Text license = def == null ? Text.literal(a.license()) : Text.translatable(def.name());
-		if (Economy.take(p, a.fine(), "diktatura.money.reason.activity", a.key())) {
-			p.sendMessage(Text.translatable("diktatura.activity.fined", license, a.fine()).formatted(Formatting.RED), true);
-		} else {
-			rec.loyalty = Math.max(0, rec.loyalty - 3);
-			state.markDirty();
-			p.sendMessage(Text.translatable("diktatura.activity.broke", license).formatted(Formatting.RED), true);
-		}
+		// Штраф взыскивается всегда, хоть в долг: трудодни могут уйти в минус.
+		Economy.add(p, -a.fine(), "diktatura.money.reason.activity", a.key(), true);
+		p.sendMessage(Text.translatable("diktatura.activity.fined", license, a.fine()).formatted(Formatting.RED), true);
 		return true;
 	}
 

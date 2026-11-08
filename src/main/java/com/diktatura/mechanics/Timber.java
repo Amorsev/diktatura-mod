@@ -37,10 +37,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * «Тимбер!»: подрубленное дерево не рассыпается на брёвна, а падает целиком — от игрока, плавно
+ * «Тимбер!»: подрубленное дерево не рассыпается на брёвна, а падает целиком — на игрока, плавно
  * наклоняясь и ускоряясь. Ствол ложится на землю брёвнами (их потом рубят по одному), листва
- * осыпается саженцами и палками. Кого накроет стволом — получит урон (и сам лесоруб тоже, если
- * стоит не там). Только настоящие деревья (с природной листвой); на корточках рубится одно бревно.
+ * осыпается саженцами и палками. Кого накроет стволом — получит урон: лесорубу надо успеть отскочить
+ * в сторону (падение длится секунду). Только настоящие деревья (с природной листвой); на корточках рубится одно бревно.
  * Идея — из референсного мода (Timber), реализация своя.
  */
 public final class Timber {
@@ -128,13 +128,13 @@ public final class Timber {
 			return; // не дерево (постройка из брёвен)
 		}
 
-		// Куда падать: от игрока.
-		double ddx = start.getX() + 0.5 - p.getX();
-		double ddz = start.getZ() + 0.5 - p.getZ();
-		Direction dir = Math.abs(ddx) + Math.abs(ddz) < 0.01 ? p.getHorizontalFacing()
+		// Куда падать: на игрока — лесоруб должен успеть отскочить.
+		double ddx = p.getX() - (start.getX() + 0.5);
+		double ddz = p.getZ() - (start.getZ() + 0.5);
+		Direction dir = Math.abs(ddx) + Math.abs(ddz) < 0.01 ? p.getHorizontalFacing().getOpposite()
 			: Direction.getFacing(ddx, 0, ddz);
 		if (dir.getAxis() == Direction.Axis.Y) {
-			dir = p.getHorizontalFacing();
+			dir = p.getHorizontalFacing().getOpposite();
 		}
 		Vec3d pivot = new Vec3d(start.getX() + 0.5 + dir.getOffsetX() * 0.5, start.getY(), start.getZ() + 0.5 + dir.getOffsetZ() * 0.5);
 		Vector3f axis = new Vector3f(dir.getOffsetZ(), 0, -dir.getOffsetX());
@@ -148,6 +148,7 @@ public final class Timber {
 		}
 		FALLS.add(new Fall(w, pivot, axis, dir, parts));
 		w.playSound(null, start, SoundEvents.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.2f, 0.6f);
+		w.playSound(null, start, SoundEvents.BLOCK_WOOD_HIT, SoundCategory.BLOCKS, 1.0f, 0.4f);
 		Hud.alert(p, AlertKind.INFO, Text.translatable("diktatura.timber.title"), Text.translatable("diktatura.timber.hint"), 3);
 	}
 
