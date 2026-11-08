@@ -19,6 +19,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -86,6 +87,14 @@ public class DiktaturaClient implements ClientModInitializer {
 			safe("fx", () -> com.diktatura.client.fx.ClientFx.render(ctx, w, h));
 			safe("overlays", () -> Overlays.render(ctx, w, h));
 			BlindOverlay.draw(ctx, w, h);
+		});
+		// Главное меню: кнопка «Диктатура: что нового» в левом верхнем углу.
+		ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
+			if (screen instanceof net.minecraft.client.gui.screen.TitleScreen) {
+				net.fabricmc.fabric.api.client.screen.v1.Screens.getButtons(screen).add(
+					net.minecraft.client.gui.widget.ButtonWidget.builder(Text.translatable("diktatura.changelog.button"),
+						b -> client.setScreen(new ChangelogScreen(screen))).dimensions(6, 6, 150, 20).build());
+			}
 		});
 		ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
 			if (screen instanceof DeathScreen) {

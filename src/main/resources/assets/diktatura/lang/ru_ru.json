@@ -207,6 +207,8 @@
   "diktatura.dictator.decree_voice.3": "Граждане! Читайте книгу законов. Это приказ.",
   "diktatura.book.tab.active": "Действующие",
   "diktatura.book.tab.repealed": "Отменённые",
+  "diktatura.changelog.button": "★ Диктатура: что нового",
+  "diktatura.changelog.title": "Диктатура — что нового",
   "diktatura.book.tab.licenses": "Мои лицензии",
   "diktatura.book.tab.activities": "Лиц. занятия",
   "diktatura.book.activities.intro": "Занятия, для которых всегда нужна лицензия. Раздел пополняется, когда вы что-нибудь нарушаете.",

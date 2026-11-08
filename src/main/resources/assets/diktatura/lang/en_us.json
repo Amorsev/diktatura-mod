@@ -207,6 +207,8 @@
   "diktatura.dictator.decree_voice.3": "Citizens! Read the Book of Laws. That is an order.",
   "diktatura.book.tab.active": "In force",
   "diktatura.book.tab.repealed": "Repealed",
+  "diktatura.changelog.button": "★ Diktatura: what's new",
+  "diktatura.changelog.title": "Diktatura — what's new",
   "diktatura.book.tab.licenses": "My licenses",
   "diktatura.book.tab.activities": "Licensed",
   "diktatura.book.activities.intro": "Activities that always require a license. The section grows whenever you break the rules.",
