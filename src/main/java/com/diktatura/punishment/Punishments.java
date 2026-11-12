@@ -51,6 +51,7 @@ public final class Punishments {
 				Json.i(o, "seconds", 10), Json.i(o, "amplifier", 0));
 			case "loyalty" -> new Loyalty(Json.i(o, "amount", -1));
 			case "lightning" -> new Lightning();
+			case "dismount" -> new Dismount();
 			case "damage" -> new Damage((float) Json.d(o, "amount", 2));
 			default -> throw new IllegalArgumentException("Неизвестный тип наказания: " + type);
 		};
@@ -67,6 +68,22 @@ public final class Punishments {
 			return StatusEffects.SLOWNESS;
 		}
 		return Registries.STATUS_EFFECT.getOrEmpty(i).map(Registries.STATUS_EFFECT::getEntry).orElse(StatusEffects.SLOWNESS);
+	}
+
+	/** Ссадить с транспорта (лошади, лодки…). */
+	static final class Dismount implements Punishment {
+		@Override
+		public void apply(ServerPlayerEntity p, Law law, LawContext ctx) {
+			if (p.hasVehicle()) {
+				p.stopRiding();
+				tell(p, Text.translatable("diktatura.punish.dismount").formatted(Formatting.GOLD));
+			}
+		}
+
+		@Override
+		public int fear() {
+			return 1;
+		}
 	}
 
 	static void tell(ServerPlayerEntity p, Text text) {
@@ -196,6 +213,13 @@ public final class Punishments {
 							taken += s.getCount();
 							inv.setStack(i, ItemStack.EMPTY);
 						}
+					}
+					// Предмет «на курсоре» (например, только что скрафченный хлеб) — тоже улика.
+					ItemStack cursor = p.currentScreenHandler.getCursorStack();
+					if (!cursor.isEmpty() && law.check().isOffending(cursor)) {
+						taken += cursor.getCount();
+						p.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
+						p.currentScreenHandler.syncState();
 					}
 				}
 			}

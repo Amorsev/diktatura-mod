@@ -77,7 +77,7 @@ public final class Network {
 		// Полный список законов клиенту не отправляется: будущие указы не должны быть видны заранее.
 		List<String> all = List.of();
 		List<String> repealed = state.repealedLaws.stream()
-			.filter(id -> LawRegistry.get(id) != null && !state.activeLaws.contains(id)).toList();
+			.filter(id -> LawRegistry.visible(id) && !state.activeLaws.contains(id)).toList();
 		ServerPlayNetworking.send(p, new UiPayloads.LawList(all, repealed));
 	}
 
@@ -87,7 +87,7 @@ public final class Network {
 		}
 		DiktaturaState state = DiktaturaState.get(server);
 		PlayerRecord rec = state.player(p);
-		List<String> laws = state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).toList();
+		List<String> laws = state.activeLaws.stream().filter(LawRegistry::visible).toList();
 		EventType event = EventSystem.active();
 		JobRegistry.JobDef jobDef = Jobs.def(rec);
 		net.minecraft.text.Text jobTitle = jobDef == null ? net.minecraft.text.Text.empty()

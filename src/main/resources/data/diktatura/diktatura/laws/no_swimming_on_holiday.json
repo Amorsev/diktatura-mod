@@ -1,0 +1,23 @@
+{
+  "check": {
+    "type": "in_water",
+    "every_n_days": 7
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 2
+    },
+    {
+      "type": "effect",
+      "effect": "minecraft:slowness",
+      "seconds": 10,
+      "amplifier": 1
+    }
+  ],
+  "cooldown_seconds": 30,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 6
+}

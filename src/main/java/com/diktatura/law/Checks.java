@@ -41,31 +41,42 @@ public final class Checks {
 			case "outside_at_night" -> new OutsideAtNight();
 			case "sprinting" -> new Simple(p -> p.isSprinting());
 			case "sneaking" -> new Simple(p -> p.isSneaking());
-			case "in_water" -> new Simple(p -> p.isTouchingWater());
+			case "in_water" -> new InWater(Math.max(0, Json.i(o, "every_n_days", 0)));
 			case "hunger" -> new Hunger(Json.i(o, "max_food", 6));
 			case "hold_item" -> new HoldItem(Matchers.items(o));
 			case "have_item" -> new HaveItem(Matchers.items(o), Json.i(o, "min_count", 1));
 			case "wealth" -> new Wealth(Json.d(o, "threshold", 12800), Json.b(o, "include_ender_chest", false));
 			case "altitude" -> new Altitude(o.has("above") ? o.get("above").getAsInt() : null,
 				o.has("below") ? o.get("below").getAsInt() : null);
-			case "equipment" -> new Equipment(EquipmentSlot.byName(Json.s(o, "slot", "head")),
+			case "equipment" -> new Equipment(slot(Json.s(o, "slot", "head")),
 				Json.b(o, "required", true), Matchers.items(o), o.has("items") || o.has("tag"));
 			case "dimension" -> new Dimension(new HashSet<>(Json.list(o, "dimensions")));
 			case "standing_on" -> new StandingOn(Matchers.blocks(o));
-			case "block_break" -> new BlockBreak(Matchers.blocks(o), Json.b(o, "state_structures", false));
+			case "block_break" -> new BlockBreak(Matchers.blocks(o), Json.b(o, "state_structures", false),
+				Json.b(o, "under_feet", false));
 			case "block_place" -> new BlockPlace(Matchers.blocks(o), Json.i(o, "max_build_height", -1),
 				Json.b(o, "state_structures", false));
 			case "chat" -> new Chat(Json.list(o, "words"), Json.s(o, "regex", ""), Json.d(o, "caps_ratio", -1),
-				Json.i(o, "min_length", 1), Json.b(o, "any", false));
+				Json.i(o, "min_length", 1), Json.b(o, "any", false), Json.s(o, "require_regex", ""));
 			case "kill_entity" -> new EntityEvent(LawEvent.KILL, Matchers.entities(o));
 			case "attack_entity" -> new EntityEvent(LawEvent.ATTACK, Matchers.entities(o));
 			case "use_item" -> new UseItem(Matchers.items(o));
 			case "sleep" -> new Sleep();
 			case "gamble" -> new Gamble();
 			case "sneeze" -> new Sneeze(Math.max(0, Json.i(o, "near_players", 0)));
+			case "riding" -> new Riding(Matchers.entities(o));
+			case "craft" -> new Craft(Matchers.items(o));
+			case "poker_bluff" -> new Always(LawEvent.POKER_BLUFF);
 			default -> throw new IllegalArgumentException("Неизвестный тип проверки: " + type);
 		};
 	}
+
+	/** Слот экипировки; "armor" — любой из четырёх слотов брони (null). */
+	private static EquipmentSlot slot(String name) {
+		return "armor".equals(name) ? null : EquipmentSlot.byName(name);
+	}
+
+	private static final EquipmentSlot[] ARMOR = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
 	/** Если onlyStructures — срабатывает только внутри построек мода (тюрьма, тронный зал). */
 	static boolean inScope(World world, BlockPos pos, boolean onlyStructures) {
@@ -264,7 +275,19 @@ public final class Checks {
 
 		@Override
 		boolean testPlayer(ServerPlayerEntity p) {
-			ItemStack s = p.getEquippedStack(slot);
+			if (slot == null) {
+				// Любой слот брони: required — хоть один слот не подходит; иначе — хоть в одном запрещённое.
+				for (EquipmentSlot sl : ARMOR) {
+					if (testSlot(p.getEquippedStack(sl))) {
+						return true;
+					}
+				}
+				return false;
+			}
+			return testSlot(p.getEquippedStack(slot));
+		}
+
+		private boolean testSlot(ItemStack s) {
 			if (required) {
 				return s.isEmpty() || (hasFilter && !items.test(s));
 			}
@@ -306,13 +329,16 @@ public final class Checks {
 		}
 	}
 
+	/** Ломание блоков; under_feet — только блок прямо под ногами игрока («копать под себя»). */
 	static final class BlockBreak implements LawCheck {
 		private final Predicate<BlockState> blocks;
 		private final boolean onlyStructures;
+		private final boolean underFeet;
 
-		BlockBreak(Predicate<BlockState> blocks, boolean onlyStructures) {
+		BlockBreak(Predicate<BlockState> blocks, boolean onlyStructures, boolean underFeet) {
 			this.blocks = blocks;
 			this.onlyStructures = onlyStructures;
+			this.underFeet = underFeet;
 		}
 
 		@Override
@@ -322,7 +348,20 @@ public final class Checks {
 
 		@Override
 		public boolean test(LawContext ctx) {
+			if (underFeet && !isUnderFeet(ctx.player, ctx.pos)) {
+				return false;
+			}
 			return blocks.test(ctx.state) && inScope(ctx.player.getWorld(), ctx.pos, onlyStructures);
+		}
+
+		/** Блок под игроком: тот, на котором он стоит (по любой из клеток под хитбоксом). */
+		private static boolean isUnderFeet(ServerPlayerEntity p, BlockPos pos) {
+			if (pos == null || pos.getY() != BlockPos.ofFloored(p.getPos()).getY() - 1) {
+				return false;
+			}
+			var box = p.getBoundingBox();
+			return pos.getX() >= Math.floor(box.minX) && pos.getX() <= Math.floor(box.maxX - 1.0E-4)
+				&& pos.getZ() >= Math.floor(box.minZ) && pos.getZ() <= Math.floor(box.maxZ - 1.0E-4);
 		}
 	}
 
@@ -380,8 +419,12 @@ public final class Checks {
 		private final double capsRatio;
 		private final int minLength;
 		private final boolean any;
+		/** Обязательный узор: сообщение без него — нарушение («обязательная улыбка»). */
+		private final Pattern required;
 
-		Chat(List<String> words, String regex, double capsRatio, int minLength, boolean any) {
+		Chat(List<String> words, String regex, double capsRatio, int minLength, boolean any, String requireRegex) {
+			this.required = requireRegex.isEmpty() ? null
+				: Pattern.compile(requireRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 			this.words = words.stream().map(w -> w.toLowerCase(Locale.ROOT)).toList();
 			this.regex = regex.isEmpty() ? null : Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 			this.capsRatio = capsRatio;
@@ -401,6 +444,9 @@ public final class Checks {
 				return false;
 			}
 			if (any) {
+				return true;
+			}
+			if (required != null && !required.matcher(msg).find()) {
 				return true;
 			}
 			String lower = msg.toLowerCase(Locale.ROOT);
@@ -518,6 +564,93 @@ public final class Checks {
 			}
 			return !ctx.player.getWorld().getEntitiesByClass(net.minecraft.entity.player.PlayerEntity.class,
 				ctx.player.getBoundingBox().expand(radius), e -> e != ctx.player).isEmpty();
+		}
+	}
+
+	/** В воде; every_n_days &gt; 0 — только в каждый N-й игровой день («госпраздник»). */
+	static final class InWater extends TickCheck {
+		private final int everyNDays;
+
+		InWater(int everyNDays) {
+			this.everyNDays = everyNDays;
+		}
+
+		@Override
+		boolean testPlayer(ServerPlayerEntity p) {
+			return p.isTouchingWater() && (everyNDays <= 0 || isHoliday(p.getServerWorld(), everyNDays));
+		}
+	}
+
+	/** Сегодня госпраздник: каждый N-й игровой день (7-й, 14-й, …), считая с первого. */
+	public static boolean isHoliday(ServerWorld world, int everyNDays) {
+		long day = world.getTimeOfDay() / 24000L;
+		return everyNDays > 0 && (day + 1) % everyNDays == 0;
+	}
+
+	/**
+	 * Езда верхом или в транспорте. Без "entities" — любой транспорт. Государственный транспорт мода
+	 * (повозка, такси — сущности diktatura:*) законом не считается.
+	 */
+	static final class Riding extends TickCheck {
+		private final Predicate<Entity> entities;
+
+		Riding(Predicate<Entity> entities) {
+			this.entities = entities;
+		}
+
+		@Override
+		boolean testPlayer(ServerPlayerEntity p) {
+			Entity v = p.getVehicle();
+			if (v == null || v.getCommandTags().contains(com.diktatura.transport.TransportSystem.WAGON_TAG)) {
+				return false;
+			}
+			if (net.minecraft.registry.Registries.ENTITY_TYPE.getId(v.getType()).getNamespace().equals(Diktatura.MOD_ID)) {
+				return false;
+			}
+			return entities.test(v);
+		}
+	}
+
+	/** Крафт предмета (результат забран из сетки крафта). */
+	static final class Craft implements LawCheck {
+		private final Predicate<ItemStack> items;
+
+		Craft(Predicate<ItemStack> items) {
+			this.items = items;
+		}
+
+		@Override
+		public LawEvent event() {
+			return LawEvent.CRAFT;
+		}
+
+		@Override
+		public boolean test(LawContext ctx) {
+			return items.test(ctx.stack);
+		}
+
+		@Override
+		public boolean isOffending(ItemStack stack) {
+			return items.test(stack);
+		}
+	}
+
+	/** Срабатывает всегда, когда событие произошло (условия проверяет тот, кто его вызывает). */
+	static final class Always implements LawCheck {
+		private final LawEvent event;
+
+		Always(LawEvent event) {
+			this.event = event;
+		}
+
+		@Override
+		public LawEvent event() {
+			return event;
+		}
+
+		@Override
+		public boolean test(LawContext ctx) {
+			return true;
 		}
 	}
 }

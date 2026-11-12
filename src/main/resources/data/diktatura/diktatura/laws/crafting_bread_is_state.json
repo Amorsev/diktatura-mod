@@ -1,0 +1,22 @@
+{
+  "check": {
+    "type": "craft",
+    "items": [
+      "minecraft:bread"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate"
+    },
+    {
+      "type": "fine",
+      "amount": 1
+    }
+  ],
+  "cooldown_seconds": 5,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}

@@ -15,10 +15,11 @@ import java.util.List;
  * @param permanent        диктатор никогда его не отменяет, и он действует даже во время восстания
  * @param weight           шанс, что диктатор выберет этот закон в новом указе
  * @param exemptLicenses   лицензии, владельцы которых этот закон не нарушают (поле exempt_license)
+ * @param hidden           скрытый закон: действует, но не виден в книге законов, сводках и указах
  */
 public record Law(Identifier id, LawCheck check, List<Punishment> punishments, int cooldownTicks,
                   boolean prevent, boolean enabledByDefault, boolean permanent, int weight,
-                  List<String> exemptLicenses) {
+                  List<String> exemptLicenses, boolean hidden) {
 
 	public String key() {
 		return id.toString();

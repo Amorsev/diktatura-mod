@@ -1,0 +1,18 @@
+{
+  "check": {
+    "type": "chat",
+    "require_regex": "\\)|:d|xd|☺|🙂|😊|😀|😁|😄",
+    "min_length": 3
+  },
+  "punishments": [
+    {
+      "type": "timeout",
+      "seconds": 15
+    }
+  ],
+  "cooldown_seconds": 1,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 6
+}

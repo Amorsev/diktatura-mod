@@ -356,18 +356,19 @@ public final class DiktaturaCommands {
 
 	private static int laws(ServerCommandSource src) {
 		DiktaturaState state = DiktaturaState.get(src.getServer());
-		src.sendFeedback(() -> Text.translatable("diktatura.cmd.laws_header", state.activeLaws.size())
+		long visible = state.activeLaws.stream().filter(LawRegistry::visible).count();
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.laws_header", visible)
 			.formatted(Formatting.GOLD), false);
 		for (String id : state.activeLaws) {
 			Law law = LawRegistry.get(id);
-			if (law != null) {
+			if (law != null && !law.hidden()) {
 				MutableText line = Text.literal(" • ").append(law.name().formatted(Formatting.RED))
 					.append(Text.literal(" — ").formatted(Formatting.DARK_GRAY))
 					.append(law.description().formatted(Formatting.GRAY));
 				src.sendFeedback(() -> line, false);
 			}
 		}
-		return state.activeLaws.size();
+		return (int) visible;
 	}
 
 	private static int allLaws(ServerCommandSource src) {
@@ -377,7 +378,8 @@ public final class DiktaturaCommands {
 			MutableText line = Text.literal(on ? "[+] " : "[ ] ").formatted(on ? Formatting.GREEN : Formatting.DARK_GRAY)
 				.append(Text.literal(law.key()).formatted(Formatting.WHITE))
 				.append(Text.literal(" ").append(law.name()).formatted(Formatting.GRAY))
-				.append(Text.literal(law.permanent() ? " ★" : "").formatted(Formatting.GOLD));
+				.append(Text.literal(law.permanent() ? " ★" : "").formatted(Formatting.GOLD))
+				.append(Text.literal(law.hidden() ? " (hidden)" : "").formatted(Formatting.DARK_PURPLE));
 			src.sendFeedback(() -> line, false);
 		}
 		return LawRegistry.all().size();

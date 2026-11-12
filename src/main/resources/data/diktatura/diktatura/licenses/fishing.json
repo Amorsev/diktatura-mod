@@ -1,0 +1,8 @@
+{
+  "name": "license.diktatura.fishing",
+  "desc": "license.diktatura.fishing.desc",
+  "order": 8,
+  "price": 25,
+  "days": 2,
+  "revoke_on_arrest": true
+}

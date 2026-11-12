@@ -1,0 +1,31 @@
+{
+  "check": {
+    "type": "riding",
+    "entities": [
+      "minecraft:horse",
+      "minecraft:donkey",
+      "minecraft:mule",
+      "minecraft:llama",
+      "minecraft:trader_llama",
+      "minecraft:camel",
+      "minecraft:pig",
+      "minecraft:strider",
+      "minecraft:boat",
+      "minecraft:chest_boat"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "dismount"
+    },
+    {
+      "type": "fine",
+      "amount": 2
+    }
+  ],
+  "cooldown_seconds": 20,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}

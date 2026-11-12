@@ -1,0 +1,23 @@
+{
+  "check": {
+    "type": "equipment",
+    "slot": "armor",
+    "required": false,
+    "items": [
+      "minecraft:leather_helmet",
+      "minecraft:leather_chestplate",
+      "minecraft:leather_leggings",
+      "minecraft:leather_boots"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "confiscate"
+    }
+  ],
+  "cooldown_seconds": 30,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}

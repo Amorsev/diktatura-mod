@@ -1,0 +1,20 @@
+{
+  "check": {
+    "type": "use_item",
+    "items": [
+      "minecraft:fishing_rod"
+    ]
+  },
+  "punishments": [
+    {
+      "type": "fine",
+      "amount": 2
+    }
+  ],
+  "cooldown_seconds": 10,
+  "prevent": true,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8,
+  "exempt_license": "diktatura:fishing"
+}

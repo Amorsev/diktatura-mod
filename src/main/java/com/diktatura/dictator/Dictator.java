@@ -189,7 +189,7 @@ public final class Dictator {
 		MinecraftServer server = player.getServer();
 		DiktaturaState state = DiktaturaState.get(server);
 		int phrase = LAST_PHRASE.getOrDefault(player.getUuid(), 0);
-		int laws = (int) state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).count();
+		int laws = (int) state.activeLaws.stream().filter(LawRegistry::visible).count();
 		int sec = secondsToDecree(server);
 		List<Text> info = new ArrayList<>();
 		info.add(Text.translatable("diktatura.npc.dictator.info.laws", laws));
@@ -335,7 +335,7 @@ public final class Dictator {
 		int phrase = player.getRandom().nextInt(phraseCount());
 		player.sendMessage(Text.translatable("diktatura.dictator.prefix").formatted(Formatting.GOLD)
 			.append(phrase(phrase).copy().formatted(Formatting.YELLOW)), false);
-		player.sendMessage(Text.translatable("diktatura.dictator.info", state.activeLaws.size(),
+		player.sendMessage(Text.translatable("diktatura.dictator.info", state.activeLaws.stream().filter(LawRegistry::visible).count(),
 			state.player(player).loyalty, secondsToDecree(server) / 60).formatted(Formatting.GRAY), false);
 	}
 
@@ -350,14 +350,14 @@ public final class Dictator {
 		List<Law> repealable = new ArrayList<>();
 		for (Law law : LawRegistry.all()) {
 			if (state.activeLaws.contains(law.key())) {
-				if (!law.permanent()) {
+				if (!law.permanent() && !law.hidden()) {
 					repealable.add(law);
 				}
-			} else if (law.weight() > 0) {
+			} else if (law.weight() > 0 && !law.hidden()) {
 				inactive.add(law);
 			}
 		}
-		int active = (int) state.activeLaws.stream().filter(id -> LawRegistry.get(id) != null).count();
+		int active = (int) state.activeLaws.stream().filter(LawRegistry::visible).count();
 
 		DecreeType type = forced;
 		if (type == null) {

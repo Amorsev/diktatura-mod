@@ -7,7 +7,8 @@
 		"MobEntityAccessor",
 		"EnderDragonFightAccessor",
 		"EnderDragonEntityMixin",
-		"EnderDragonPartMixin"
+		"EnderDragonPartMixin",
+		"CraftingResultSlotMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

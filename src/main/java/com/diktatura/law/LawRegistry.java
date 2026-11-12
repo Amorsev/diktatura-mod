@@ -41,6 +41,12 @@ public final class LawRegistry {
 		return laws.get(id);
 	}
 
+	/** Закон существует и виден игрокам (не скрытый). */
+	public static boolean visible(String id) {
+		Law law = laws.get(id);
+		return law != null && !law.hidden();
+	}
+
 	public static Set<String> ids() {
 		return laws.keySet();
 	}
@@ -59,7 +65,8 @@ public final class LawRegistry {
 			Json.b(o, "enabled_by_default", false),
 			Json.b(o, "permanent", false),
 			Math.max(0, Json.i(o, "weight", 10)),
-			List.copyOf(Json.list(o, "exempt_license")));
+			List.copyOf(Json.list(o, "exempt_license")),
+			Json.b(o, "hidden", false));
 	}
 
 	public static final class ReloadListener implements SimpleSynchronousResourceReloadListener {

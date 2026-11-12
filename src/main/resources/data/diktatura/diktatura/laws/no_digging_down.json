@@ -1,0 +1,17 @@
+{
+  "check": {
+    "type": "block_break",
+    "under_feet": true
+  },
+  "punishments": [
+    {
+      "type": "loyalty",
+      "amount": -2
+    }
+  ],
+  "cooldown_seconds": 10,
+  "prevent": false,
+  "enabled_by_default": false,
+  "permanent": false,
+  "weight": 8
+}
