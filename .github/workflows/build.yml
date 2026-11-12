@@ -1,7 +1,7 @@
 name: build
 on:
   push:
-    branches: [main]
+    branches: [main, beta]
   pull_request:
   workflow_dispatch:
 
@@ -55,10 +55,10 @@ jobs:
           printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API.\n' >> notes.md
           JAR=$(ls build/libs/*.jar | grep -v -- '-sources.jar' | head -n1)
           gh release create "$TAG" "$JAR" --target "$GITHUB_SHA" --title "Diktatura $VERSION" --notes-file notes.md --latest
-      # Тестовая сборка из ветки build/* (ручной запуск): jar кладётся в черновик релиза.
-      # Черновик видят только владельцы репозитория; тег не создаётся, main не меняется.
+      # Тестовая сборка из ветки beta (каждый push) или build/* (ручной запуск): jar кладётся в черновик
+      # релиза test-<версия>. Черновик видят только владельцы репозитория; тег не создаётся, main не меняется.
       - name: Publish test build (draft)
-        if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/build/')
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/beta') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/build/'))
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

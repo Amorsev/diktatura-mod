@@ -39,7 +39,7 @@ public class ConfigScreen extends Screen {
 			"rebellionMinutes", "rebellionCooldownMinutes", "bloodMoon", "bloodMoonEveryNights", "bloodMoonExtraMobs"});
 		SECTIONS.put("prison", new String[] {"minSentenceSeconds", "maxSentenceSeconds", "defaultArrestSeconds", "prisonOffsetX",
 			"prisonOffsetZ", "capitalMountain", "transportSpeed", "transportMaxDirectDistance"});
-		SECTIONS.put("content", new String[] {"wildGeese", "captchaChance", "curfewDouble", "enforcerMobs", "builderZombieChance",
+		SECTIONS.put("content", new String[] {"wildGeese", "gooseFrequency", "gooseSpawnWeight", "captchaChance", "curfewDouble", "enforcerMobs", "builderZombieChance",
 			"sniperSkeletonChance", "distortionDrug", "screamingFoodChance", "mimicChance", "firstVisitLoading", "runawayOre",
 			"runawayDiamondChance", "runawayOreChance", "timber", "caveInChance", "coldAfterSeconds", "coldMinutes"});
 		SECTIONS.put("finale", new String[] {"finalFight", "dragonHealth", "dictatorHealth", "immunityDays"});

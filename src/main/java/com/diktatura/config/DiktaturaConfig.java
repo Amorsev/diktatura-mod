@@ -59,6 +59,10 @@ public final class DiktaturaConfig {
 	public boolean capitalMountain = true;
 	/** Дикие гуси-воры: подселять стайки рядом с игроками (природный спавн на лугах — всегда). */
 	public boolean wildGeese = true;
+	/** Частота подселения гусей: множитель шанса и предела стайки (1 — обычно, 0 — не подселять, 2 — вдвое чаще). */
+	public double gooseFrequency = 1.0;
+	/** Вес природного спавна гусей на лугах и у рек (0–10, 0 — выключить). Применяется после перезапуска игры. */
+	public int gooseSpawnWeight = 2;
 	/** Бюро проверки гражданства: шанс капчи у стола зачарований, наковальни и пр. (0 — выключить). */
 	public double captchaChance = 0.5;
 	/** Комендантский час с двойником: нарушителю ночью раз за ночь является двойник-агент. */
@@ -179,6 +183,8 @@ public final class DiktaturaConfig {
 			// v4: восстание не случается само — Кровавая луна только при восстании, начатом ночью.
 			c.bloodMoonEveryNights = 0;
 		}
+		c.gooseFrequency = Math.max(0.0, Math.min(2.0, c.gooseFrequency));
+		c.gooseSpawnWeight = Math.max(0, Math.min(10, c.gooseSpawnWeight));
 		if (c.rebellionLeaflets < 1) {
 			c.rebellionLeaflets = 8;
 		}

@@ -27,19 +27,27 @@ import net.minecraft.world.biome.BiomeKeys;
  * подселение стайки рядом с игроком в уже исследованных местах — гуси всегда где-то рядом.
  */
 public final class GooseSpawner {
-	private static final int PERIOD = 20 * 60;
-	private static final int CAP = 3;
+	/** Подселение — раз в 3 минуты (было раз в минуту). */
+	private static final int PERIOD = 20 * 180;
+	/** Базовый шанс подселения на игрока за проверку (было 0.35). */
+	private static final float CHANCE = 0.15f;
+	/** Базовый предел гусей в радиусе 64 блоков (было 3). */
+	private static final int CAP = 2;
 
 	private GooseSpawner() {
 	}
 
 	public static void register() {
+		// Вес природного спавна читается один раз при запуске игры (0 — природного спавна нет).
+		int weight = MathHelper.clamp(DiktaturaConfig.get().gooseSpawnWeight, 0, 10);
 		SpawnRestriction.register(ModEntities.WILD_GOOSE, SpawnLocationTypes.ON_GROUND,
 			Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::isValidNaturalSpawn);
-		BiomeModifications.addSpawn(BiomeSelectors.includeByKey(BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS,
-				BiomeKeys.MEADOW, BiomeKeys.RIVER, BiomeKeys.SWAMP, BiomeKeys.FOREST, BiomeKeys.BIRCH_FOREST,
-				BiomeKeys.FLOWER_FOREST, BiomeKeys.SAVANNA, BiomeKeys.TAIGA, BiomeKeys.CHERRY_GROVE),
-			SpawnGroup.CREATURE, ModEntities.WILD_GOOSE, 6, 2, 4);
+		if (weight > 0) {
+			BiomeModifications.addSpawn(BiomeSelectors.includeByKey(BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS,
+				BiomeKeys.MEADOW, BiomeKeys.RIVER, BiomeKeys.SWAMP, BiomeKeys.FLOWER_FOREST, BiomeKeys.SAVANNA,
+				BiomeKeys.CHERRY_GROVE),
+			SpawnGroup.CREATURE, ModEntities.WILD_GOOSE, weight, 1, 2);
+		}
 	}
 
 	public static void tick(MinecraftServer server) {
@@ -50,20 +58,26 @@ public final class GooseSpawner {
 		if (!world.getGameRules().getBoolean(net.minecraft.world.GameRules.DO_MOB_SPAWNING)) {
 			return;
 		}
+		double freq = MathHelper.clamp(DiktaturaConfig.get().gooseFrequency, 0.0, 2.0);
+		if (freq <= 0) {
+			return;
+		}
+		float chance = (float) Math.min(1.0, CHANCE * freq);
+		int cap = Math.max(1, (int) Math.round(CAP * freq));
 		Random rnd = world.getRandom();
 		for (ServerPlayerEntity p : world.getPlayers()) {
-			if (p.isSpectator() || rnd.nextFloat() > 0.35f) {
+			if (p.isSpectator() || rnd.nextFloat() > chance) {
 				continue;
 			}
 			int near = world.getEntitiesByType(ModEntities.WILD_GOOSE, new Box(p.getBlockPos()).expand(64), e -> true).size();
-			if (near >= CAP) {
+			if (near >= cap) {
 				continue;
 			}
 			BlockPos spot = findSpot(world, p.getBlockPos(), rnd);
 			if (spot == null) {
 				continue;
 			}
-			int n = 1 + rnd.nextInt(Math.min(3, CAP - near));
+			int n = 1 + rnd.nextInt(Math.min(2, cap - near));
 			for (int i = 0; i < n; i++) {
 				WildGooseEntity g = ModEntities.WILD_GOOSE.create(world);
 				if (g == null) {
