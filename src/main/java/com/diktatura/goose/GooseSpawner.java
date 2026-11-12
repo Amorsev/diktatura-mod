@@ -27,10 +27,10 @@ import net.minecraft.world.biome.BiomeKeys;
  * подселение стайки рядом с игроком в уже исследованных местах — гуси всегда где-то рядом.
  */
 public final class GooseSpawner {
-	/** Подселение — раз в 3 минуты (было раз в минуту). */
-	private static final int PERIOD = 20 * 180;
-	/** Базовый шанс подселения на игрока за проверку (было 0.35). */
-	private static final float CHANCE = 0.15f;
+	/** Подселение — проверка раз в 90 секунд (было раз в минуту). */
+	private static final int PERIOD = 20 * 90;
+	/** Базовый шанс подселения на игрока за проверку (было 0.35): в среднем стайка раз в ~5 минут. */
+	private static final float CHANCE = 0.3f;
 	/** Базовый предел гусей в радиусе 64 блоков (было 3). */
 	private static final int CAP = 2;
 
@@ -73,21 +73,35 @@ public final class GooseSpawner {
 			if (near >= cap) {
 				continue;
 			}
-			BlockPos spot = findSpot(world, p.getBlockPos(), rnd);
-			if (spot == null) {
+			spawnFlock(world, p, rnd, cap - near);
+		}
+	}
+
+	/**
+	 * Стайка из 1–2 гусей (не больше {@code room}) на поляне в 20–40 блоках от игрока.
+	 * Возвращает число появившихся гусей (0 — подходящей поляны не нашлось).
+	 */
+	public static int spawnFlock(ServerWorld world, ServerPlayerEntity p, Random rnd, int room) {
+		if (room < 1) {
+			return 0;
+		}
+		BlockPos spot = findSpot(world, p.getBlockPos(), rnd);
+		if (spot == null) {
+			return 0;
+		}
+		int n = 1 + rnd.nextInt(Math.min(2, room));
+		int made = 0;
+		for (int i = 0; i < n; i++) {
+			WildGooseEntity g = ModEntities.WILD_GOOSE.create(world);
+			if (g == null) {
 				continue;
 			}
-			int n = 1 + rnd.nextInt(Math.min(2, cap - near));
-			for (int i = 0; i < n; i++) {
-				WildGooseEntity g = ModEntities.WILD_GOOSE.create(world);
-				if (g == null) {
-					continue;
-				}
-				g.refreshPositionAndAngles(spot.getX() + 0.5 + i * 0.7, spot.getY(), spot.getZ() + 0.5, rnd.nextFloat() * 360f, 0f);
-				g.stealCooldown = 200 + rnd.nextInt(400);
-				world.spawnEntity(g);
-			}
+			g.refreshPositionAndAngles(spot.getX() + 0.5 + i * 0.7, spot.getY(), spot.getZ() + 0.5, rnd.nextFloat() * 360f, 0f);
+			g.stealCooldown = 200 + rnd.nextInt(400);
+			world.spawnEntity(g);
+			made++;
 		}
+		return made;
 	}
 
 	/** Травяная поляна под открытым небом в 20–40 блоках от игрока. */

@@ -872,6 +872,8 @@
   "diktatura.cmd.bloodmoon.started": "Кровавая луна началась",
   "diktatura.cmd.bloodmoon.not_running": "Кровавой луны сейчас нет",
   "diktatura.cmd.bloodmoon.stopped": "Кровавая луна заканчивается",
+  "diktatura.cmd.goose": "Рядом появилась стайка гусей: %s.",
+  "diktatura.cmd.goose_none": "Не нашлось травяной поляны под открытым небом в 20–40 блоках.",
   "npc.diktatura.slots_operator": "Товарищ Барабанов",
   "npc.diktatura.slots_operator.role": "Госказино · игровой автомат",
   "npc.diktatura.slots_operator.say.0": "Автомат «Пятилетка». Дёргаешь ручку — государство дёргает тебя.",

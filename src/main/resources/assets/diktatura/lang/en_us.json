@@ -872,6 +872,8 @@
   "diktatura.cmd.bloodmoon.started": "The Blood Moon has begun",
   "diktatura.cmd.bloodmoon.not_running": "There is no Blood Moon right now",
   "diktatura.cmd.bloodmoon.stopped": "The Blood Moon is ending",
+  "diktatura.cmd.goose": "A flock of geese appeared nearby: %s.",
+  "diktatura.cmd.goose_none": "No open grassy spot found 20–40 blocks away.",
   "npc.diktatura.slots_operator": "Comrade Drumov",
   "npc.diktatura.slots_operator.role": "State Casino · slot machine",
   "npc.diktatura.slots_operator.say.0": "The \"Five-Year Plan\" machine. You pull the lever — the state pulls you.",

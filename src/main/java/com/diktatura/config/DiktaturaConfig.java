@@ -62,7 +62,7 @@ public final class DiktaturaConfig {
 	/** Частота подселения гусей: множитель шанса и предела стайки (1 — обычно, 0 — не подселять, 2 — вдвое чаще). */
 	public double gooseFrequency = 1.0;
 	/** Вес природного спавна гусей на лугах и у рек (0–10, 0 — выключить). Применяется после перезапуска игры. */
-	public int gooseSpawnWeight = 2;
+	public int gooseSpawnWeight = 4;
 	/** Бюро проверки гражданства: шанс капчи у стола зачарований, наковальни и пр. (0 — выключить). */
 	public double captchaChance = 0.5;
 	/** Комендантский час с двойником: нарушителю ночью раз за ночь является двойник-агент. */
@@ -166,7 +166,7 @@ public final class DiktaturaConfig {
 		}
 	}
 
-	private static final int CURRENT_VERSION = 4;
+	private static final int CURRENT_VERSION = 5;
 
 	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах; v3 — грибы включены. */
 	private static void migrate(DiktaturaConfig c) {
@@ -185,6 +185,10 @@ public final class DiktaturaConfig {
 		}
 		c.gooseFrequency = Math.max(0.0, Math.min(2.0, c.gooseFrequency));
 		c.gooseSpawnWeight = Math.max(0, Math.min(10, c.gooseSpawnWeight));
+		if (c.configVersion < 5 && c.gooseSpawnWeight == 2) {
+			// v5: в 1.0.1-beta.1 природный спавн гусей был слишком редким (вес 2) — теперь 4.
+			c.gooseSpawnWeight = 4;
+		}
 		if (c.rebellionLeaflets < 1) {
 			c.rebellionLeaflets = 8;
 		}

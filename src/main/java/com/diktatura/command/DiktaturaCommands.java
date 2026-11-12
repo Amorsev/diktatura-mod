@@ -94,6 +94,17 @@ public final class DiktaturaCommands {
 					.then(literal("confiscation").executes(c -> event(c.getSource(), EventType.CONFISCATION)))
 					.then(literal("blind_eye").executes(c -> event(c.getSource(), EventType.BLIND_EYE)))
 					.then(literal("no_gravity").executes(c -> event(c.getSource(), EventType.NO_GRAVITY))))
+				.then(literal("goose").requires(s -> s.hasPermissionLevel(2))
+					.executes(c -> {
+						net.minecraft.server.network.ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+						int n = com.diktatura.goose.GooseSpawner.spawnFlock(p.getServerWorld(), p, p.getRandom(), 2);
+						if (n > 0) {
+							c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.goose", n), false);
+						} else {
+							c.getSource().sendError(Text.translatable("diktatura.cmd.goose_none"));
+						}
+						return n;
+					}))
 				.then(literal("npc").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("list").executes(c -> npcList(c.getSource())))
 					.then(literal("spawn").then(argument("id", IdentifierArgumentType.identifier()).suggests(NPC_IDS)
