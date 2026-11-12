@@ -44,8 +44,8 @@ public final class GooseSpawner {
 			Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::isValidNaturalSpawn);
 		if (weight > 0) {
 			BiomeModifications.addSpawn(BiomeSelectors.includeByKey(BiomeKeys.PLAINS, BiomeKeys.SUNFLOWER_PLAINS,
-				BiomeKeys.MEADOW, BiomeKeys.RIVER, BiomeKeys.SWAMP, BiomeKeys.FLOWER_FOREST, BiomeKeys.SAVANNA,
-				BiomeKeys.CHERRY_GROVE),
+				BiomeKeys.MEADOW, BiomeKeys.RIVER, BiomeKeys.SWAMP, BiomeKeys.FOREST, BiomeKeys.BIRCH_FOREST,
+				BiomeKeys.FLOWER_FOREST, BiomeKeys.SAVANNA, BiomeKeys.TAIGA, BiomeKeys.CHERRY_GROVE),
 			SpawnGroup.CREATURE, ModEntities.WILD_GOOSE, weight, 1, 2);
 		}
 	}
