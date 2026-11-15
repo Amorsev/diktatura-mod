@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class GeoNpcRenderer extends GeoEntityRenderer<NpcEntity> {
 	/** НПС мода со своей моделью (blockbench/gen_npcs.py → gl_build.js). */
-	public static final Set<String> IDS = Set.of("dictator", "tax_inspector", "customs", "courier", "croupier",
+	public static final Set<String> IDS = Set.of("dictator", "tax_inspector", "customs", "courier", "croupier", "poker_dealer",
 		"dice_croupier", "slots_operator", "employer", "licensor", "recipient");
 
 	public GeoNpcRenderer(EntityRendererFactory.Context ctx) {

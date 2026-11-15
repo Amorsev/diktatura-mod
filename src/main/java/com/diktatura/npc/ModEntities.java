@@ -17,6 +17,16 @@ public final class ModEntities {
 			.build(Diktatura.id("npc").toString()));
 
 	/** Летящий тапок правосудия. */
+	/** Покерный стол госказино (модель GeckoLib, игру ведёт PokerGame). */
+	public static final EntityType<com.diktatura.casino.poker.PokerTableEntity> POKER_TABLE = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("poker_table"),
+		EntityType.Builder.<com.diktatura.casino.poker.PokerTableEntity>create(com.diktatura.casino.poker.PokerTableEntity::new, SpawnGroup.MISC)
+			.dimensions(3.0f, 1.15f)
+			.disableSaving()
+			.maxTrackingRange(10)
+			.trackingTickInterval(10)
+			.build(Diktatura.id("poker_table").toString()));
+
 	/** Повозка госперевозки с запряжённым заключённым. */
 	public static final EntityType<com.diktatura.transport.WagonEntity> WAGON = Registry.register(Registries.ENTITY_TYPE,
 		Diktatura.id("wagon"),

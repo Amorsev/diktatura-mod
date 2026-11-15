@@ -41,6 +41,10 @@ public final class Network {
 		PayloadTypeRegistry.playS2C().register(FxPayloads.Captcha.ID, FxPayloads.Captcha.CODEC);
 		PayloadTypeRegistry.playS2C().register(FxPayloads.Fx.ID, FxPayloads.Fx.CODEC);
 		PayloadTypeRegistry.playS2C().register(UiPayloads.TaxiInfo.ID, UiPayloads.TaxiInfo.CODEC);
+		PayloadTypeRegistry.playS2C().register(PokerPayloads.PokerState.ID, PokerPayloads.PokerState.CODEC);
+		PayloadTypeRegistry.playC2S().register(PokerPayloads.PokerAction.ID, PokerPayloads.PokerAction.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(PokerPayloads.PokerAction.ID, (payload, context) ->
+			context.server().execute(() -> com.diktatura.casino.poker.PokerGame.onAction(context.player(), payload)));
 		PayloadTypeRegistry.playC2S().register(UiPayloads.NpcClick.ID, UiPayloads.NpcClick.CODEC);
 		PayloadTypeRegistry.playC2S().register(UiPayloads.TaxiOrder.ID, UiPayloads.TaxiOrder.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(UiPayloads.TaxiOrder.ID, (payload, context) ->

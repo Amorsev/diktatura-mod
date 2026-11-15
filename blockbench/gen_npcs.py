@@ -695,8 +695,29 @@ def prisoner():
     return m
 
 
+
+def poker_dealer():
+    """Крупье покера: бордовый жилет, белая рубашка с золотыми подвязками на рукавах, бабочка, зализанные волосы."""
+    m = Model('poker_dealer', 52)
+    vest = hexc('#7A1E2C')
+    hair = hexc('#2A1C14')
+    garter = [lambda f: [f[n].row(4, GOLD) for n in SIDES]]
+    base_body(
+        m,
+        head_painter(hair, eyes=(60, 40, 30), hair_rows=2, side_hair=False, brows=shade(hair, 0.7)),
+        torso_painter(WHITE, shirt=WHITE, open_collar=False, lapels=False, extra=lambda f: _vest(f, vest)),
+        arm_painter(WHITE, cuff=WHITE, extra=garter[0]),
+        arm_painter(WHITE, cuff=WHITE, extra=garter[0]),
+        leg_painter(hexc('#1A1A22'), shoes=(14, 12, 14)),
+        leg_painter(hexc('#1A1A22'), shoes=(14, 12, 14)),
+    )
+    m.cube('body', 'bowtie', (-2, 22, -2.8), (2, 23, -1.8), solid(vest, 2))
+    # Зачёс: волосы чуть выше макушки.
+    m.cube('hat', 'hair_top', (-4, 31, -4), (4, 32, 4), solid(hair, 3), inflate=0.3)
+    return m
+
 ALL = [dictator, tax_inspector, customs, courier, croupier, dice_croupier, slots_operator, employer, licensor,
-       recipient, prisoner]
+       recipient, prisoner, poker_dealer]
 
 if __name__ == '__main__':
     for fn in ALL:

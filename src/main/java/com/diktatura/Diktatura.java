@@ -110,6 +110,7 @@ public class Diktatura implements ModInitializer {
 			Dictator.ensureNpc(s);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(s -> {
+			com.diktatura.casino.poker.PokerGame.onServerStop(s);
 			EventSystem.stop(s);
 			com.diktatura.bureau.Weather.clear();
 			com.diktatura.mechanics.CaveIns.clear();
@@ -123,6 +124,7 @@ public class Diktatura implements ModInitializer {
 
 		ServerTickEvents.END_SERVER_TICK.register(Diktatura::tick);
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, s) -> {
+			com.diktatura.casino.poker.PokerGame.onDisconnect(handler.player);
 			com.diktatura.bureau.Captcha.forget(handler.player.getUuid());
 			com.diktatura.control.CurfewDoubles.forget(handler.player.getUuid());
 			com.diktatura.mechanics.ScreamingFood.forget(handler.player.getUuid());
@@ -149,6 +151,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.mechanics.Timber.tick(s);
 		com.diktatura.office.Offices.tick(s);
 		com.diktatura.casino.Casino.tick(s);
+		com.diktatura.casino.poker.PokerGame.tick(s);
 		com.diktatura.bureau.Visits.tick(s);
 		com.diktatura.bureau.Weather.tick(s);
 		com.diktatura.bureau.Propaganda.tick(s);

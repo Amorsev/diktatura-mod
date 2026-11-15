@@ -230,7 +230,7 @@ def runaway_ore():
 
 
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
-        'employer', 'licensor', 'recipient']
+        'employer', 'licensor', 'recipient', 'poker_dealer']
 
 
 def npc():
@@ -315,6 +315,28 @@ def npc():
                 bones.setdefault(bone, {}).setdefault(ch, []).extend(ks)
         return bones
 
+    # Крупье покера: тасует колоду, сдаёт карту, переворачивает общие карты, двигает банк победителю.
+    shuffle = {
+        'right_arm': {'rotation': [k(0), k(0.2, 55, 0, -18)] + [k(0.2 + 0.15 * i, 55 + (8 if i % 2 else -4), 0, -18)
+                                                               for i in range(1, 9)] + [k(1.6)]},
+        'left_arm': {'rotation': [k(0), k(0.2, 55, 0, 18)] + [k(0.2 + 0.15 * i, 55 + (-4 if i % 2 else 8), 0, 18)
+                                                             for i in range(1, 9)] + [k(1.6)]},
+        'head': {'rotation': [k(0), k(0.2, -15), k(1.4, -15), k(1.6)]},
+    }
+    deal = {
+        'right_arm': {'rotation': [k(0), k(0.15, 50, 0, -10), k(0.3, 80, -25, -4, 'linear'), k(0.55)]},
+        'left_arm': {'rotation': [k(0), k(0.1, 40, 0, 12), k(0.45, 40, 0, 12), k(0.55)]},
+    }
+    flip = {
+        'right_arm': {'rotation': [k(0), k(0.2, 60, 0, -12), k(0.35, 60, 0, 10, 'linear'), k(0.6)]},
+        'head': {'rotation': [k(0), k(0.2, -12), k(0.6)]},
+    }
+    push = {
+        'right_arm': {'rotation': [k(0), k(0.25, 70, 20, -10), k(0.6, 70, -25, -10), k(1.0)]},
+        'left_arm': {'rotation': [k(0), k(0.25, 70, 20, 10), k(0.6, 70, -25, 10), k(1.0)]},
+        'body': {'rotation': [k(0), k(0.25, -8, 6, 0), k(0.6, -8, -10, 0), k(1.0)]},
+    }
+
     S = 1.2
     sneak = frames(crouch(0), crouch(2.0))
     sneak_walk = frames(crouch(0, 22, 8), crouch(S / 2, -22, -8), crouch(S, 22, 8))
@@ -331,8 +353,21 @@ def npc():
         {'name': 'animation.npc.attack', 'length': 0.55, 'loop': False, 'bones': attack},
         {'name': 'animation.npc.sneak', 'length': 2.0, 'loop': True, 'bones': sneak},
         {'name': 'animation.npc.sneak_walk', 'length': S, 'loop': True, 'bones': sneak_walk},
+        {'name': 'animation.npc.shuffle', 'length': 1.6, 'loop': False, 'bones': shuffle},
+        {'name': 'animation.npc.deal', 'length': 0.55, 'loop': False, 'bones': deal},
+        {'name': 'animation.npc.flip', 'length': 0.6, 'loop': False, 'bones': flip},
+        {'name': 'animation.npc.push', 'length': 1.0, 'loop': False, 'bones': push},
     ]
     return anims
+
+
+def poker_table():
+    """Покерный стол: колода «тасуется» (подпрыгивает и покачивается) в начале раздачи."""
+    CYCLES['poker_table'] = (0, 1.6)
+    shuffle = {'deck': {'rotation': [k(0), k(0.2, 0, 20, 0), k(0.4, 0, -20, 0), k(0.6, 0, 15, 0), k(0.8, 0, -15, 0),
+                                     k(1.0, 0, 10, 0), k(1.2, 0, -5, 0), k(1.6)],
+                        'position': [k(0), k(0.3, 0, 1, 0), k(0.6), k(0.9, 0, 1, 0), k(1.2), k(1.6)]}}
+    return [{'name': 'animation.poker_table.shuffle', 'length': 1.6, 'loop': False, 'bones': shuffle}]
 
 
 SPECS = {
@@ -351,6 +386,7 @@ SPECS = {
     'goose': goose(),
     'mimic': mimic(),
     'runaway_ore': runaway_ore(),
+    'poker_table': poker_table(),
 }
 
 if __name__ == '__main__':

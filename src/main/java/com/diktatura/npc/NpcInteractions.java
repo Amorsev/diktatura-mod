@@ -38,6 +38,11 @@ public final class NpcInteractions {
 		/** Нажата кнопка. Вернуть true, чтобы переслать игроку обновлённое окно. */
 		boolean action(ServerPlayerEntity player, Entity npc, String action);
 
+		/** Своё окно вместо общего (например, экран покера). true — общее окно не показывать. */
+		default boolean customOpen(ServerPlayerEntity player, Entity npc) {
+			return false;
+		}
+
 		/** Что делать, если у клиента нет мода и окно показать нельзя. */
 		default void fallback(ServerPlayerEntity player, Entity npc) {
 		}
@@ -99,6 +104,9 @@ public final class NpcInteractions {
 			return false;
 		}
 		Handler h = HANDLERS.get(key);
+		if (h.customOpen(player, npc)) {
+			return true;
+		}
 		if (ServerPlayNetworking.canSend(player, UiPayloads.NpcScreen.ID)) {
 			ServerPlayNetworking.send(player, h.screen(player, npc));
 		} else {

@@ -1,0 +1,10 @@
+{
+  "name": "npc.diktatura.poker_dealer",
+  "role": "npc.diktatura.poker_dealer.role",
+  "accent": "#7A1E2C",
+  "phrase_prefix": "npc.diktatura.poker_dealer.say.",
+  "phrase_count": 5,
+  "sound": "minecraft:entity.villager.trade",
+  "pitch": 0.95,
+  "scale": 1.0
+}

@@ -42,7 +42,12 @@ public class NpcEntity extends PathAwareEntity implements GeoEntity {
 	public static final String SPIN = "spin";
 	public static final String LEVER = "lever";
 	public static final String SHAKE = "shake";
-	private static final String[] GESTURES = {TALK, WAVE, WRITE, SPIN, LEVER, SHAKE};
+	/** Крупье покера: тасует колоду, сдаёт, переворачивает общие карты, двигает банк. */
+	public static final String SHUFFLE = "shuffle";
+	public static final String DEAL = "deal";
+	public static final String FLIP = "flip";
+	public static final String PUSH = "push";
+	private static final String[] GESTURES = {TALK, WAVE, WRITE, SPIN, LEVER, SHAKE, SHUFFLE, DEAL, FLIP, PUSH};
 
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 	private AnimationController<NpcEntity> actionController;

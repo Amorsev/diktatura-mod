@@ -21,15 +21,15 @@ import net.minecraft.world.Heightmap;
 
 /**
  * Госказино — к северу от дома госучреждений (в горе — у тронного зала), вход с запада.
- * Пол в шахматную клетку, три стола со своими крупье: рулетка у восточной стены,
- * большой игровой автомат у северной, стол для костей у южной. Люстры, красная дорожка.
+ * Пол в шахматную клетку, четыре стола со своими крупье: рулетка посередине, большой игровой автомат
+ * у северной стены, стол для костей у южной, а в восточном зале — покерный стол на 6 мест. Люстры, красная дорожка.
  */
 public final class CasinoBuilding {
-	public static final int SIZE_X = 13;
+	public static final int SIZE_X = 20;
 	public static final int SIZE_Y = 7;
 	public static final int SIZE_Z = 11;
 	private static final int GAP = 6;
-	public static final int VERSION = 2;
+	public static final int VERSION = 3;
 	/** Крупье рулетки (за столом у восточной стены). */
 	public static final BlockPos CROUPIER = new BlockPos(9, 1, 5);
 	/** Смотритель автомата (справа от машины у северной стены). */
@@ -42,6 +42,9 @@ public final class CasinoBuilding {
 	public static final double[] REELS_X = {3.5, 4.5, 5.5};
 	public static final double REELS_Y = 2.5;
 	public static final double REELS_Z = 2.2;
+	/** Центр покерного стола (сущность стола) и пост крупье покера (к северу от стола, лицом на юг). */
+	public static final double[] POKER_TABLE = {14.5, 1.0, 5.5};
+	public static final BlockPos POKER_DEALER = new BlockPos(14, 1, 3);
 	/** Рычаг автомата. */
 	public static final BlockPos LEVER = new BlockPos(6, 2, 1);
 
@@ -138,6 +141,16 @@ public final class CasinoBuilding {
 		for (int x = 3; x <= 6; x++) {
 			world.setBlockState(o.add(x, 1, 8), slab, flags);
 			world.setBlockState(o.add(x, 2, 8), Blocks.CYAN_CARPET.getDefaultState(), flags);
+		}
+		// Покерный зал: ковёр под столом, стол — сущность (ставит казино), латунные светильники.
+		for (int x = 11; x <= 18; x++) {
+			for (int z = 2; z <= 8; z++) {
+				world.setBlockState(o.add(x, 1, z), ((x + z) % 2 == 0 ? Blocks.GREEN_CARPET : Blocks.LIME_CARPET).getDefaultState(), flags);
+			}
+		}
+		for (int z : new int[] {1, SIZE_Z - 2}) {
+			world.setBlockState(o.add(SIZE_X - 2, 1, z), Blocks.BOOKSHELF.getDefaultState(), flags);
+			world.setBlockState(o.add(SIZE_X - 2, 2, z), Blocks.LANTERN.getDefaultState(), flags);
 		}
 		// Люстры.
 		BlockState lantern = Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true);

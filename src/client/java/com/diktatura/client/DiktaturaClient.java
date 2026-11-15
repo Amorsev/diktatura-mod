@@ -53,6 +53,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
 		EntityRendererRegistry.register(ModEntities.WAGON, com.diktatura.client.transport.WagonRenderer::new);
 		EntityRendererRegistry.register(ModEntities.TAXI, com.diktatura.client.transport.TaxiRenderer::new);
+		EntityRendererRegistry.register(ModEntities.POKER_TABLE, com.diktatura.client.poker.PokerTableRenderer::new);
 		// Дракон госохраны: своя модель поверх ванильной (обычные драконы не меняются).
 		EntityRendererRegistry.register(net.minecraft.entity.EntityType.ENDER_DRAGON, com.diktatura.client.dragon.GuardDragonRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
@@ -212,6 +213,15 @@ public class DiktaturaClient implements ClientModInitializer {
 				// Окно открывается, только если игрок не занят другим меню (кроме окна того же НПС).
 				if (mc.currentScreen == null || mc.currentScreen instanceof NpcScreen) {
 					mc.setScreen(new NpcScreen(payload));
+				}
+			}));
+		ClientPlayNetworking.registerGlobalReceiver(com.diktatura.network.PokerPayloads.PokerState.ID,
+			(payload, context) -> context.client().execute(() -> {
+				MinecraftClient mc = context.client();
+				if (mc.currentScreen instanceof com.diktatura.client.poker.PokerScreen ps) {
+					ps.update(payload);
+				} else if (payload.open() && (mc.currentScreen == null || mc.currentScreen instanceof NpcScreen)) {
+					mc.setScreen(new com.diktatura.client.poker.PokerScreen(payload));
 				}
 			}));
 	}

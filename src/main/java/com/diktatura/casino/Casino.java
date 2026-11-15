@@ -106,6 +106,33 @@ public final class Casino {
 	private static final Map<UUID, Text> LAST = new HashMap<>();
 	/** Кто сейчас играет за столом (стол занят до конца анимации). */
 	private static final Map<Table, UUID> BUSY = new EnumMap<>(Table.class);
+	/** Пост крупье покера (окно — экран покерного стола). */
+	public static final String POKER_KEY = "casino_poker";
+
+	/** Крупье покера: ПКМ открывает экран стола вместо общего окна. */
+	private static final class PokerDealerHandler implements NpcInteractions.Handler {
+		@Override
+		public boolean matches(Entity entity) {
+			return entity instanceof NpcEntity n && n.npcId().endsWith("poker_dealer");
+		}
+
+		@Override
+		public boolean customOpen(ServerPlayerEntity player, Entity npc) {
+			com.diktatura.casino.poker.PokerGame.open(player, npc);
+			return true;
+		}
+
+		@Override
+		public UiPayloads.NpcScreen screen(ServerPlayerEntity player, Entity npc) {
+			return new UiPayloads.NpcScreen(POKER_KEY, npc.getId(), npc.getName(), Text.empty(), Text.empty(), List.of(),
+				List.of(), 0xFF7A1E2C);
+		}
+
+		@Override
+		public boolean action(ServerPlayerEntity player, Entity npc, String action) {
+			return false;
+		}
+	}
 
 	private Casino() {
 	}
@@ -114,6 +141,7 @@ public final class Casino {
 		for (Table t : Table.values()) {
 			NpcInteractions.register(t.key, new CroupierHandler(t));
 		}
+		NpcInteractions.register(POKER_KEY, new PokerDealerHandler());
 		CasinoFx.registerEvents();
 	}
 
@@ -143,6 +171,10 @@ public final class Casino {
 			for (Table t : Table.values()) {
 				NpcPosts.ensure(server, t.key, t.npcId, o.add(t.post()), t.yaw);
 			}
+			NpcEntity dealer = NpcPosts.ensure(server, POKER_KEY, "diktatura:poker_dealer", o.add(CasinoBuilding.POKER_DEALER), 0.0f);
+			double[] c = CasinoBuilding.POKER_TABLE;
+			com.diktatura.casino.poker.PokerGame.ensure(w, new net.minecraft.util.math.Vec3d(o.getX() + c[0], o.getY() + c[1],
+				o.getZ() + c[2]), dealer);
 		}
 	}
 
