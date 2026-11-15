@@ -365,7 +365,11 @@ public final class Checks {
 		}
 	}
 
-	/** Установка блоков; max_build_height — «запрещено строить выше N блоков». */
+	/**
+	 * Установка блоков; max_build_height — «запрещено строить выше N блоков» над землёй.
+	 * Высота — от настоящей земли (природный блок, поставленный не игроком) или воды, включая пустоту под блоком:
+	 * парящий настил тоже считается. Блок под природным потолком (пещера, нора) — не высота.
+	 */
 	static final class BlockPlace implements LawCheck {
 		private final Predicate<BlockState> blocks;
 		private final int maxHeight;
@@ -394,16 +398,23 @@ public final class Checks {
 			if (!inScope(w, ctx.pos, onlyStructures)) {
 				return false;
 			}
-			return maxHeight <= 0 || columnHeight(w, ctx.pos) > maxHeight;
+			return maxHeight <= 0 || heightAboveGround(ctx.player.getServerWorld(), ctx.pos) > maxHeight;
 		}
 
-		/** Высота столба построек под позицией, включая ставящийся блок. */
-		private static int columnHeight(World w, BlockPos pos) {
+		/** Природная земля: блок из тега natural_ground, который не ставил игрок. */
+		private static boolean natural(ServerWorld w, BlockPos p) {
+			return w.getBlockState(p).isIn(NATURAL_GROUND) && !PlacedBlocks.isPlaced(w, p);
+		}
+
+		/** Высота ставящегося блока над землёй (сам блок — 1): постройки и пустота под ним до земли или воды. */
+		static int heightAboveGround(ServerWorld w, BlockPos pos) {
+			if (natural(w, pos.up())) {
+				return 1;
+			}
 			int h = 1;
 			BlockPos p = pos.down();
 			while (h <= 64 && p.getY() >= w.getBottomY()) {
-				BlockState s = w.getBlockState(p);
-				if (s.isAir() || !s.getFluidState().isEmpty() || s.isIn(NATURAL_GROUND)) {
+				if (!w.getBlockState(p).getFluidState().isEmpty() || natural(w, p)) {
 					break;
 				}
 				h++;

@@ -88,8 +88,8 @@ public final class DiktaturaConfig {
 	public boolean firstVisitLoading = true;
 	/** Эмиграция руды: при добыче руда может отрастить ножки и убежать (шахтёрская лицензия вдвое снижает шанс). */
 	public boolean runawayOre = true;
-	public double runawayDiamondChance = 0.35;
-	public double runawayOreChance = 0.06;
+	public double runawayDiamondChance = 0.5;
+	public double runawayOreChance = 0.15;
 	public int dragonHealth = 400;
 	public int dictatorHealth = 300;
 	/** Сколько игровых дней законы не действуют на кавалеров ордена «За ничью с вождём». */
@@ -174,7 +174,7 @@ public final class DiktaturaConfig {
 		}
 	}
 
-	private static final int CURRENT_VERSION = 5;
+	private static final int CURRENT_VERSION = 6;
 
 	/** Перенос старых настроек: v2 — указы раз в 5 минут вместо 20, срок в секундах; v3 — грибы включены. */
 	private static void migrate(DiktaturaConfig c) {
@@ -198,6 +198,15 @@ public final class DiktaturaConfig {
 		c.taxiSpeedMultiplier = Math.max(0.2, Math.min(3.0, c.taxiSpeedMultiplier));
 		c.taxiBreakdownChance = Math.max(0.0, Math.min(1.0, c.taxiBreakdownChance));
 		c.gooseSpawnWeight = Math.max(0, Math.min(10, c.gooseSpawnWeight));
+		if (c.configVersion < 6) {
+			// v6: руда убегала слишком редко (6 % обычная, 35 % алмазная) — теперь 15 % и 50 %.
+			if (c.runawayOreChance == 0.06) {
+				c.runawayOreChance = 0.15;
+			}
+			if (c.runawayDiamondChance == 0.35) {
+				c.runawayDiamondChance = 0.5;
+			}
+		}
 		if (c.configVersion < 5 && c.gooseSpawnWeight == 2) {
 			// v5: в 1.0.1-beta.1 природный спавн гусей был слишком редким (вес 2) — теперь 4.
 			c.gooseSpawnWeight = 4;

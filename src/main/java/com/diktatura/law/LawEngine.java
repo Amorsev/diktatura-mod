@@ -68,6 +68,12 @@ public final class LawEngine {
 	}
 
 	public static void registerEvents() {
+		// Сломанный игроком «природный» блок больше не числится постройкой.
+		PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {
+			if (world instanceof net.minecraft.server.world.ServerWorld sw && state.isIn(Checks.NATURAL_GROUND)) {
+				PlacedBlocks.unmark(sw, pos);
+			}
+		});
 		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
 			if (world.isClient || !(player instanceof ServerPlayerEntity sp)) {
 				return true;
@@ -93,7 +99,14 @@ public final class LawEngine {
 			LawContext c = new LawContext(sp, LawEvent.BLOCK_PLACE);
 			c.pos = pos;
 			c.stack = stack;
-			return fire(c) ? ActionResult.FAIL : ActionResult.PASS;
+			if (fire(c)) {
+				return ActionResult.FAIL;
+			}
+			// Игрок ставит землю/камень/песок — это постройка, а не природная земля (закон о высоте построек).
+			if (((BlockItem) stack.getItem()).getBlock().getDefaultState().isIn(Checks.NATURAL_GROUND)) {
+				PlacedBlocks.mark(sp.getServerWorld(), pos);
+			}
+			return ActionResult.PASS;
 		});
 
 		UseItemCallback.EVENT.register((player, world, hand) -> {
