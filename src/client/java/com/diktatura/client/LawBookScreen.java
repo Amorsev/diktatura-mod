@@ -2,6 +2,7 @@ package com.diktatura.client;
 
 import com.diktatura.client.ui.Ui;
 import com.diktatura.law.Law;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -23,7 +24,11 @@ import java.util.Locale;
  */
 public class LawBookScreen extends Screen {
 	/** ACTIVITIES — скрытый раздел: появляется после первого нарушения лицензируемого занятия. */
-	private enum Tab { ACTIVE, REPEALED, LICENSES, ACTIVITIES }
+	private enum Tab { ACTIVE, REPEALED, LICENSES, TAXI, ACTIVITIES }
+
+	/** Вкладка «Такси»: шапка (баланс + строка состояния) и по блоку на класс. */
+	private static final int TAXI_HEADER = 36;
+	private static final int TAXI_ROW = 44;
 
 	private static Tab lastTab = Tab.ACTIVE;
 
@@ -33,6 +38,7 @@ public class LawBookScreen extends Screen {
 	private TextFieldWidget search;
 	private final List<ButtonWidget> tabButtons = new ArrayList<>();
 	private final List<Tab> shownTabs = new ArrayList<>();
+	private final List<ButtonWidget> taxiButtons = new ArrayList<>();
 	private int scroll;
 	private int contentHeight;
 	private int boxW;
@@ -82,6 +88,17 @@ public class LawBookScreen extends Screen {
 			scroll = 0;
 		});
 		addDrawableChild(search);
+		taxiButtons.clear();
+		if (tab == Tab.TAXI) {
+			search.visible = false;
+			for (int i = 0; i < 3; i++) {
+				int cls = i;
+				ButtonWidget b = ButtonWidget.builder(Text.translatable("diktatura.taxi.order"), btn -> orderTaxi(cls))
+					.dimensions(left + boxW - 84, listTop + TAXI_HEADER + i * TAXI_ROW - 2, 84, 16).build();
+				taxiButtons.add(addDrawableChild(b));
+			}
+			updateTaxiButtons();
+		}
 		addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, b -> close())
 			.dimensions(width / 2 - 50, height - 26, 100, 20).build());
 		// В одиночной игре — кнопка настроек мода (без Mod Menu тоже).
@@ -97,7 +114,31 @@ public class LawBookScreen extends Screen {
 		tab = t;
 		lastTab = t;
 		scroll = 0;
-		updateTabs();
+		clearAndInit();
+	}
+
+	private void orderTaxi(int cls) {
+		ClientPlayNetworking.send(new UiPayloads.TaxiOrder(cls));
+		if (client != null) {
+			client.setScreen(null);
+		}
+	}
+
+	private int taxiPrice(int i) {
+		return i < ClientState.taxiPrices.size() ? ClientState.taxiPrices.get(i) : 0;
+	}
+
+	private void updateTaxiButtons() {
+		boolean ok = ClientState.taxiReason.isEmpty();
+		for (int i = 0; i < taxiButtons.size(); i++) {
+			taxiButtons.get(i).active = ok && i < ClientState.taxiPrices.size() && ClientState.balance >= taxiPrice(i);
+		}
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		updateTaxiButtons();
 	}
 
 	private void updateTabs() {
@@ -117,7 +158,7 @@ public class LawBookScreen extends Screen {
 		return switch (tab) {
 			case ACTIVE -> ClientState.laws;
 			case REPEALED -> ClientState.repealedLaws;
-			case LICENSES, ACTIVITIES -> List.of();
+			case LICENSES, TAXI, ACTIVITIES -> List.of();
 		};
 	}
 
@@ -177,6 +218,8 @@ public class LawBookScreen extends Screen {
 				ctx.drawTextWithShadow(textRenderer, status, left + 8, y, a.secondsLeft() > 0 ? 0xFF8FD08F : 0xFFFF7070);
 				y += 16;
 			}
+		} else if (tab == Tab.TAXI) {
+			y = renderTaxi(ctx, y);
 		} else if (tab == Tab.LICENSES) {
 			ctx.drawTextWithShadow(textRenderer, Text.translatable("diktatura.hud.balance", ClientState.balance), left, y, 0xFFFFD27F);
 			y += 14;
@@ -237,6 +280,42 @@ public class LawBookScreen extends Screen {
 		contentHeight = y - start;
 	}
 
+	/** Вкладка «Такси»: три класса карет до горы вождя, цена (с надбавкой) и время в пути. */
+	private int renderTaxi(DrawContext ctx, int y) {
+		int top = y;
+		ctx.drawTextWithShadow(textRenderer, Text.translatable("diktatura.hud.balance", ClientState.balance), left, y, 0xFFFFD27F);
+		Text status;
+		int color;
+		if (!ClientState.taxiReason.isEmpty()) {
+			status = Text.translatable(ClientState.taxiReason);
+			color = 0xFFFF8080;
+		} else if (ClientState.taxiSurcharge > 0) {
+			status = Text.translatable("diktatura.taxi.surcharge", ClientState.taxiSurcharge);
+			color = 0xFFFFB060;
+		} else {
+			status = Text.translatable("diktatura.taxi.intro");
+			color = 0xFFA0A0A0;
+		}
+		ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, status, boxW), left, y + 13, color);
+		y = top + TAXI_HEADER;
+		com.diktatura.transport.TaxiClass[] classes = com.diktatura.transport.TaxiClass.values();
+		for (int i = 0; i < classes.length; i++) {
+			int rowY = top + TAXI_HEADER + i * TAXI_ROW;
+			com.diktatura.transport.TaxiClass c = classes[i];
+			ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, Text.translatable(c.nameKey()), boxW - 92), left, rowY, 0xFFFFD27F);
+			ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, Text.translatable(c.nameKey() + ".desc"), boxW - 8),
+				left + 8, rowY + 12, 0xFFD8D8D8);
+			int price = taxiPrice(i);
+			int secs = i < ClientState.taxiSeconds.size() ? ClientState.taxiSeconds.get(i) : 0;
+			Text line = Text.translatable("diktatura.taxi.price", price)
+				.append(secs > 0 ? Text.translatable("diktatura.taxi.eta", longTime(secs)) : Text.empty());
+			ctx.drawTextWithShadow(textRenderer, Ui.fit(textRenderer, line, boxW - 8), left + 8, rowY + 23,
+				ClientState.balance >= price ? 0xFF8FD08F : 0xFFFF7070);
+			y = rowY + TAXI_ROW;
+		}
+		return y;
+	}
+
 	private static String longTime(int seconds) {
 		int h = seconds / 3600;
 		int m = seconds / 60 % 60;
@@ -246,6 +325,9 @@ public class LawBookScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		if (tab == Tab.TAXI) {
+			return true;
+		}
 		int visible = listBottom - listTop;
 		int max = Math.max(0, contentHeight - visible);
 		scroll = (int) Math.max(0, Math.min(max, scroll - verticalAmount * 12));

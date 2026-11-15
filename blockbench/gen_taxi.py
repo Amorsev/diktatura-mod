@@ -27,8 +27,8 @@ GLASS = hexc('#FFE38A')
 # Место пассажира (центр сиденья, пиксели модели) — для рендера/посадки в игре.
 SEAT = {
     'taxi_economy': (0, 17, 15),
-    'taxi_comfort': (0, 16, 21),
-    'taxi_business': (0, 17, 23),
+    'taxi_comfort': (0, 15, 21),
+    'taxi_business': (0, 16, 23),
 }
 
 
@@ -291,13 +291,14 @@ def taxi_comfort():
     m.cube('body', 'wall_left', (-11, 12, 0), (-10, 22, 28), panel(green, trim, 2, 6, door=True))
     m.cube('body', 'wall_front', (-10, 12, 0), (10, 22, 1), panel(green, trim, 2, 6))
     m.cube('body', 'wall_back', (-10, 12, 27), (10, 22, 28), panel(green, trim, 2, 6))
-    for name, frm, to in (('post_fr', (10, 22, 0), (11, 30, 1)), ('post_fl', (-11, 22, 0), (-10, 30, 1)),
-                          ('post_br', (10, 22, 27), (11, 30, 28)), ('post_bl', (-11, 22, 27), (-10, 30, 28)),
-                          ('post_mr', (10, 22, 13), (11, 30, 15)), ('post_ml', (-11, 22, 13), (-10, 30, 15))):
+    # Крыша высокая: голова сидящего пассажира (сиденье 15 + 20 пикселей) не должна торчать сквозь неё.
+    for name, frm, to in (('post_fr', (10, 22, 0), (11, 36, 1)), ('post_fl', (-11, 22, 0), (-10, 36, 1)),
+                          ('post_br', (10, 22, 27), (11, 36, 28)), ('post_bl', (-11, 22, 27), (-10, 36, 28)),
+                          ('post_mr', (10, 22, 13), (11, 36, 15)), ('post_ml', (-11, 22, 13), (-10, 36, 15))):
         m.cube('body', name, frm, to, solid(green, 4), key='comfort_post' + str(round(to[2] - frm[2])))
-    m.cube('body', 'roof', (-12, 30, -1), (12, 32, 29), solid(green, 4, top=shade(green, 0.85)))
-    m.cube('body', 'roof_top', (-10, 32, 1), (10, 33, 27), solid(shade(green, 0.8), 4))
-    m.cube('body', 'rack', (-8, 33, 4), (8, 35, 24), solid(hexc('#4A2E1C'), 6, top=hexc('#5C3A24')))
+    m.cube('body', 'roof', (-12, 36, -1), (12, 38, 29), solid(green, 4, top=shade(green, 0.85)))
+    m.cube('body', 'roof_top', (-10, 38, 1), (10, 39, 27), solid(shade(green, 0.8), 4))
+    m.cube('body', 'rack', (-8, 39, 4), (8, 41, 24), solid(hexc('#4A2E1C'), 6, top=hexc('#5C3A24')))
     # Сиденье внутри — его видно в окна.
     m.cube('body', 'seat', (-9, 12, 18), (9, 15, 26), solid(hexc('#7A1F25'), 5))
     m.cube('body', 'seat_back', (-9, 15, 25), (9, 21, 27), solid(hexc('#7A1F25'), 5))
@@ -328,18 +329,18 @@ def taxi_business():
     m.cube('body', 'wall_left', (-12, 13, 0), (-11, 24, 30), panel(lacquer, gold, 1, 8, door=True, star=True))
     m.cube('body', 'wall_front', (-11, 13, 0), (11, 24, 1), panel(lacquer, gold, 1, 8))
     m.cube('body', 'wall_back', (-11, 13, 29), (11, 24, 30), panel(lacquer, gold, 1, 8))
-    for name, frm, to in (('post_fr', (11, 24, 0), (12, 32, 1)), ('post_fl', (-12, 24, 0), (-11, 32, 1)),
-                          ('post_br', (11, 24, 29), (12, 32, 30)), ('post_bl', (-12, 24, 29), (-11, 32, 30)),
-                          ('post_mr', (11, 24, 14), (12, 32, 16)), ('post_ml', (-12, 24, 14), (-11, 32, 16))):
+    for name, frm, to in (('post_fr', (11, 24, 0), (12, 38, 1)), ('post_fl', (-12, 24, 0), (-11, 38, 1)),
+                          ('post_br', (11, 24, 29), (12, 38, 30)), ('post_bl', (-12, 24, 29), (-11, 38, 30)),
+                          ('post_mr', (11, 24, 14), (12, 38, 16)), ('post_ml', (-12, 24, 14), (-11, 38, 16))):
         m.cube('body', name, frm, to, solid(gold, 3), key='business_post' + str(round(to[2] - frm[2])))
     # Красные шторки, подвязанные к стойкам.
-    for name, frm, to in (('curtain_r', (11.5, 25, 1), (11.5 + 1, 31, 3)), ('curtain_l', (-12.5, 25, 1), (-12.5 + 1, 31, 3))):
+    for name, frm, to in (('curtain_r', (11.5, 25, 1), (11.5 + 1, 37, 3)), ('curtain_l', (-12.5, 25, 1), (-12.5 + 1, 37, 3))):
         m.cube('body', name, frm, to, solid(hexc('#9E1B24'), 5), key='business_curtain', inflate=-0.25)
-    m.cube('body', 'roof', (-13, 32, -1), (13, 34, 31), solid(lacquer, 3, top=shade(lacquer, 1.3)))
-    m.cube('body', 'roof_trim', (-12, 34, 0), (12, 35, 30), solid(gold, 3))
-    m.cube('body', 'roof_top', (-10, 35, 2), (10, 36, 28), solid(lacquer, 3))
+    m.cube('body', 'roof', (-13, 38, -1), (13, 40, 31), solid(lacquer, 3, top=shade(lacquer, 1.3)))
+    m.cube('body', 'roof_trim', (-12, 40, 0), (12, 41, 30), solid(gold, 3))
+    m.cube('body', 'roof_top', (-10, 41, 2), (10, 42, 28), solid(lacquer, 3))
     for name, x, z in (('knob_fr', 11, 0), ('knob_fl', -12, 0), ('knob_br', 11, 29), ('knob_bl', -12, 29)):
-        m.cube('body', name, (x, 35, z), (x + 1, 37, z + 1), solid(gold, 2), key='business_knob')
+        m.cube('body', name, (x, 41, z), (x + 1, 43, z + 1), solid(gold, 2), key='business_knob')
 
     def crest(f):
         solid(gold, 3)(f)
@@ -347,7 +348,7 @@ def taxi_business():
             face = f[n]
             for (x, y) in ((1, 1), (2, 0), (2, 1), (2, 2), (3, 1), (1, 3), (3, 3)):
                 face.set(x, y, RED, 1)
-    m.cube('body', 'crest', (-2.5, 36, 13), (2.5, 40, 17), crest)
+    m.cube('body', 'crest', (-2.5, 42, 13), (2.5, 46, 17), crest)
     m.cube('body', 'seat', (-10, 13, 20), (10, 16, 28), solid(hexc('#8E1620'), 5, top=hexc('#A51E28')))
     m.cube('body', 'seat_back', (-10, 16, 27), (10, 23, 29), solid(hexc('#8E1620'), 5))
     m.cube('body', 'step', (-6, 9, 30), (6, 10, 34), solid(lacquer, 3, top=GOLD_D))

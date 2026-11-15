@@ -40,7 +40,11 @@ public final class Network {
 		PayloadTypeRegistry.playS2C().register(UiPayloads.Ad.ID, UiPayloads.Ad.CODEC);
 		PayloadTypeRegistry.playS2C().register(FxPayloads.Captcha.ID, FxPayloads.Captcha.CODEC);
 		PayloadTypeRegistry.playS2C().register(FxPayloads.Fx.ID, FxPayloads.Fx.CODEC);
+		PayloadTypeRegistry.playS2C().register(UiPayloads.TaxiInfo.ID, UiPayloads.TaxiInfo.CODEC);
 		PayloadTypeRegistry.playC2S().register(UiPayloads.NpcClick.ID, UiPayloads.NpcClick.CODEC);
+		PayloadTypeRegistry.playC2S().register(UiPayloads.TaxiOrder.ID, UiPayloads.TaxiOrder.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(UiPayloads.TaxiOrder.ID, (payload, context) ->
+			context.server().execute(() -> com.diktatura.transport.TaxiService.order(context.player(), payload)));
 		PayloadTypeRegistry.playC2S().register(FxPayloads.CaptchaAnswer.ID, FxPayloads.CaptchaAnswer.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(FxPayloads.CaptchaAnswer.ID, (payload, context) ->
 			context.server().execute(() -> com.diktatura.bureau.Captcha.onAnswer(context.player(), payload)));
@@ -66,6 +70,7 @@ public final class Network {
 		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
 			sendStatus(server, p);
 			com.diktatura.license.Licenses.sendList(server, p);
+			com.diktatura.transport.TaxiService.sendInfo(server, p);
 		}
 	}
 

@@ -74,25 +74,25 @@ public final class TaxiModelData {
 		.uv(58, 101).cuboid(10.0F, -22.0F, 0.0F, 1.0F, 10.0F, 28.0F, new Dilation(0.0F))
 		.uv(0, 139).cuboid(-10.0F, -22.0F, 0.0F, 20.0F, 10.0F, 1.0F, new Dilation(0.0F))
 		.uv(42, 139).cuboid(-10.0F, -22.0F, 27.0F, 20.0F, 10.0F, 1.0F, new Dilation(0.0F))
-		.uv(84, 139).cuboid(-11.0F, -30.0F, 0.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(84, 139).cuboid(10.0F, -30.0F, 0.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(84, 139).cuboid(-11.0F, -30.0F, 27.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(84, 139).cuboid(10.0F, -30.0F, 27.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(88, 139).cuboid(-11.0F, -30.0F, 13.0F, 1.0F, 8.0F, 2.0F, new Dilation(0.0F))
-		.uv(88, 139).cuboid(10.0F, -30.0F, 13.0F, 1.0F, 8.0F, 2.0F, new Dilation(0.0F))
-		.uv(0, 150).cuboid(-12.0F, -32.0F, -1.0F, 24.0F, 2.0F, 30.0F, new Dilation(0.0F))
-		.uv(0, 182).cuboid(-10.0F, -33.0F, 1.0F, 20.0F, 1.0F, 26.0F, new Dilation(0.0F))
-		.uv(0, 209).cuboid(-8.0F, -35.0F, 4.0F, 16.0F, 2.0F, 20.0F, new Dilation(0.0F))
-		.uv(72, 209).cuboid(-9.0F, -15.0F, 18.0F, 18.0F, 3.0F, 8.0F, new Dilation(0.0F))
-		.uv(0, 231).cuboid(-9.0F, -21.0F, 25.0F, 18.0F, 6.0F, 2.0F, new Dilation(0.0F))
-		.uv(40, 231).cuboid(-9.0F, -22.0F, -6.0F, 18.0F, 6.0F, 6.0F, new Dilation(0.0F))
-		.uv(0, 243).cuboid(-9.0F, -23.0F, -5.0F, 18.0F, 1.0F, 5.0F, new Dilation(0.0F))
-		.uv(46, 243).cuboid(-13.0F, -27.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
-		.uv(54, 243).cuboid(-13.5F, -28.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
-		.uv(46, 243).cuboid(11.0F, -27.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
-		.uv(54, 243).cuboid(10.5F, -28.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
-		.uv(0, 258).cuboid(-12.0F, -6.0F, 5.0F, 24.0F, 2.0F, 2.0F, new Dilation(0.0F))
-		.uv(0, 275).cuboid(-12.0F, -7.0F, 21.0F, 24.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+		.uv(84, 139).cuboid(-11.0F, -36.0F, 0.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(84, 139).cuboid(10.0F, -36.0F, 0.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(84, 139).cuboid(-11.0F, -36.0F, 27.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(84, 139).cuboid(10.0F, -36.0F, 27.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(88, 139).cuboid(-11.0F, -36.0F, 13.0F, 1.0F, 14.0F, 2.0F, new Dilation(0.0F))
+		.uv(88, 139).cuboid(10.0F, -36.0F, 13.0F, 1.0F, 14.0F, 2.0F, new Dilation(0.0F))
+		.uv(0, 155).cuboid(-12.0F, -38.0F, -1.0F, 24.0F, 2.0F, 30.0F, new Dilation(0.0F))
+		.uv(0, 187).cuboid(-10.0F, -39.0F, 1.0F, 20.0F, 1.0F, 26.0F, new Dilation(0.0F))
+		.uv(0, 214).cuboid(-8.0F, -41.0F, 4.0F, 16.0F, 2.0F, 20.0F, new Dilation(0.0F))
+		.uv(72, 214).cuboid(-9.0F, -15.0F, 18.0F, 18.0F, 3.0F, 8.0F, new Dilation(0.0F))
+		.uv(0, 236).cuboid(-9.0F, -21.0F, 25.0F, 18.0F, 6.0F, 2.0F, new Dilation(0.0F))
+		.uv(40, 236).cuboid(-9.0F, -22.0F, -6.0F, 18.0F, 6.0F, 6.0F, new Dilation(0.0F))
+		.uv(0, 248).cuboid(-9.0F, -23.0F, -5.0F, 18.0F, 1.0F, 5.0F, new Dilation(0.0F))
+		.uv(46, 248).cuboid(-13.0F, -27.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
+		.uv(54, 248).cuboid(-13.5F, -28.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
+		.uv(46, 248).cuboid(11.0F, -27.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
+		.uv(54, 248).cuboid(10.5F, -28.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
+		.uv(0, 263).cuboid(-12.0F, -6.0F, 5.0F, 24.0F, 2.0F, 2.0F, new Dilation(0.0F))
+		.uv(0, 280).cuboid(-12.0F, -7.0F, 21.0F, 24.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
 
 		ModelPartData horse_r = body.addChild("horse_r", ModelPartBuilder.create().uv(0, 0).cuboid(-5.0F, -5.0F, -11.0F, 10.0F, 10.0F, 22.0F, new Dilation(0.0F)), ModelTransform.pivot(-6.0F, -16.0F, -27.0F));
 
@@ -130,29 +130,29 @@ public final class TaxiModelData {
 
 		ModelPartData horse_l_tail = body.addChild("horse_l_tail", ModelPartBuilder.create().uv(28, 32).cuboid(-1.5F, 0.0F, 0.0F, 3.0F, 11.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(6.0F, -20.0F, -16.0F, 0.4363F, 0.0F, 0.0F));
 
-		ModelPartData wheel_front_right = body.addChild("wheel_front_right", ModelPartBuilder.create().uv(66, 243).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(78, 243).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(-11.5F, -5.0F, 6.0F));
+		ModelPartData wheel_front_right = body.addChild("wheel_front_right", ModelPartBuilder.create().uv(66, 248).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(78, 248).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(-11.5F, -5.0F, 6.0F));
 
-		ModelPartData wheel_front_right_r = wheel_front_right.addChild("wheel_front_right_r", ModelPartBuilder.create().uv(66, 243).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(78, 243).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_front_right_r = wheel_front_right.addChild("wheel_front_right_r", ModelPartBuilder.create().uv(66, 248).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(78, 248).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_front_left = body.addChild("wheel_front_left", ModelPartBuilder.create().uv(66, 243).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(78, 243).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(11.5F, -5.0F, 6.0F));
+		ModelPartData wheel_front_left = body.addChild("wheel_front_left", ModelPartBuilder.create().uv(66, 248).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(78, 248).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(11.5F, -5.0F, 6.0F));
 
-		ModelPartData wheel_front_left_r = wheel_front_left.addChild("wheel_front_left_r", ModelPartBuilder.create().uv(66, 243).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(78, 243).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_front_left_r = wheel_front_left.addChild("wheel_front_left_r", ModelPartBuilder.create().uv(66, 248).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(78, 248).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_rear_right = body.addChild("wheel_rear_right", ModelPartBuilder.create().uv(52, 258).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
-		.uv(64, 258).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(-11.5F, -6.0F, 22.0F));
+		ModelPartData wheel_rear_right = body.addChild("wheel_rear_right", ModelPartBuilder.create().uv(52, 263).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
+		.uv(64, 263).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(-11.5F, -6.0F, 22.0F));
 
-		ModelPartData wheel_rear_right_r = wheel_rear_right.addChild("wheel_rear_right_r", ModelPartBuilder.create().uv(52, 258).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
-		.uv(64, 258).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_rear_right_r = wheel_rear_right.addChild("wheel_rear_right_r", ModelPartBuilder.create().uv(52, 263).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
+		.uv(64, 263).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_rear_left = body.addChild("wheel_rear_left", ModelPartBuilder.create().uv(52, 258).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
-		.uv(64, 258).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(11.5F, -6.0F, 22.0F));
+		ModelPartData wheel_rear_left = body.addChild("wheel_rear_left", ModelPartBuilder.create().uv(52, 263).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
+		.uv(64, 263).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(11.5F, -6.0F, 22.0F));
 
-		ModelPartData wheel_rear_left_r = wheel_rear_left.addChild("wheel_rear_left_r", ModelPartBuilder.create().uv(52, 258).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
-		.uv(64, 258).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_rear_left_r = wheel_rear_left.addChild("wheel_rear_left_r", ModelPartBuilder.create().uv(52, 263).cuboid(-0.5F, -6.0F, -2.5F, 1.0F, 12.0F, 5.0F, new Dilation(0.0F))
+		.uv(64, 263).cuboid(-0.5F, -2.5F, -6.0F, 1.0F, 5.0F, 12.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 		return TexturedModelData.of(modelData, 128, 512);
 	}
 
@@ -167,33 +167,33 @@ public final class TaxiModelData {
 		.uv(62, 143).cuboid(11.0F, -24.0F, 0.0F, 1.0F, 11.0F, 30.0F, new Dilation(0.0F))
 		.uv(0, 184).cuboid(-11.0F, -24.0F, 0.0F, 22.0F, 11.0F, 1.0F, new Dilation(0.0F))
 		.uv(46, 184).cuboid(-11.0F, -24.0F, 29.0F, 22.0F, 11.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 184).cuboid(-12.0F, -32.0F, 0.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 184).cuboid(11.0F, -32.0F, 0.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 184).cuboid(-12.0F, -32.0F, 29.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 184).cuboid(11.0F, -32.0F, 29.0F, 1.0F, 8.0F, 1.0F, new Dilation(0.0F))
-		.uv(96, 184).cuboid(-12.0F, -32.0F, 14.0F, 1.0F, 8.0F, 2.0F, new Dilation(0.0F))
-		.uv(96, 184).cuboid(11.0F, -32.0F, 14.0F, 1.0F, 8.0F, 2.0F, new Dilation(0.0F))
-		.uv(102, 184).cuboid(-12.5F, -31.0F, 1.0F, 1.0F, 6.0F, 2.0F, new Dilation(-0.25F))
-		.uv(102, 184).cuboid(11.5F, -31.0F, 1.0F, 1.0F, 6.0F, 2.0F, new Dilation(-0.25F))
-		.uv(0, 196).cuboid(-13.0F, -34.0F, -1.0F, 26.0F, 2.0F, 32.0F, new Dilation(0.0F))
-		.uv(0, 230).cuboid(-12.0F, -35.0F, 0.0F, 24.0F, 1.0F, 30.0F, new Dilation(0.0F))
-		.uv(0, 261).cuboid(-10.0F, -36.0F, 2.0F, 20.0F, 1.0F, 26.0F, new Dilation(0.0F))
-		.uv(92, 261).cuboid(-12.0F, -37.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 261).cuboid(11.0F, -37.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 261).cuboid(-12.0F, -37.0F, 29.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
-		.uv(92, 261).cuboid(11.0F, -37.0F, 29.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
-		.uv(96, 261).cuboid(-2.5F, -40.0F, 13.0F, 5.0F, 4.0F, 4.0F, new Dilation(0.0F))
-		.uv(0, 288).cuboid(-10.0F, -16.0F, 20.0F, 20.0F, 3.0F, 8.0F, new Dilation(0.0F))
-		.uv(56, 288).cuboid(-10.0F, -23.0F, 27.0F, 20.0F, 7.0F, 2.0F, new Dilation(0.0F))
-		.uv(0, 299).cuboid(-6.0F, -10.0F, 30.0F, 12.0F, 1.0F, 4.0F, new Dilation(0.0F))
-		.uv(32, 299).cuboid(-9.0F, -24.0F, -8.0F, 18.0F, 7.0F, 8.0F, new Dilation(0.0F))
-		.uv(0, 314).cuboid(-9.0F, -25.0F, -6.0F, 18.0F, 1.0F, 6.0F, new Dilation(0.0F))
-		.uv(36, 343).cuboid(-14.0F, -28.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
-		.uv(44, 343).cuboid(-14.5F, -29.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
-		.uv(36, 343).cuboid(12.0F, -28.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
-		.uv(44, 343).cuboid(11.5F, -29.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
-		.uv(0, 362).cuboid(-13.0F, -6.0F, 5.0F, 26.0F, 2.0F, 2.0F, new Dilation(0.0F))
-		.uv(0, 381).cuboid(-13.0F, -8.0F, 23.0F, 26.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+		.uv(92, 184).cuboid(-12.0F, -38.0F, 0.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 184).cuboid(11.0F, -38.0F, 0.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 184).cuboid(-12.0F, -38.0F, 29.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 184).cuboid(11.0F, -38.0F, 29.0F, 1.0F, 14.0F, 1.0F, new Dilation(0.0F))
+		.uv(96, 184).cuboid(-12.0F, -38.0F, 14.0F, 1.0F, 14.0F, 2.0F, new Dilation(0.0F))
+		.uv(96, 184).cuboid(11.0F, -38.0F, 14.0F, 1.0F, 14.0F, 2.0F, new Dilation(0.0F))
+		.uv(102, 184).cuboid(-12.5F, -37.0F, 1.0F, 1.0F, 12.0F, 2.0F, new Dilation(-0.25F))
+		.uv(102, 184).cuboid(11.5F, -37.0F, 1.0F, 1.0F, 12.0F, 2.0F, new Dilation(-0.25F))
+		.uv(0, 200).cuboid(-13.0F, -40.0F, -1.0F, 26.0F, 2.0F, 32.0F, new Dilation(0.0F))
+		.uv(0, 234).cuboid(-12.0F, -41.0F, 0.0F, 24.0F, 1.0F, 30.0F, new Dilation(0.0F))
+		.uv(0, 265).cuboid(-10.0F, -42.0F, 2.0F, 20.0F, 1.0F, 26.0F, new Dilation(0.0F))
+		.uv(92, 265).cuboid(-12.0F, -43.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 265).cuboid(11.0F, -43.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 265).cuboid(-12.0F, -43.0F, 29.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
+		.uv(92, 265).cuboid(11.0F, -43.0F, 29.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
+		.uv(96, 265).cuboid(-2.5F, -46.0F, 13.0F, 5.0F, 4.0F, 4.0F, new Dilation(0.0F))
+		.uv(0, 292).cuboid(-10.0F, -16.0F, 20.0F, 20.0F, 3.0F, 8.0F, new Dilation(0.0F))
+		.uv(56, 292).cuboid(-10.0F, -23.0F, 27.0F, 20.0F, 7.0F, 2.0F, new Dilation(0.0F))
+		.uv(0, 303).cuboid(-6.0F, -10.0F, 30.0F, 12.0F, 1.0F, 4.0F, new Dilation(0.0F))
+		.uv(32, 303).cuboid(-9.0F, -24.0F, -8.0F, 18.0F, 7.0F, 8.0F, new Dilation(0.0F))
+		.uv(0, 318).cuboid(-9.0F, -25.0F, -6.0F, 18.0F, 1.0F, 6.0F, new Dilation(0.0F))
+		.uv(36, 347).cuboid(-14.0F, -28.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
+		.uv(44, 347).cuboid(-14.5F, -29.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
+		.uv(36, 347).cuboid(12.0F, -28.0F, -1.0F, 2.0F, 4.0F, 2.0F, new Dilation(0.0F))
+		.uv(44, 347).cuboid(11.5F, -29.0F, -1.5F, 3.0F, 1.0F, 3.0F, new Dilation(0.0F))
+		.uv(0, 366).cuboid(-13.0F, -6.0F, 5.0F, 26.0F, 2.0F, 2.0F, new Dilation(0.0F))
+		.uv(0, 385).cuboid(-13.0F, -8.0F, 23.0F, 26.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
 
 		ModelPartData horse_ar = body.addChild("horse_ar", ModelPartBuilder.create().uv(0, 0).cuboid(-5.0F, -5.0F, -11.0F, 10.0F, 10.0F, 22.0F, new Dilation(0.0F)), ModelTransform.pivot(-6.0F, -16.0F, -27.0F));
 
@@ -271,38 +271,38 @@ public final class TaxiModelData {
 
 		ModelPartData horse_bl_tail = body.addChild("horse_bl_tail", ModelPartBuilder.create().uv(34, 32).cuboid(-1.5F, 0.0F, 0.0F, 3.0F, 11.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(6.0F, -20.0F, -42.0F, 0.4363F, 0.0F, 0.0F));
 
-		ModelPartData coachman = body.addChild("coachman", ModelPartBuilder.create().uv(48, 314).cuboid(-4.0F, -12.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.0F))
-		.uv(72, 314).cuboid(-4.0F, -20.0F, -4.0F, 8.0F, 8.0F, 8.0F, new Dilation(0.0F))
-		.uv(0, 330).cuboid(-4.0F, -25.0F, -4.0F, 8.0F, 5.0F, 8.0F, new Dilation(0.3F))
-		.uv(32, 330).cuboid(-5.5F, -21.0F, -5.5F, 11.0F, 1.0F, 11.0F, new Dilation(0.0F))
-		.uv(76, 330).cuboid(-8.0F, -9.0F, -10.0F, 4.0F, 4.0F, 8.0F, new Dilation(0.0F))
-		.uv(100, 330).cuboid(4.0F, -9.0F, -10.0F, 4.0F, 4.0F, 8.0F, new Dilation(0.0F))
-		.uv(0, 343).cuboid(-4.0F, -4.0F, -10.0F, 8.0F, 4.0F, 8.0F, new Dilation(0.0F))
-		.uv(32, 343).cuboid(-9.0F, -23.0F, -11.0F, 1.0F, 18.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -25.0F, -3.0F));
+		ModelPartData coachman = body.addChild("coachman", ModelPartBuilder.create().uv(48, 318).cuboid(-4.0F, -12.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.0F))
+		.uv(72, 318).cuboid(-4.0F, -20.0F, -4.0F, 8.0F, 8.0F, 8.0F, new Dilation(0.0F))
+		.uv(0, 334).cuboid(-4.0F, -25.0F, -4.0F, 8.0F, 5.0F, 8.0F, new Dilation(0.3F))
+		.uv(32, 334).cuboid(-5.5F, -21.0F, -5.5F, 11.0F, 1.0F, 11.0F, new Dilation(0.0F))
+		.uv(76, 334).cuboid(-8.0F, -9.0F, -10.0F, 4.0F, 4.0F, 8.0F, new Dilation(0.0F))
+		.uv(100, 334).cuboid(4.0F, -9.0F, -10.0F, 4.0F, 4.0F, 8.0F, new Dilation(0.0F))
+		.uv(0, 347).cuboid(-4.0F, -4.0F, -10.0F, 8.0F, 4.0F, 8.0F, new Dilation(0.0F))
+		.uv(32, 347).cuboid(-9.0F, -23.0F, -11.0F, 1.0F, 18.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -25.0F, -3.0F));
 
-		ModelPartData wheel_front_right = body.addChild("wheel_front_right", ModelPartBuilder.create().uv(56, 343).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 343).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(-12.5F, -5.0F, 6.0F));
+		ModelPartData wheel_front_right = body.addChild("wheel_front_right", ModelPartBuilder.create().uv(56, 347).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 347).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(-12.5F, -5.0F, 6.0F));
 
-		ModelPartData wheel_front_right_r = wheel_front_right.addChild("wheel_front_right_r", ModelPartBuilder.create().uv(56, 343).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 343).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_front_right_r = wheel_front_right.addChild("wheel_front_right_r", ModelPartBuilder.create().uv(56, 347).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 347).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_front_left = body.addChild("wheel_front_left", ModelPartBuilder.create().uv(56, 343).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 343).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(12.5F, -5.0F, 6.0F));
+		ModelPartData wheel_front_left = body.addChild("wheel_front_left", ModelPartBuilder.create().uv(56, 347).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 347).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(12.5F, -5.0F, 6.0F));
 
-		ModelPartData wheel_front_left_r = wheel_front_left.addChild("wheel_front_left_r", ModelPartBuilder.create().uv(56, 343).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 343).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_front_left_r = wheel_front_left.addChild("wheel_front_left_r", ModelPartBuilder.create().uv(56, 347).cuboid(-0.5F, -5.0F, -2.5F, 1.0F, 10.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 347).cuboid(-0.5F, -2.5F, -5.0F, 1.0F, 5.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_rear_right = body.addChild("wheel_rear_right", ModelPartBuilder.create().uv(56, 362).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 362).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(-12.5F, -7.0F, 24.0F));
+		ModelPartData wheel_rear_right = body.addChild("wheel_rear_right", ModelPartBuilder.create().uv(56, 366).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 366).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(-12.5F, -7.0F, 24.0F));
 
-		ModelPartData wheel_rear_right_r = wheel_rear_right.addChild("wheel_rear_right_r", ModelPartBuilder.create().uv(56, 362).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 362).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_rear_right_r = wheel_rear_right.addChild("wheel_rear_right_r", ModelPartBuilder.create().uv(56, 366).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 366).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 
-		ModelPartData wheel_rear_left = body.addChild("wheel_rear_left", ModelPartBuilder.create().uv(56, 362).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 362).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(12.5F, -7.0F, 24.0F));
+		ModelPartData wheel_rear_left = body.addChild("wheel_rear_left", ModelPartBuilder.create().uv(56, 366).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 366).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.pivot(12.5F, -7.0F, 24.0F));
 
-		ModelPartData wheel_rear_left_r = wheel_rear_left.addChild("wheel_rear_left_r", ModelPartBuilder.create().uv(56, 362).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
-		.uv(68, 362).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
+		ModelPartData wheel_rear_left_r = wheel_rear_left.addChild("wheel_rear_left_r", ModelPartBuilder.create().uv(56, 366).cuboid(-0.5F, -7.0F, -2.5F, 1.0F, 14.0F, 5.0F, new Dilation(0.0F))
+		.uv(68, 366).cuboid(-0.5F, -2.5F, -7.0F, 1.0F, 5.0F, 14.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -0.7854F, 0.0F, 0.0F));
 		return TexturedModelData.of(modelData, 128, 512);
 	}
 }

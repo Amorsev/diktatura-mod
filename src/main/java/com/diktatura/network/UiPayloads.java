@@ -328,4 +328,66 @@ public final class UiPayloads {
 			return ID;
 		}
 	}
+
+	// ------------------------------------------------------------------ такси
+
+	static void writeInts(RegistryByteBuf buf, List<Integer> list) {
+		buf.writeVarInt(list.size());
+		for (int v : list) {
+			buf.writeVarInt(v);
+		}
+	}
+
+	static List<Integer> readInts(RegistryByteBuf buf) {
+		int n = buf.readVarInt();
+		List<Integer> out = new ArrayList<>(n);
+		for (int i = 0; i < n; i++) {
+			out.add(buf.readVarInt());
+		}
+		return out;
+	}
+
+	/**
+	 * Вкладка «Такси» в книге законов: цены классов (уже с надбавкой), надбавка в процентах, время в пути.
+	 * reason — ключ перевода, почему заказать нельзя (пусто — можно).
+	 */
+	public record TaxiInfo(String reason, int surcharge, List<Integer> prices, List<Integer> seconds) implements CustomPayload {
+		public static final Id<TaxiInfo> ID = new Id<>(Diktatura.id("taxi_info"));
+		public static final PacketCodec<RegistryByteBuf, TaxiInfo> CODEC = PacketCodec.of(TaxiInfo::write, TaxiInfo::read);
+
+		private void write(RegistryByteBuf buf) {
+			buf.writeString(reason);
+			buf.writeVarInt(surcharge);
+			writeInts(buf, prices);
+			writeInts(buf, seconds);
+		}
+
+		private static TaxiInfo read(RegistryByteBuf buf) {
+			return new TaxiInfo(buf.readString(), buf.readVarInt(), readInts(buf), readInts(buf));
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
+	}
+
+	/** Клиент: «Заказать» такси выбранного класса (порядковый номер TaxiClass). */
+	public record TaxiOrder(int taxiClass) implements CustomPayload {
+		public static final Id<TaxiOrder> ID = new Id<>(Diktatura.id("taxi_order"));
+		public static final PacketCodec<RegistryByteBuf, TaxiOrder> CODEC = PacketCodec.of(TaxiOrder::write, TaxiOrder::read);
+
+		private void write(RegistryByteBuf buf) {
+			buf.writeVarInt(taxiClass);
+		}
+
+		private static TaxiOrder read(RegistryByteBuf buf) {
+			return new TaxiOrder(buf.readVarInt());
+		}
+
+		@Override
+		public Id<? extends CustomPayload> getId() {
+			return ID;
+		}
+	}
 }

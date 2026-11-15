@@ -48,6 +48,12 @@ public class DiktaturaClient implements ClientModInitializer {
 		com.diktatura.client.npc.NpcModels.registerLayers();
 		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
 			com.diktatura.client.transport.WagonRenderer.LAYER, com.diktatura.client.transport.WagonModelData::wagon);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
+			com.diktatura.client.transport.TaxiRenderer.LAYERS[0], com.diktatura.client.transport.TaxiModelData::economy);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
+			com.diktatura.client.transport.TaxiRenderer.LAYERS[1], com.diktatura.client.transport.TaxiModelData::comfort);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
+			com.diktatura.client.transport.TaxiRenderer.LAYERS[2], com.diktatura.client.transport.TaxiModelData::business);
 		EntityRendererRegistry.register(ModEntities.WILD_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "wild_goose"));
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);
@@ -58,6 +64,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.MIMIC, com.diktatura.client.mimic.MimicRenderer::new);
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
 		EntityRendererRegistry.register(ModEntities.WAGON, com.diktatura.client.transport.WagonRenderer::new);
+		EntityRendererRegistry.register(ModEntities.TAXI, com.diktatura.client.transport.TaxiRenderer::new);
 		// Дракон госохраны: своя модель поверх ванильной (обычные драконы не меняются).
 		EntityRendererRegistry.register(net.minecraft.entity.EntityType.ENDER_DRAGON, com.diktatura.client.dragon.GuardDragonRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(
@@ -164,6 +171,8 @@ public class DiktaturaClient implements ClientModInitializer {
 			(payload, context) -> context.client().execute(() -> ClientState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.LawList.ID,
 			(payload, context) -> context.client().execute(() -> ClientState.updateLaws(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.TaxiInfo.ID,
+			(payload, context) -> context.client().execute(() -> ClientState.updateTaxi(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.LicenseList.ID,
 			(payload, context) -> context.client().execute(() -> ClientState.updateLicenses(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(UiPayloads.Ad.ID,

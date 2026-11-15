@@ -96,4 +96,19 @@ public final class ClientState {
 		int s = Math.max(0, seconds);
 		return String.format("%d:%02d", s / 60, s % 60);
 	}
+
+	// ------------------------------------------------------------------ такси (вкладка книги законов)
+
+	/** Почему нельзя заказать (ключ перевода), пусто — можно. Пока сервер не прислал — "…". */
+	public static String taxiReason = "diktatura.taxi.loading";
+	public static int taxiSurcharge;
+	public static java.util.List<Integer> taxiPrices = java.util.List.of();
+	public static java.util.List<Integer> taxiSeconds = java.util.List.of();
+
+	public static void updateTaxi(com.diktatura.network.UiPayloads.TaxiInfo p) {
+		taxiReason = p.reason();
+		taxiSurcharge = p.surcharge();
+		taxiPrices = p.prices();
+		taxiSeconds = p.seconds();
+	}
 }

@@ -99,6 +99,14 @@ public final class DiktaturaConfig {
 	public double transportSpeed = 1.2;
 	/** Дальше этого расстояния повозка «прыгает» поближе к цели, чтобы не грузить сотни чанков. */
 	public int transportMaxDirectDistance = 600;
+	/** ГосТакси до горы вождя: цена эконом / комфорт / бизнес в трудоднях (до надбавки за лояльность). */
+	public int taxiPriceEconomy = 3;
+	public int taxiPriceComfort = 7;
+	public int taxiPriceBusiness = 10;
+	/** Множитель скорости всех карет такси. */
+	public double taxiSpeedMultiplier = 1.0;
+	/** Шанс, что телега-«эконом» сломается за 50 блоков до цели. */
+	public double taxiBreakdownChance = 0.1;
 
 	/** Освободить операторов (уровень 2+) от законов. */
 	public boolean exemptOps = false;
@@ -184,6 +192,11 @@ public final class DiktaturaConfig {
 			c.bloodMoonEveryNights = 0;
 		}
 		c.gooseFrequency = Math.max(0.0, Math.min(2.0, c.gooseFrequency));
+		c.taxiPriceEconomy = Math.max(0, c.taxiPriceEconomy);
+		c.taxiPriceComfort = Math.max(0, c.taxiPriceComfort);
+		c.taxiPriceBusiness = Math.max(0, c.taxiPriceBusiness);
+		c.taxiSpeedMultiplier = Math.max(0.2, Math.min(3.0, c.taxiSpeedMultiplier));
+		c.taxiBreakdownChance = Math.max(0.0, Math.min(1.0, c.taxiBreakdownChance));
 		c.gooseSpawnWeight = Math.max(0, Math.min(10, c.gooseSpawnWeight));
 		if (c.configVersion < 5 && c.gooseSpawnWeight == 2) {
 			// v5: в 1.0.1-beta.1 природный спавн гусей был слишком редким (вес 2) — теперь 4.

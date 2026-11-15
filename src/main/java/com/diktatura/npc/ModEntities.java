@@ -28,6 +28,16 @@ public final class ModEntities {
 			.trackingTickInterval(1)
 			.build());
 
+	/** Карета госТакси (три класса, модель выбирается по классу). */
+	public static final EntityType<com.diktatura.transport.TaxiEntity> TAXI = Registry.register(Registries.ENTITY_TYPE,
+		Diktatura.id("taxi"),
+		EntityType.Builder.<com.diktatura.transport.TaxiEntity>create(com.diktatura.transport.TaxiEntity::new, SpawnGroup.MISC)
+			.dimensions(1.6f, 1.2f)
+			.disableSaving()
+			.maxTrackingRange(10)
+			.trackingTickInterval(1)
+			.build());
+
 	public static final EntityType<com.diktatura.item.SlipperEntity> SLIPPER = Registry.register(Registries.ENTITY_TYPE,
 		Diktatura.id("slipper"),
 		EntityType.Builder.<com.diktatura.item.SlipperEntity>create(com.diktatura.item.SlipperEntity::new, SpawnGroup.MISC)

@@ -178,6 +178,7 @@ public class Diktatura implements ModInitializer {
 		}
 		EventSystem.onJoin(player);
 		PrisonSystem.onJoin(s, player);
+		com.diktatura.transport.TaxiService.onJoin(player);
 		Network.sendStatus(s, player);
 		Network.sendLawList(s, player);
 	}
