@@ -34,6 +34,15 @@ public class WagonRenderer extends GeoEntityRenderer<WagonEntity> {
 		this.shadowRadius = 0.9f;
 	}
 
+	/**
+	 * GeckoLib поворачивает по направлению только мобов (LivingEntity), а повозку всегда рисовал бы «на юг».
+	 * Подставляем её собственный поворот — тот же, что у пассажира и заключённого в упряжке.
+	 */
+	@Override
+	protected void applyRotations(WagonEntity e, MatrixStack m, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+		super.applyRotations(e, m, ageInTicks, MathHelper.lerpAngleDegrees(partialTick, e.prevYaw, e.getYaw()), partialTick, nativeScale);
+	}
+
 	@Override
 	public void render(WagonEntity e, float yaw, float tickDelta, MatrixStack m, VertexConsumerProvider vcp, int light) {
 		super.render(e, yaw, tickDelta, m, vcp, light);

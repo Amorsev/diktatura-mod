@@ -61,6 +61,14 @@ public final class TransportSystem {
 		boolean hopped;
 		WagonEntity cart;
 		int ticks;
+		/** Курс (радианы, как atan2(dz, dx)); NaN — ещё не выбран. Поворачивает плавно, с ограниченной скоростью. */
+		double heading = Double.NaN;
+		/** Текущая скорость, блоков за тик: плавный разгон и торможение. */
+		double vel = 0.08;
+		/** Пройдено блоков — по нему «виляет» дорога. */
+		double traveled;
+		/** Своя «дорога» у каждой поездки. */
+		final double seed = Math.random() * Math.PI * 2;
 
 		Journey(UUID player, RegistryKey<World> dim, Vec3d target, Consumer<ServerPlayerEntity> onArrive, boolean hop,
 				TaxiClass taxi, boolean breakdown, RegistryKey<World> startDim, Vec3d start) {
@@ -223,7 +231,13 @@ public final class TransportSystem {
 		}
 
 		if (j.hop && !j.hopped) {
-			move(j.cart, pos.add(0, 0.6, 0), j.cart.getYaw());
+			// Разгон с набором высоты по курсу (а не подъём строго вверх), потом «прыжок» к цели.
+			if (Double.isNaN(j.heading)) {
+				j.heading = Math.toRadians(j.cart.getYaw() + 90.0f);
+			}
+			j.vel = Math.min(j.speed(), j.vel + j.speed() / 25.0);
+			double lift = Math.min(0.6, 0.05 + j.ticks * 0.02);
+			move(j.cart, pos.add(Math.cos(j.heading) * j.vel, lift, Math.sin(j.heading) * j.vel), j.cart.getYaw());
 			trail(world, pos);
 			if (j.ticks >= DEPART_TICKS) {
 				hop(server, j, p);
@@ -241,25 +255,42 @@ public final class TransportSystem {
 			return;
 		}
 
-		int ground = world.getTopY(Heightmap.Type.MOTION_BLOCKING, MathHelper.floor(pos.x), MathHelper.floor(pos.z));
-		// Заключённый бежит почти по земле: чуть выше рельефа, чтобы не цепляться за кочки.
+		// Курс: к цели, но дорога плавно виляет (две синусоиды по пройденному пути), а у цели — прямо.
+		double toTarget = Math.atan2(dz, dx);
+		double fade = MathHelper.clamp((hd - 20) / 40.0, 0.0, 1.0);
+		double amp = Math.toRadians(j.taxi == TaxiClass.ECONOMY ? 26 : j.taxi != null ? 20 : 14);
+		double wander = (Math.sin(j.traveled * 0.045 + j.seed) + 0.35 * Math.sin(j.traveled * 0.11 + j.seed * 2.3)) * amp * fade;
+		double desired = toTarget + wander;
+		if (Double.isNaN(j.heading)) {
+			j.heading = Math.toRadians(j.cart.getYaw() + 90.0f);
+		}
+		double turnNeeded = MathHelper.wrapDegrees(Math.toDegrees(desired - j.heading));
+		double maxTurn = hd < 12 ? 15.0 : j.taxi == TaxiClass.ECONOMY ? 3.0 : j.taxi == TaxiClass.COMFORT ? 4.0 : j.taxi != null ? 4.5 : 5.0;
+		j.heading += Math.toRadians(MathHelper.clamp(turnNeeded, -maxTurn, maxTurn));
+
+		// Скорость: разгон с места, торможение у цели и на крутых поворотах.
+		double targetVel = speed * MathHelper.clamp(hd / 16.0, 0.25, 1.0) * (1.0 - 0.4 * Math.min(1.0, Math.abs(turnNeeded) / 90.0));
+		j.vel += MathHelper.clamp(targetVel - j.vel, -0.08, speed / 25.0);
+		double stepLen = Math.min(j.vel, hd);
+		double hx = Math.cos(j.heading);
+		double hz = Math.sin(j.heading);
+		double nx = pos.x + hx * stepLen;
+		double nz = pos.z + hz * stepLen;
+		j.traveled += stepLen;
+		float yaw = yawTo(hx, hz);
+
+		// Высота: по рельефу с упреждением (смотрим на 2 и 4 блока вперёд), без рывков.
+		int g0 = groundAt(world, nx, nz);
+		int ground = Math.max(g0, Math.max(groundAt(world, nx + hx * 2, nz + hz * 2), groundAt(world, nx + hx * 4, nz + hz * 4) - 1));
 		double desiredY;
 		if (j.taxi != null) {
 			// Такси катится по земле (по рельефу), к цели — плавно на её высоту.
-			desiredY = hd > 12 ? ground + 0.05 : Math.max(Math.max(ground + 0.05, t.y), t.y + hd / 6.0);
+			desiredY = hd > 12 ? ground + 0.05 : Math.max(Math.max(g0 + 0.05, t.y), t.y + hd / 6.0);
 		} else {
+			// Заключённый бежит почти по земле: чуть выше рельефа, чтобы не цепляться за кочки.
 			desiredY = hd > 12 ? Math.max(ground + 1.2, t.y + 1) : Math.max(t.y, t.y + hd / 6.0);
 		}
-		double ny = pos.y + MathHelper.clamp(desiredY - pos.y, -0.5, 0.8);
-		double stepLen = Math.min(speed, hd);
-		double nx = pos.x;
-		double nz = pos.z;
-		float yaw = j.cart.getYaw();
-		if (hd > 1.0E-4) {
-			nx += dx / hd * stepLen;
-			nz += dz / hd * stepLen;
-			yaw = yawTo(dx, dz);
-		}
+		double ny = pos.y + MathHelper.clamp((desiredY - pos.y) * 0.4, -0.45, 0.7);
 		move(j.cart, new Vec3d(nx, ny, nz), yaw);
 		if (j.ticks % 2 == 0) {
 			trail(world, pos);
@@ -267,9 +298,14 @@ public final class TransportSystem {
 		if (j.taxi != null && j.ticks % 8 == 0) {
 			world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ENTITY_HORSE_GALLOP, SoundCategory.NEUTRAL, 0.35f, 1.0f);
 		}
-		if (hd < 0.8 && Math.abs(t.y - ny) < 1.2) {
+		double left = Math.sqrt((t.x - nx) * (t.x - nx) + (t.z - nz) * (t.z - nz));
+		if (left < Math.max(0.8, j.vel) && Math.abs(t.y - ny) < 1.2) {
 			arrive(server, j, p);
 		}
+	}
+
+	private static int groundAt(ServerWorld world, double x, double z) {
+		return world.getTopY(Heightmap.Type.MOTION_BLOCKING, MathHelper.floor(x), MathHelper.floor(z));
 	}
 
 	private static void hop(MinecraftServer server, Journey j, ServerPlayerEntity p) {
@@ -294,6 +330,8 @@ public final class TransportSystem {
 		}
 		j.hopped = true;
 		j.ticks = 0;
+		j.heading = Math.atan2(dir.z, dir.x);
+		j.vel = j.speed() * 0.7;
 	}
 
 	private static void arrive(MinecraftServer server, Journey j, ServerPlayerEntity p) {
