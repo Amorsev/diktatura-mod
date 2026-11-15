@@ -35,8 +35,12 @@ public class TaxiEntity extends WagonEntity {
 		dataTracker.set(TAXI_CLASS, c.ordinal());
 	}
 
+	/**
+	 * Место пассажира. Смещение задано в координатах кареты, поэтому поворачиваем его вместе с ней
+	 * (стандартные точки посадки ванила поворачивает сама, а переопределение — нет).
+	 */
 	@Override
 	protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-		return taxiClass().seat;
+		return taxiClass().seat.rotateY(-getYaw() * ((float) Math.PI / 180.0f));
 	}
 }
