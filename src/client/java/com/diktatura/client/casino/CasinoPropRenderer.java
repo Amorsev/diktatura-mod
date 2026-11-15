@@ -95,7 +95,9 @@ public class CasinoPropRenderer extends GeoEntityRenderer<CasinoPropEntity> {
 		private void slots(NbtCompound spin, float t) {
 			int[] reels = spin.getIntArray("reels");
 			for (int i = 0; i < 3; i++) {
-				GeoBone reel = bone("reel" + i);
+				// Барабан reel0 модели стоит справа, если смотреть на автомат спереди: итог читается слева направо,
+				// поэтому первый символ итога — на левом барабане (reel2), он же останавливается первым.
+				GeoBone reel = bone("reel" + (2 - i));
 				if (reel == null) {
 					continue;
 				}
