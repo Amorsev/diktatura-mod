@@ -53,10 +53,10 @@ import java.util.List;
  * По мотивам мимика из мода-референса (MIT, © 2026 Gr1tW4lk); модель и текстура оттуда.
  */
 public class MimicEntity extends HostileEntity implements GeoEntity {
-	private static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.mimic.sleep");
-	private static final RawAnimation AWAKE = RawAnimation.begin().thenLoop("animation.mimic.awake");
-	private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.mimic.walk");
-	private static final RawAnimation CHOMP = RawAnimation.begin().thenPlay("animation.mimic.chomp");
+	private static final RawAnimation ANIM_SLEEP = RawAnimation.begin().thenLoop("animation.mimic.sleep");
+	private static final RawAnimation ANIM_AWAKE = RawAnimation.begin().thenLoop("animation.mimic.awake");
+	private static final RawAnimation ANIM_WALK = RawAnimation.begin().thenLoop("animation.mimic.walk");
+	private static final RawAnimation ANIM_CHOMP = RawAnimation.begin().thenPlay("animation.mimic.chomp");
 	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
 	/** GeckoLib: спит сундуком, проснулся — дышит пастью и ходит; укус — поверх любой позы. */
@@ -64,12 +64,12 @@ public class MimicEntity extends HostileEntity implements GeoEntity {
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "body", 4, state -> {
 			if (!isAwake()) {
-				return state.setAndContinue(SLEEP);
+				return state.setAndContinue(ANIM_SLEEP);
 			}
-			return state.setAndContinue(state.isMoving() ? WALK : AWAKE);
+			return state.setAndContinue(state.isMoving() ? ANIM_WALK : ANIM_AWAKE);
 		}));
 		controllers.add(new AnimationController<>(this, "bite", 1,
-			state -> chompTicks > 0 ? state.setAndContinue(CHOMP) : PlayState.STOP));
+			state -> chompTicks > 0 ? state.setAndContinue(ANIM_CHOMP) : PlayState.STOP));
 	}
 
 	@Override
