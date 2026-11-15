@@ -370,10 +370,12 @@ def taxi_business():
     m.cube('coachman', 'coachman_hat', (-4, 45, -7), (4, 50, 1), solid(BLACK, 3, top=shade(BLACK, 1.3),
            front=lambda fr: fr.row(fr.h - 2, GOLD, 1)), inflate=0.3)
     m.cube('coachman', 'coachman_brim', (-5.5, 45, -8.5), (5.5, 46, 2.5), solid(BLACK, 2))
-    m.cube('coachman', 'coachman_arm_r', (4, 30, -13), (8, 34, -5), solid(livery, 4, front=lambda fr: fr.fill(WHITE, 2)))
+    # Правая рука с кнутом — отдельная кость (анимация GeckoLib: кучер погоняет).
+    m.group('coachman_whip_arm', 'coachman', (6, 33, -6))
+    m.cube('coachman_whip_arm', 'coachman_arm_r', (4, 30, -13), (8, 34, -5), solid(livery, 4, front=lambda fr: fr.fill(WHITE, 2)))
     m.cube('coachman', 'coachman_arm_l', (-8, 30, -13), (-4, 34, -5), solid(livery, 4, front=lambda fr: fr.fill(WHITE, 2)))
     m.cube('coachman', 'coachman_legs', (-4, 25, -13), (4, 29, -5), solid(BLACK, 3))
-    m.cube('coachman', 'whip', (8, 30, -14), (9, 48, -13), solid(WOOD_D, 3, top=RED))
+    m.cube('coachman_whip_arm', 'whip', (8, 30, -14), (9, 48, -13), solid(WOOD_D, 3, top=RED))
     lantern(m, 'lantern_r', 13, 24, 0, gold, 'business_lantern')
     lantern(m, 'lantern_l', -13, 24, 0, gold, 'business_lantern')
     wheel_pair(m, 12, -13, 5, 6, 10, GOLD_D, RED, GOLD, 'front')

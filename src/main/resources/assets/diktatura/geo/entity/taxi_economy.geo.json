@@ -1,0 +1,134 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.taxi_economy",
+				"texture_width": 128,
+				"texture_height": 256,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-10, 9, 0], "size": [20, 2, 26], "uv": [0, 46]},
+						{"origin": [-10, 11, 0], "size": [1, 4, 26], "uv": [0, 74]},
+						{"origin": [9, 11, 0], "size": [1, 4, 26], "uv": [54, 74]},
+						{"origin": [-9, 11, 0], "size": [18, 3, 1], "uv": [0, 104]},
+						{"origin": [-9, 11, 25], "size": [18, 4, 1], "uv": [38, 104]},
+						{"origin": [-8, 11, 6], "size": [16, 4, 18], "uv": [0, 109]},
+						{"origin": [-6, 15, 9], "size": [12, 2, 12], "uv": [68, 109]},
+						{"origin": [-7, 12, -34], "size": [1, 1, 34], "uv": [0, 131]},
+						{"origin": [6, 12, -34], "size": [1, 1, 34], "uv": [0, 166]},
+						{"origin": [-6, 17, -33], "size": [12, 1, 1], "uv": [70, 166]},
+						{"origin": [-12, 5, 14], "size": [24, 2, 2], "uv": [26, 201]}
+					]
+				},
+				{
+					"name": "horse",
+					"parent": "body",
+					"pivot": [0, 16, -24],
+					"cubes": [
+						{"origin": [-5, 11, -35], "size": [10, 10, 22], "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "horse_leg_fr",
+					"parent": "body",
+					"pivot": [-3, 11, -32],
+					"cubes": [
+						{"origin": [-5, 0, -34], "size": [4, 11, 4], "uv": [64, 0]}
+					]
+				},
+				{
+					"name": "horse_leg_fl",
+					"parent": "body",
+					"pivot": [3, 11, -32],
+					"cubes": [
+						{"origin": [1, 0, -34], "size": [4, 11, 4], "uv": [64, 0]}
+					]
+				},
+				{
+					"name": "horse_leg_br",
+					"parent": "body",
+					"pivot": [-3, 11, -16],
+					"cubes": [
+						{"origin": [-5, 0, -18], "size": [4, 11, 4], "uv": [64, 0]}
+					]
+				},
+				{
+					"name": "horse_leg_bl",
+					"parent": "body",
+					"pivot": [3, 11, -16],
+					"cubes": [
+						{"origin": [1, 0, -18], "size": [4, 11, 4], "uv": [64, 0]}
+					]
+				},
+				{
+					"name": "horse_neck",
+					"parent": "body",
+					"pivot": [0, 19, -33],
+					"rotation": [30, 0, 0],
+					"cubes": [
+						{"origin": [-2, 17, -37], "size": [4, 12, 7], "uv": [80, 0]},
+						{"origin": [-1, 18, -30], "size": [2, 13, 2], "uv": [102, 0]},
+						{"origin": [-2.5, 24, -44], "size": [5, 5, 7], "uv": [0, 32]},
+						{"origin": [-1.5, 29, -38], "size": [1, 2, 1], "uv": [24, 32]},
+						{"origin": [0.5, 29, -38], "size": [1, 2, 1], "uv": [24, 32]}
+					]
+				},
+				{
+					"name": "horse_tail",
+					"parent": "body",
+					"pivot": [0, 20, -13],
+					"rotation": [25, 0, 0],
+					"cubes": [
+						{"origin": [-1.5, 9, -13], "size": [3, 11, 3], "uv": [28, 32]}
+					]
+				},
+				{
+					"name": "wheel_rear_right",
+					"parent": "body",
+					"pivot": [-11.5, 6, 15],
+					"cubes": [
+						{"origin": [-12, 0, 12.5], "size": [1, 12, 5], "uv": [96, 166]},
+						{"origin": [-12, 3.5, 9], "size": [1, 5, 12], "uv": [0, 201]}
+					]
+				},
+				{
+					"name": "wheel_rear_right_r",
+					"parent": "wheel_rear_right",
+					"pivot": [-11.5, 6, 15],
+					"rotation": [-45, 0, 0],
+					"cubes": [
+						{"origin": [-12, 0, 12.5], "size": [1, 12, 5], "uv": [96, 166]},
+						{"origin": [-12, 3.5, 9], "size": [1, 5, 12], "uv": [0, 201]}
+					]
+				},
+				{
+					"name": "wheel_rear_left",
+					"parent": "body",
+					"pivot": [11.5, 6, 15],
+					"cubes": [
+						{"origin": [11, 0, 12.5], "size": [1, 12, 5], "uv": [96, 166]},
+						{"origin": [11, 3.5, 9], "size": [1, 5, 12], "uv": [0, 201]}
+					]
+				},
+				{
+					"name": "wheel_rear_left_r",
+					"parent": "wheel_rear_left",
+					"pivot": [11.5, 6, 15],
+					"rotation": [-45, 0, 0],
+					"cubes": [
+						{"origin": [11, 0, 12.5], "size": [1, 12, 5], "uv": [96, 166]},
+						{"origin": [11, 3.5, 9], "size": [1, 5, 12], "uv": [0, 201]}
+					]
+				}
+			]
+		}
+	]
+}

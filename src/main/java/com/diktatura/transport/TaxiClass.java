@@ -9,21 +9,27 @@ import net.minecraft.util.math.Vec3d;
  */
 public enum TaxiClass {
 	/** «Телега трудящегося»: медленно, трясёт, иногда ломается. */
-	ECONOMY("economy", 0.55, seat(17, 15)),
+	ECONOMY("economy", 0.55, seat(17, 15), 7.0686 / 0.65),
 	/** «Повозка служащего». */
-	COMFORT("comfort", 0.9, seat(15, 21)),
+	COMFORT("comfort", 0.9, seat(15, 21), 11.781 / 0.65),
 	/** «Карета номенклатуры»: быстро, с кучером. */
-	BUSINESS("business", 1.4, seat(16, 23));
+	BUSINESS("business", 1.4, seat(16, 23), 13.7445 / 0.49);
 
 	public final String id;
 	/** Скорость в блоках за тик. */
 	public final double speed;
 	public final Vec3d seat;
+	/**
+	 * Номинальная скорость анимации «trot», блоков/с: путь колёс за цикл / длина цикла
+	 * (см. {@code blockbench/gl_anims.py}). Реальная скорость / номинальная = скорость анимации.
+	 */
+	public final double animNominal;
 
-	TaxiClass(String id, double speed, Vec3d seat) {
+	TaxiClass(String id, double speed, Vec3d seat, double animNominal) {
 		this.id = id;
 		this.speed = speed;
 		this.seat = seat;
+		this.animNominal = animNominal;
 	}
 
 	/**

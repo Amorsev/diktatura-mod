@@ -46,14 +46,6 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.SLIPPER, net.minecraft.client.render.entity.FlyingItemEntityRenderer::new);
 		com.diktatura.client.goose.GooseRenderer.registerLayer();
 		com.diktatura.client.npc.NpcModels.registerLayers();
-		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
-			com.diktatura.client.transport.WagonRenderer.LAYER, com.diktatura.client.transport.WagonModelData::wagon);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
-			com.diktatura.client.transport.TaxiRenderer.LAYERS[0], com.diktatura.client.transport.TaxiModelData::economy);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
-			com.diktatura.client.transport.TaxiRenderer.LAYERS[1], com.diktatura.client.transport.TaxiModelData::comfort);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry.registerModelLayer(
-			com.diktatura.client.transport.TaxiRenderer.LAYERS[2], com.diktatura.client.transport.TaxiModelData::business);
 		EntityRendererRegistry.register(ModEntities.WILD_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "wild_goose"));
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);

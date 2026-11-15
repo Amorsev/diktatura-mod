@@ -7,14 +7,30 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Повозка госперевозки (модель из Blockbench): деревянная телега, в которую впряжён
  * гражданин-заключённый. Движет её {@link TransportSystem} — сама она никуда не едет,
  * не сохраняется в мире и пропадает, если в ней никого нет. На клиенте плавно догоняет
  * позицию с сервера и считает пройденный путь — по нему крутятся колёса и шагает заключённый.
+ *
+ * <p>Модель и анимация — GeckoLib ({@code geo/entity/wagon.geo.json}, {@code animations/entity/wagon.animation.json},
+ * генераторы {@code blockbench/gen_wagon.py} и {@code blockbench/gl_anims.py}). Скорость анимации подстраивается
+ * под скорость повозки, чтобы колёса катились без проскальзывания.
  */
-public class WagonEntity extends Entity {
+public class WagonEntity extends Entity implements GeoEntity {
+	private static final RawAnimation ROLL = RawAnimation.begin().thenLoop("animation.wagon.roll");
+	/** Путь за один цикл «roll» (5 оборотов колеса r = 6 px) за 0.49 с — номинальная скорость, блоков/с. */
+	private static final double ROLL_NOMINAL = 11.781 / 0.49;
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+
 	private int lerpSteps;
 	private double lerpX;
 	private double lerpY;
@@ -36,6 +52,33 @@ public class WagonEntity extends Entity {
 
 	@Override
 	protected void initDataTracker(DataTracker.Builder builder) {
+	}
+
+	/** Скорость за последний тик, блоков в секунду (на клиенте). */
+	public double speedPerSecond() {
+		return (distance - prevDistance) * 20.0;
+	}
+
+	/** Множитель скорости анимации: реальная скорость / номинальная скорость цикла. */
+	protected static double animSpeed(double v, double nominal) {
+		return MathHelper.clamp(v / nominal, 0.1, 4.0);
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "move", 3, state -> {
+			double v = speedPerSecond();
+			if (v < 0.3) {
+				return PlayState.STOP;
+			}
+			state.getController().setAnimationSpeed(animSpeed(v, ROLL_NOMINAL));
+			return state.setAndContinue(ROLL);
+		}));
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
 	}
 
 	@Override

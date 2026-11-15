@@ -12,6 +12,8 @@ base {
 
 repositories {
 	maven { url = "https://maven.terraformersmc.com/releases/" }
+	// GeckoLib — анимированные модели (обязательная зависимость мода).
+	maven { url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
 }
 
 loom {
@@ -32,6 +34,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	// Mod Menu — необязательно: кнопка настроек мода в списке модов.
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	// GeckoLib — обязателен: без него мод не запустится (fabric.mod.json → depends).
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
 }
 
 processResources {

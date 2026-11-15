@@ -8,7 +8,9 @@
 модели предметов → models/item, текстуры предметов → textures/item/<id>_model.png.
 
 Запуск: python blockbench/import_models.py [папка_экспорта]
-        python blockbench/import_models.py --taxi [папка_экспорта] — только кареты такси (gen_taxi.py)
+        python blockbench/import_models.py --geo id [id …] — модели GeckoLib (gl_build.js в Blockbench):
+            export/<id>.geo.json → assets/diktatura/geo/entity, export/<id>.animation.json → animations/entity,
+            out/<id>.png → textures/entity, export/<id>.bbmodel → blockbench/models
 """
 import json
 import os
@@ -24,9 +26,8 @@ JAVA_OUT = os.path.join(ROOT, 'src/client/java/com/diktatura/client/npc/NpcModel
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
         'employer', 'licensor', 'recipient', 'prisoner']
 ITEMS = ['scepter', 'megaphone', 'slipper', 'law_book']
-WAGON_OUT = os.path.join(ROOT, 'src/client/java/com/diktatura/client/transport/WagonModelData.java')
-TAXIS = ['taxi_economy', 'taxi_comfort', 'taxi_business']
-TAXI_OUT = os.path.join(ROOT, 'src/client/java/com/diktatura/client/transport/TaxiModelData.java')
+# Модели GeckoLib (повозка, кареты такси): python import_models.py --geo <id> …
+GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business']
 
 
 def method_body(java):
@@ -54,13 +55,7 @@ def main(src):
     with open(JAVA_OUT, 'w', encoding='utf-8') as f:
         f.write(java)
 
-    # Повозка госперевозки: своя модель (не гуманоид) и текстура 128x256.
-    with open(os.path.join(src, 'wagon.java'), encoding='utf-8') as f:
-        body = method_body(f.read())
-    with open(WAGON_OUT, 'w', encoding='utf-8') as f:
-        f.write(WAGON_HEADER + f'\tpublic static TexturedModelData wagon() {{\n{body}\n\t}}\n}}\n')
-    shutil.copy(os.path.join(src, 'wagon.bbmodel'), os.path.join(HERE, 'models', 'wagon.bbmodel'))
-    shutil.copy(os.path.join(HERE, 'out', 'wagon.png'), os.path.join(RES, 'textures/entity/wagon.png'))
+    # Повозка и кареты такси — модели GeckoLib: см. --geo.
 
     for item in ITEMS:
         with open(os.path.join(src, f'item_{item}.json'), encoding='utf-8') as f:
@@ -104,69 +99,26 @@ public final class NpcModelData {
 
 '''
 
-WAGON_HEADER = '''package com.diktatura.client.transport;
-
-import net.minecraft.client.model.Dilation;
-import net.minecraft.client.model.ModelData;
-import net.minecraft.client.model.ModelPartBuilder;
-import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.model.TexturedModelData;
-
-/**
- * Модель повозки госперевозки, сделанная в Blockbench (исходник — blockbench/models/wagon.bbmodel).
- * Файл создан скриптом blockbench/import_models.py из экспорта Blockbench «1.17+ Yarn» — не править руками.
- */
-@SuppressWarnings("unused")
-public final class WagonModelData {
-	private WagonModelData() {
-	}
-
-'''
 
 
-TAXI_HEADER = '''package com.diktatura.client.transport;
-
-import net.minecraft.client.model.Dilation;
-import net.minecraft.client.model.ModelData;
-import net.minecraft.client.model.ModelPartBuilder;
-import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.model.TexturedModelData;
-
-/**
- * Модели карет госТакси, сделанные в Blockbench (исходники — blockbench/models/taxi_*.bbmodel,
- * генератор — blockbench/gen_taxi.py). Файл создан скриптом blockbench/import_models.py --taxi
- * из экспорта Blockbench «1.17+ Yarn» — не править руками.
- */
-@SuppressWarnings("unused")
-public final class TaxiModelData {
-	private TaxiModelData() {
-	}
-
-'''
 
 
-def import_taxi(src):
-    """Кареты такси: Java-модели → TaxiModelData.java, текстуры → textures/entity/taxi_*.png."""
+
+def import_geo(ids, src=os.path.join(HERE, 'export')):
+    """Модели GeckoLib: геометрия, анимации, текстура и проект Blockbench."""
+    for sub in ('geo/entity', 'animations/entity', 'textures/entity'):
+        os.makedirs(os.path.join(RES, sub), exist_ok=True)
     os.makedirs(os.path.join(HERE, 'models'), exist_ok=True)
-    methods = []
-    for t in TAXIS:
-        with open(os.path.join(src, t + '.java'), encoding='utf-8') as f:
-            body = method_body(f.read())
-        name = camel(t.replace('taxi_', ''))
-        methods.append(f'\tpublic static TexturedModelData {name}() {{\n{body}\n\t}}\n')
-        shutil.copy(os.path.join(src, t + '.bbmodel'), os.path.join(HERE, 'models', t + '.bbmodel'))
-        shutil.copy(os.path.join(HERE, 'out', t + '.png'), os.path.join(RES, 'textures/entity', t + '.png'))
-    with open(TAXI_OUT, 'w', encoding='utf-8') as f:
-        f.write(TAXI_HEADER + '\n'.join(methods) + '}\n')
-    print('ok:', len(TAXIS), 'кареты такси')
+    for i in ids:
+        shutil.copy(os.path.join(src, i + '.geo.json'), os.path.join(RES, 'geo/entity', i + '.geo.json'))
+        shutil.copy(os.path.join(src, i + '.animation.json'), os.path.join(RES, 'animations/entity', i + '.animation.json'))
+        shutil.copy(os.path.join(HERE, 'out', i + '.png'), os.path.join(RES, 'textures/entity', i + '.png'))
+        shutil.copy(os.path.join(src, i + '.bbmodel'), os.path.join(HERE, 'models', i + '.bbmodel'))
+    print('ok:', len(ids), 'моделей GeckoLib')
 
 
 if __name__ == '__main__':
-    args = [a for a in sys.argv[1:] if a != '--taxi']
-    folder = args[0] if args else os.path.join(HERE, 'export')
-    if '--taxi' in sys.argv:
-        import_taxi(folder)
+    if '--geo' in sys.argv:
+        import_geo([a for a in sys.argv[1:] if a != '--geo'] or GEO)
     else:
-        main(folder)
+        main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'export'))
