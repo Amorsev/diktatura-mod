@@ -15,13 +15,37 @@ import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Базовый НПС-ведомство: вождь, налоговик, курьер и т. д. Один тип сущности на всех,
  * какой это персонаж — решает {@link #npcId()} (данные в data/&lt;ns&gt;/diktatura/npcs/&lt;id&gt;.json).
  * Неуязвим, не двигается, не толкается, не исчезает, смотрит на игрока рядом.
+ *
+ * <p>Анимации — GeckoLib ({@code animations/entity/npc.animation.json}, общие для всех NPC мода): покой и ходьба,
+ * а по событию — жест ({@link #gesture}): разговор, вождь машет, инспектор пишет, крупье крутит рулетку,
+ * оператор дёргает рычаг, крупье костей трясёт стакан.
  */
-public class NpcEntity extends PathAwareEntity {
+public class NpcEntity extends PathAwareEntity implements GeoEntity {
+	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.npc.idle");
+	private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.npc.walk");
+	/** Жесты по событию (имя → анимация). */
+	public static final String TALK = "talk";
+	public static final String WAVE = "wave";
+	public static final String WRITE = "write";
+	public static final String SPIN = "spin";
+	public static final String LEVER = "lever";
+	public static final String SHAKE = "shake";
+	private static final String[] GESTURES = {TALK, WAVE, WRITE, SPIN, LEVER, SHAKE};
+
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+	private AnimationController<NpcEntity> actionController;
 	private static final TrackedData<String> NPC_ID = DataTracker.registerData(NpcEntity.class,
 		TrackedDataHandlerRegistry.STRING);
 
@@ -49,6 +73,45 @@ public class NpcEntity extends PathAwareEntity {
 	protected void initGoals() {
 		goalSelector.add(1, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f, 1.0f));
 		goalSelector.add(2, new LookAroundGoal(this));
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "move", 5,
+			state -> state.setAndContinue(state.isMoving() ? WALK : IDLE)));
+		AnimationController<NpcEntity> action = new AnimationController<>(this, "action", 3, state -> PlayState.STOP);
+		for (String g : GESTURES) {
+			action.triggerableAnim(g, RawAnimation.begin().thenPlay("animation.npc." + g));
+		}
+		this.actionController = action;
+		controllers.add(action);
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
+	}
+
+	/** Сервер: показать жест всем рядом (GeckoLib сам отправит клиентам). */
+	public void gesture(String name) {
+		if (!getWorld().isClient) {
+			triggerAnim("action", name);
+		}
+	}
+
+	/** Жест при разговоре: вождь машет, налоговый инспектор пишет, остальные — жест рукой. */
+	public void greetGesture() {
+		String path = npcId().contains(":") ? npcId().substring(npcId().indexOf(':') + 1) : npcId();
+		gesture(switch (path) {
+			case "dictator" -> WAVE;
+			case "tax_inspector" -> WRITE;
+			default -> TALK;
+		});
+	}
+
+	/** Клиент: идёт жест — голову ведёт анимация, а не взгляд. */
+	public boolean isGesturing() {
+		return actionController != null && actionController.isPlayingTriggeredAnimation();
 	}
 
 	/** Идентификатор персонажа, например {@code diktatura:dictator}. */

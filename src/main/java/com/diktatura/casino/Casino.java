@@ -236,6 +236,14 @@ public final class Casino {
 		NpcRegistry.NpcData d = NpcRegistry.get(table.npcId);
 		Voice.say(croupier, d != null ? d.displayName() : croupier.getName(),
 			Text.translatable("diktatura.casino.start." + table.key), null, 1.0f);
+		if (croupier instanceof com.diktatura.npc.NpcEntity n) {
+			// Крупье раскручивает рулетку, оператор дёргает рычаг автомата, крупье костей трясёт стакан.
+			n.gesture(switch (table) {
+				case ROULETTE -> com.diktatura.npc.NpcEntity.SPIN;
+				case SLOTS -> com.diktatura.npc.NpcEntity.LEVER;
+				case DICE -> com.diktatura.npc.NpcEntity.SHAKE;
+			});
+		}
 		int duration = switch (table) {
 			case ROULETTE -> spinRoulette(w, o, out);
 			case SLOTS -> spinSlots(w, o, out);

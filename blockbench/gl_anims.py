@@ -93,6 +93,24 @@ def taxi(id_, horses, wheels, length):
 def wagon():
     length = 0.49
     roll = {'wheel_left': wheel_turns(6, 5, length), 'wheel_right': wheel_turns(6, 5, length)}
+    # Заключённый бежит в упряжке: 4 шага за цикл, наклон вперёд, руки держат оглобли и качаются.
+    q = length / 4
+    legs_r, legs_l, arms = [], [], []
+    for i in range(5):
+        t = round(q * i, 4)
+        a = 40 if i % 2 == 0 else -40
+        legs_r.append(k(t, a))
+        legs_l.append(k(t, -a))
+        arms.append(k(t, 6 if i % 2 == 0 else -6))
+    roll['p_right_leg'] = {'rotation': legs_r}
+    roll['p_left_leg'] = {'rotation': legs_l}
+    roll['p_right_arm'] = {'rotation': arms}
+    roll['p_left_arm'] = {'rotation': [[f[0], -f[1], 0, 0, f[4]] for f in arms]}
+    roll['prisoner'] = {'rotation': [k(0, -8), k(length, -8)],
+                        'position': [k(0, 0, 0, 0), k(q / 2, 0, 0.6, 0), k(q, 0, 0, 0), k(3 * q / 2, 0, 0.6, 0),
+                                     k(2 * q, 0, 0, 0), k(5 * q / 2, 0, 0.6, 0), k(3 * q, 0, 0, 0), k(7 * q / 2, 0, 0.6, 0),
+                                     k(length, 0, 0, 0)]}
+    roll['p_head'] = {'rotation': [k(0, 0), k(length / 2, 3), k(length, 0)]}
     CYCLES['wagon'] = (round(5 * 2 * math.pi * 6 / 16, 4), length)
     return [{'name': 'animation.wagon.roll', 'length': length, 'loop': True, 'bones': roll}]
 
@@ -150,6 +168,80 @@ def goose():
     ]
 
 
+NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
+        'employer', 'licensor', 'recipient']
+
+
+def npc():
+    """Общие анимации NPC (кости гуманоида: head с hat, body, руки, ноги).
+
+    move: idle (дыхание, руки чуть качаются), walk (для ходячих посетителей ведомств);
+    action (по событию): talk — жест рукой при разговоре, wave — вождь машет, write — инспектор пишет,
+    spin — крупье раскручивает рулетку, lever — оператор дёргает рычаг, shake — крупье трясёт стакан с костями.
+    Знак по X: положительный угол — рука/нога вперёд; по Z: правая рука в сторону — плюс, левая — минус.
+    Голову в покое и при ходьбе не анимируем: она поворачивается за взглядом (NpcRenderer); в жестах — анимация.
+    """
+    idle = {
+        'body': {'rotation': [k(0), k(2.0, -1), k(4.0)], 'position': [k(0), k(2.0, 0, 0.15, 0), k(4.0)]},
+        'right_arm': {'rotation': [k(0, 0, 0, 2), k(2.0, -2, 0, 4), k(4.0, 0, 0, 2)]},
+        'left_arm': {'rotation': [k(0, 0, 0, -2), k(2.0, 2, 0, -4), k(4.0, 0, 0, -2)]},
+        'cape': {'rotation': [k(0, 4), k(2.0, 7), k(4.0, 4)]},
+    }
+    W = 1.0
+    walk = {
+        'right_leg': {'rotation': [k(0, 30), k(W / 2, -30), k(W, 30)]},
+        'left_leg': {'rotation': [k(0, -30), k(W / 2, 30), k(W, -30)]},
+        'right_arm': {'rotation': [k(0, -25), k(W / 2, 25), k(W, -25)]},
+        'left_arm': {'rotation': [k(0, 25), k(W / 2, -25), k(W, 25)]},
+        'body': {'position': [k(0), k(W / 4, 0, 0.4, 0), k(W / 2), k(3 * W / 4, 0, 0.4, 0), k(W)]},
+        'cape': {'rotation': [k(0, 10), k(W / 2, 16), k(W, 10)]},
+    }
+    talk = {
+        'right_arm': {'rotation': [k(0), k(0.25, 45, 0, 8), k(0.55, 35, 12, -4), k(0.85, 50, -8, 10), k(1.2)]},
+        'head': {'rotation': [k(0), k(0.3, 5), k(0.6, -3), k(0.9, 4), k(1.2)]},
+    }
+    wave = {
+        'right_arm': {'rotation': [k(0), k(0.3, 0, 0, 150), k(0.5, 0, 0, 125), k(0.7, 0, 0, 150), k(0.9, 0, 0, 125),
+                                   k(1.1, 0, 0, 150), k(1.6)]},
+        'head': {'rotation': [k(0), k(0.3, -6), k(1.2, -6), k(1.6)]},
+        'body': {'rotation': [k(0), k(0.3, 0, 0, -3), k(1.2, 0, 0, -3), k(1.6)]},
+    }
+    write = {
+        'right_arm': {'rotation': [k(0), k(0.2, 40, -10, 0)] + [k(0.2 + 0.1 * i, 40 + (3 if i % 2 else -3), -10 + (6 if i % 2 else -6), 0)
+                                                               for i in range(1, 11)] + [k(1.6)]},
+        'left_arm': {'rotation': [k(0), k(0.2, 35, 20, 0), k(1.4, 35, 20, 0), k(1.6)]},
+        'head': {'rotation': [k(0), k(0.2, -18), k(1.4, -18), k(1.6)]},
+    }
+    spin = {
+        'right_arm': {'rotation': [k(0), k(0.25, 60, 0, 0), k(0.45, 60, -25, 0), k(0.7, 55, 30, 0, 'linear'), k(1.0, 45, 10, 0), k(1.5)]},
+        'body': {'rotation': [k(0), k(0.45, 0, 10, 0), k(0.7, 0, -12, 0), k(1.5)]},
+        'head': {'rotation': [k(0), k(0.3, -10), k(1.2, -10), k(1.5)]},
+    }
+    lever = {
+        'right_arm': {'rotation': [k(0), k(0.3, 150, 0, 6), k(0.45, 150, 0, 6), k(0.65, 40, 0, 6, 'linear'), k(0.9, 40, 0, 6), k(1.2)]},
+        'body': {'rotation': [k(0), k(0.45, -4), k(0.7, 6), k(1.2)]},
+    }
+    shake = {
+        'right_arm': {'rotation': [k(0), k(0.2, 70, 0, -10)] + [k(0.2 + 0.1 * i, 62 if i % 2 else 82, 0, -10) for i in range(1, 10)]
+                      + [k(1.2, 95, 0, -10), k(1.4, 40, 0, -6, 'linear'), k(1.7)]},
+        'left_arm': {'rotation': [k(0), k(0.2, 70, 0, 10)] + [k(0.2 + 0.1 * i, 62 if i % 2 else 82, 0, 10) for i in range(1, 10)]
+                     + [k(1.2, 95, 0, 10), k(1.4, 40, 0, 6, 'linear'), k(1.7)]},
+        'head': {'rotation': [k(0), k(0.2, -12), k(1.4, -12), k(1.7)]},
+    }
+    CYCLES['npc'] = (0, W)
+    anims = [
+        {'name': 'animation.npc.idle', 'length': 4.0, 'loop': True, 'bones': idle},
+        {'name': 'animation.npc.walk', 'length': W, 'loop': True, 'bones': walk},
+        {'name': 'animation.npc.talk', 'length': 1.2, 'loop': False, 'bones': talk},
+        {'name': 'animation.npc.wave', 'length': 1.6, 'loop': False, 'bones': wave},
+        {'name': 'animation.npc.write', 'length': 1.6, 'loop': False, 'bones': write},
+        {'name': 'animation.npc.spin', 'length': 1.5, 'loop': False, 'bones': spin},
+        {'name': 'animation.npc.lever', 'length': 1.2, 'loop': False, 'bones': lever},
+        {'name': 'animation.npc.shake', 'length': 1.7, 'loop': False, 'bones': shake},
+    ]
+    return anims
+
+
 SPECS = {
     # Эконом: заднее колесо r=6, 3 оборота за 0.65 с ≈ 10.9 блока/с (номинал 0.55 блока/тик).
     'taxi_economy': taxi('taxi_economy', ['horse'],
@@ -171,5 +263,14 @@ if __name__ == '__main__':
     for id_, anims in SPECS.items():
         with open(os.path.join(OUT, id_ + '.anims.json'), 'w', encoding='utf-8') as f:
             json.dump({'id': id_, 'animations': anims}, f, ensure_ascii=False)
+    # NPC: одна и та же анимация для всех; шапка (hat) — дочерняя кость головы, поворачивается вместе с ней.
+    # Кости, которых у NPC нет (cape есть только у вождя), gl_build.js пропускает.
+    shared = npc()
+    for id_ in NPCS:
+        with open(os.path.join(OUT, id_ + '.anims.json'), 'w', encoding='utf-8') as f:
+            json.dump({'id': id_, 'animations': shared, 'reparent': [['hat', 'head']], 'optional': ['cape']},
+                      f, ensure_ascii=False)
+    for id_, anims in SPECS.items():
         dist, length = CYCLES[id_]
         print(f'{id_}: {len(anims)} анимаций, цикл {length} с = {dist} блока')
+    print('npc:', len(shared), 'анимаций для', len(NPCS), 'NPC')

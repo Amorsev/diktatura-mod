@@ -16,6 +16,15 @@ window.glBuild = function (id) {
 	eval(fs.readFileSync(BASE + 'out\\' + id + '.js', 'utf8'));
 	Canvas.updateAll();
 	const spec = JSON.parse(fs.readFileSync(BASE + 'out\\' + id + '.anims.json', 'utf8'));
+	// Перенос костей: [дочерняя, родитель] (например, шапка NPC — в голову).
+	for (const [child, parent] of (spec.reparent || [])) {
+		const c = Group.all.find(x => x.name === child);
+		const p = Group.all.find(x => x.name === parent);
+		if (c && p) {
+			c.addTo(p);
+		}
+	}
+	const optional = spec.optional || [];
 	for (const a of Animation.all.slice()) {
 		a.remove(false);
 	}
@@ -24,6 +33,9 @@ window.glBuild = function (id) {
 		for (const [bone, channels] of Object.entries(a.bones)) {
 			const g = Group.all.find(x => x.name === bone);
 			if (!g) {
+				if (optional.includes(bone)) {
+					continue;
+				}
 				throw new Error(id + ': нет кости ' + bone);
 			}
 			const ba = an.getBoneAnimator(g);

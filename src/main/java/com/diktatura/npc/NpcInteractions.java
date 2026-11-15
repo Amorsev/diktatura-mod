@@ -91,6 +91,9 @@ public final class NpcInteractions {
 
 	/** Открыть окно НПС игроку. Возвращает false, если сущность — не наш НПС. */
 	public static boolean open(ServerPlayerEntity player, Entity npc) {
+		if (npc instanceof NpcEntity n) {
+			n.greetGesture();
+		}
 		String key = keyOf(npc);
 		if (key == null) {
 			return false;

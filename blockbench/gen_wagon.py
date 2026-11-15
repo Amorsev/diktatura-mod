@@ -105,7 +105,41 @@ def wagon():
     return m
 
 
-if __name__ == '__main__':
+# Где в упряжке стоит заключённый (пиксели модели): между оглоблями, впереди кузова.
+PRISONER_Z = -21
+# Куда в текстуре повозки кладём развёртку заключённого (у повозки занято до y = 134).
+PRISONER_V = 136
+
+
+def wagon_with_prisoner():
+    """Повозка вместе с заключённым в упряжке — одна модель GeckoLib (одна текстура), чтобы он бежал анимацией.
+
+    Кости заключённого — p_head (с шапочкой p_hat), p_body, руки и ноги — в кости prisoner (опора у ступней,
+    наклон вперёд); руки чуть вперёд и в стороны — держат оглобли, голова приподнята.
+    """
+    from gen_npcs import prisoner
     w = wagon()
+    pr = prisoner()
+    used = pr.shelf[1] + pr.shelf[2]
+    w.cv.img.paste(pr.cv.img.crop((0, 0, 128, used)), (0, PRISONER_V))
+    z = PRISONER_Z
+    w.group('prisoner', None, (0, 0, z), (-10, 0, 0))
+    rest = {'head': (14, 0, 0), 'right_arm': (6, 0, 7), 'left_arm': (6, 0, -7)}
+    for name, parent, origin, rot in pr.groups:
+        par = 'p_head' if name == 'hat' else 'prisoner'
+        w.group('p_' + name, par, (origin[0], origin[1], origin[2] + z), rest.get(name, rot))
+    for c in pr.cubes:
+        c = dict(c)
+        c['group'] = 'p_' + c['group']
+        c['name'] = 'p_' + c['name']
+        c['from'] = [c['from'][0], c['from'][1], c['from'][2] + z]
+        c['to'] = [c['to'][0], c['to'][1], c['to'][2] + z]
+        c['uv'] = [c['uv'][0], c['uv'][1] + PRISONER_V]
+        w.cubes.append(c)
+    return w
+
+
+if __name__ == '__main__':
+    w = wagon_with_prisoner()
     w.save()
     print(w.id, len(w.cubes), 'кубов, UV до y =', w.shelf[1] + w.shelf[2])
