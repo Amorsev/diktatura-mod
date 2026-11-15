@@ -116,6 +116,18 @@ public class GeoNpcRenderer extends GeoEntityRenderer<NpcEntity> {
 			}
 			m.push();
 			RenderUtil.translateToPivotPoint(m, bone);
+			if (stack.isOf(com.diktatura.item.ModItems.SCEPTER)) {
+				// Скипетр — как жезл: рукоять зажата в кулаке, навершие смотрит вперёд и вверх (под 60° к руке).
+				// Его вид «в руке» для игрока ложится вдоль руки NPC, поэтому рисуем модель без этого вида.
+				m.translate(1.0f / 16.0f, -9.5f / 16.0f, 0f);
+				m.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-60f));
+				m.scale(0.85f, 0.85f, 0.85f);
+				m.translate(0f, 4.0f / 16.0f, 0f);
+				MinecraftClient.getInstance().getItemRenderer().renderItem(e, stack, ModelTransformationMode.NONE,
+					false, m, vcp, e.getWorld(), light, OverlayTexture.DEFAULT_UV, e.getId());
+				m.pop();
+				return;
+			}
 			m.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180f));
 			m.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
 			m.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));

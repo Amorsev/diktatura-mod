@@ -27,7 +27,7 @@ NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_cro
         'employer', 'licensor', 'recipient', 'prisoner']
 ITEMS = ['scepter', 'megaphone', 'slipper', 'law_book']
 # Модели GeckoLib (повозка, кареты такси): python import_models.py --geo <id> …
-GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business', 'goose']
+GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business', 'goose', 'mimic', 'runaway_ore']
 # Модели GeckoLib со своими текстурами в другом месте (у гуся — textures/entity/goose/*.png, их не трогаем).
 OWN_TEXTURES = {'goose'}
 

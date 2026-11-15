@@ -1,5 +1,12 @@
 package com.diktatura.mimic;
 
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import com.diktatura.goose.ModSounds;
 import com.diktatura.network.UiPayloads.AlertKind;
 import com.diktatura.npc.ModEntities;
@@ -45,7 +52,31 @@ import java.util.List;
  * в своё содержимое. Одолели ревизора — всё изъятое и добыча сундука выпадают.
  * По мотивам мимика из мода-референса (MIT, © 2026 Gr1tW4lk); модель и текстура оттуда.
  */
-public class MimicEntity extends HostileEntity {
+public class MimicEntity extends HostileEntity implements GeoEntity {
+	private static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.mimic.sleep");
+	private static final RawAnimation AWAKE = RawAnimation.begin().thenLoop("animation.mimic.awake");
+	private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.mimic.walk");
+	private static final RawAnimation CHOMP = RawAnimation.begin().thenPlay("animation.mimic.chomp");
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+
+	/** GeckoLib: спит сундуком, проснулся — дышит пастью и ходит; укус — поверх любой позы. */
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "body", 4, state -> {
+			if (!isAwake()) {
+				return state.setAndContinue(SLEEP);
+			}
+			return state.setAndContinue(state.isMoving() ? WALK : AWAKE);
+		}));
+		controllers.add(new AnimationController<>(this, "bite", 1,
+			state -> chompTicks > 0 ? state.setAndContinue(CHOMP) : PlayState.STOP));
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
+	}
+
 	private static final TrackedData<Boolean> AWAKE = DataTracker.registerData(MimicEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte STATUS_CHOMP = 102;
 	private final List<ItemStack> loot = new ArrayList<>();

@@ -1,5 +1,11 @@
 package com.diktatura.ore;
 
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import com.diktatura.goose.ModSounds;
 import com.diktatura.network.UiPayloads.AlertKind;
 import com.diktatura.npc.ModEntities;
@@ -45,7 +51,23 @@ import java.util.Optional;
  * Через две минуты, если рядом никого, закапывается обратно («эмигрировала»).
  * По мотивам убегающего блока из мода-референса (MIT, © 2026 Gr1tW4lk).
  */
-public class RunawayOreEntity extends PathAwareEntity {
+public class RunawayOreEntity extends PathAwareEntity implements GeoEntity {
+	private static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.runaway_ore.run");
+	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.runaway_ore.idle");
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+
+	/** GeckoLib: бежит — ножки, подпрыгивает; стоит — всё равно в панике машет ручками. */
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "body", 3,
+			state -> state.setAndContinue(state.isMoving() ? RUN : IDLE)));
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
+	}
+
 	private static final TrackedData<Optional<BlockState>> STATE = DataTracker.registerData(RunawayOreEntity.class,
 		TrackedDataHandlerRegistry.OPTIONAL_BLOCK_STATE);
 

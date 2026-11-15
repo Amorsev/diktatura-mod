@@ -168,6 +168,67 @@ def goose():
     ]
 
 
+def mimic():
+    """Мимик: спит обычным сундуком (ножки, зубы, язык и глаза спрятаны), проснулся — пасть приоткрыта и дышит,
+    ходит на ножках, кусает (chomp — поверх любой позы)."""
+    hidden = {'scale': [k(0, 0, 0, 0, 'linear'), k(1.0, 0, 0, 0, 'linear')]}
+    sleep = {
+        'base': {'position': [k(0, 0, -3, 0, 'linear'), k(1.0, 0, -3, 0, 'linear')]},
+        'lid': {'position': [k(0, 0, -3, 0, 'linear'), k(1.0, 0, -3, 0, 'linear')]},
+    }
+    for b in ('leg_fl', 'leg_fr', 'leg_bl', 'leg_br', 'lower_teeth', 'upper_teeth', 'tongue', 'eyes'):
+        sleep[b] = hidden
+    lid_breath = {'rotation': [k(0, 19), k(1.25, 33), k(2.5, 19)]}
+    tongue = {'rotation': [k(0, 11, 0, 0), k(0.6, 30, 12, 0), k(1.25, -8, -12, 0), k(1.9, 25, 8, 0), k(2.5, 11, 0, 0)]}
+    awake = {'lid': lid_breath, 'tongue': tongue}
+    W = 0.5
+    walk = {
+        'lid': {'rotation': [k(0, 24), k(W / 2, 30), k(W, 24)]},
+        'tongue': {'rotation': [k(0, 20, 8, 0), k(W / 2, 5, -8, 0), k(W, 20, 8, 0)]},
+        'leg_fl': {'rotation': [k(0, 50), k(W / 2, -50), k(W, 50)]},
+        'leg_bl': {'rotation': [k(0, 50), k(W / 2, -50), k(W, 50)]},
+        'leg_fr': {'rotation': [k(0, -50), k(W / 2, 50), k(W, -50)]},
+        'leg_br': {'rotation': [k(0, -50), k(W / 2, 50), k(W, -50)]},
+        'base': {'position': [k(0), k(W / 4, 0, 0.6, 0), k(W / 2), k(3 * W / 4, 0, 0.6, 0), k(W)]},
+    }
+    chomp = {'lid': {'rotation': [k(0, 26), k(0.12, 63), k(0.25, 3), k(0.37, 63), k(0.5, 26)]}}
+    CYCLES['mimic'] = (0, W)
+    return [
+        {'name': 'animation.mimic.sleep', 'length': 1.0, 'loop': True, 'bones': sleep},
+        {'name': 'animation.mimic.awake', 'length': 2.5, 'loop': True, 'bones': awake},
+        {'name': 'animation.mimic.walk', 'length': W, 'loop': True, 'bones': walk},
+        {'name': 'animation.mimic.chomp', 'length': 0.5, 'loop': False, 'bones': chomp},
+    ]
+
+
+def runaway_ore():
+    """Сбежавшая руда: в панике машет ручками; бежит — ножки, подпрыгивает, лицо трясётся."""
+    R = 0.36
+    flail_l = [k(0, 0, 0, -52), k(R / 4, 0, 0, -86), k(R / 2, 0, 0, -52), k(3 * R / 4, 0, 0, -17), k(R, 0, 0, -52)]
+    flail_r = [[f[0], 0, 0, -f[3], f[4]] for f in flail_l]
+    run = {
+        'left_leg': {'rotation': [k(0, 70), k(R / 2, -70), k(R, 70)]},
+        'right_leg': {'rotation': [k(0, -70), k(R / 2, 70), k(R, -70)]},
+        'body': {'position': [k(0), k(R / 4, 0, 1.8, 0), k(R / 2), k(3 * R / 4, 0, 1.8, 0), k(R)],
+                 'rotation': [k(0, 0, 0, 3.5), k(R / 2, 0, 0, -3.5), k(R, 0, 0, 3.5)]},
+        'left_arm': {'rotation': flail_l},
+        'right_arm': {'rotation': flail_r},
+        'face': {'position': [k(0, -0.3, 0, 0), k(R / 2, 0.3, 0, 0), k(R, -0.3, 0, 0)]},
+    }
+    I = 0.72
+    idle = {
+        'left_arm': {'rotation': [[f[0] * 2, f[1], f[2], f[3], f[4]] for f in flail_l]},
+        'right_arm': {'rotation': [[f[0] * 2, f[1], f[2], f[3], f[4]] for f in flail_r]},
+        'body': {'rotation': [k(0, 0, 0, 3.4), k(I / 2, 0, 0, -3.4), k(I, 0, 0, 3.4)]},
+        'face': {'position': [k(0, -0.3, 0, 0), k(I / 2, 0.3, 0, 0), k(I, -0.3, 0, 0)]},
+    }
+    CYCLES['runaway_ore'] = (0, R)
+    return [
+        {'name': 'animation.runaway_ore.run', 'length': R, 'loop': True, 'bones': run},
+        {'name': 'animation.runaway_ore.idle', 'length': I, 'loop': True, 'bones': idle},
+    ]
+
+
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
         'employer', 'licensor', 'recipient']
 
@@ -256,6 +317,8 @@ SPECS = {
                            ('wheel_front_left', 5, 7), ('wheel_front_right', 5, 7)], 0.49),
     'wagon': wagon(),
     'goose': goose(),
+    'mimic': mimic(),
+    'runaway_ore': runaway_ore(),
 }
 
 if __name__ == '__main__':

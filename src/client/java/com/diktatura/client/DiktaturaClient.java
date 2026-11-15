@@ -49,9 +49,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.CORRUPTED_GOOSE, ctx -> new com.diktatura.client.goose.GooseRenderer<>(ctx, "corrupted_goose"));
 		EntityRendererRegistry.register(ModEntities.CURFEW_DOUBLE, com.diktatura.client.control.CurfewDoubleRenderer::new);
 		EntityRendererRegistry.register(ModEntities.SNIPER, com.diktatura.client.control.SniperRenderer::new);
-		com.diktatura.client.ore.RunawayOreRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.RUNAWAY_ORE, com.diktatura.client.ore.RunawayOreRenderer::new);
-		com.diktatura.client.mimic.MimicRenderer.registerLayer();
 		EntityRendererRegistry.register(ModEntities.MIMIC, com.diktatura.client.mimic.MimicRenderer::new);
 		EntityRendererRegistry.register(ModEntities.DICTATOR_BOSS, com.diktatura.client.control.DictatorBossRenderer::new);
 		EntityRendererRegistry.register(ModEntities.WAGON, com.diktatura.client.transport.WagonRenderer::new);

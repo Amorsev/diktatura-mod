@@ -1,0 +1,65 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.runaway_ore",
+				"texture_width": 64,
+				"texture_height": 32,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0, 6, 0]
+				},
+				{
+					"name": "left_arm",
+					"parent": "body",
+					"pivot": [6, 12, 0],
+					"cubes": [
+						{"origin": [6, 11, -1], "size": [5, 2, 2], "uv": [0, 7]},
+						{"origin": [11, 10.5, -1.5], "size": [2, 3, 3], "uv": [44, 0]}
+					]
+				},
+				{
+					"name": "right_arm",
+					"parent": "body",
+					"pivot": [-6, 12, 0],
+					"cubes": [
+						{"origin": [-11, 11, -1], "size": [5, 2, 2], "uv": [14, 7]},
+						{"origin": [-13, 10.5, -1.5], "size": [2, 3, 3], "uv": [54, 0]}
+					]
+				},
+				{
+					"name": "face",
+					"parent": "body",
+					"pivot": [0, 13, -6],
+					"cubes": [
+						{"origin": [1, 12.5, -7], "size": [3, 3, 1], "uv": [28, 7]},
+						{"origin": [-4, 12.5, -7], "size": [3, 3, 1], "uv": [36, 7]},
+						{"origin": [-2, 8, -7], "size": [4, 3, 1], "uv": [44, 7]}
+					]
+				},
+				{
+					"name": "left_leg",
+					"pivot": [3, 6, 0],
+					"cubes": [
+						{"origin": [2, 1, -1], "size": [2, 5, 2], "uv": [0, 0]},
+						{"origin": [1.5, 0, -3], "size": [3, 2, 4], "uv": [16, 0]}
+					]
+				},
+				{
+					"name": "right_leg",
+					"pivot": [-3, 6, 0],
+					"cubes": [
+						{"origin": [-4, 1, -1], "size": [2, 5, 2], "uv": [8, 0]},
+						{"origin": [-4.5, 0, -3], "size": [3, 2, 4], "uv": [30, 0]}
+					]
+				}
+			]
+		}
+	]
+}
