@@ -11,6 +11,7 @@ base {
 }
 
 repositories {
+	mavenCentral()
 	maven { url = "https://maven.terraformersmc.com/releases/" }
 	// GeckoLib — анимированные модели (обязательная зависимость мода).
 	maven { url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
@@ -36,6 +37,17 @@ dependencies {
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	// GeckoLib — обязателен: без него мод не запустится (fabric.mod.json → depends).
 	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+	// Юнит-тесты логики покера (src/test): gradle test, запускаются и при gradle build.
+	testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "failed"
+		exceptionFormat "full"
+	}
 }
 
 processResources {

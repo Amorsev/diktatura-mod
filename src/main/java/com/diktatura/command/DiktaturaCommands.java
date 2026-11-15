@@ -243,6 +243,12 @@ public final class DiktaturaCommands {
 						c.getSource().sendFeedback(() -> Text.translatable("diktatura.cmd.casino.rebuilt"), true);
 						return 1;
 					})))
+				.then(literal("poker").requires(s -> s.hasPermissionLevel(2))
+					.then(literal("sim")
+						.executes(c -> pokerSim(c.getSource(), 1000))
+						.then(argument("hands", com.mojang.brigadier.arguments.IntegerArgumentType.integer(10, 20000))
+							.executes(c -> pokerSim(c.getSource(),
+								com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "hands"))))))
 				.then(literal("office")
 					.executes(c -> {
 						MinecraftServer server = c.getSource().getServer();
@@ -586,6 +592,14 @@ public final class DiktaturaCommands {
 
 	private static int bureauWeather(CommandContext<ServerCommandSource> c, com.diktatura.bureau.Weather.Kind kind) {
 		com.diktatura.bureau.Weather.start(c.getSource().getServer(), kind);
+		return 1;
+	}
+
+	/** Прогон раздач покерных ботов: фишки не должны теряться и появляться. */
+	private static int pokerSim(net.minecraft.server.command.ServerCommandSource src, int hands) {
+		src.sendFeedback(() -> Text.translatable("diktatura.cmd.poker.sim.start", hands), false);
+		com.diktatura.casino.poker.PokerService.simulate(src.getServer(), hands,
+			lines -> lines.forEach(l -> src.sendFeedback(() -> l, false)));
 		return 1;
 	}
 }
