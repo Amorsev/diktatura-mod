@@ -57,7 +57,7 @@ public final class Checks {
 			case "block_place" -> new BlockPlace(Matchers.blocks(o), Json.i(o, "max_build_height", -1),
 				Json.b(o, "state_structures", false));
 			case "chat" -> new Chat(Json.list(o, "words"), Json.s(o, "regex", ""), Json.d(o, "caps_ratio", -1),
-				Json.i(o, "min_length", 1), Json.b(o, "any", false), Json.s(o, "require_regex", ""));
+				Json.i(o, "min_length", 1), Json.b(o, "any", false), Json.s(o, "require_regex", ""), groups(o, "all_of"));
 			case "kill_entity" -> new EntityEvent(LawEvent.KILL, Matchers.entities(o));
 			case "attack_entity" -> new EntityEvent(LawEvent.ATTACK, Matchers.entities(o));
 			case "use_item" -> new UseItem(Matchers.items(o));
@@ -424,7 +424,23 @@ public final class Checks {
 		}
 	}
 
+	/** "all_of": [[узоры…], [узоры…]] — список групп регулярных выражений. */
+	private static List<List<String>> groups(com.google.gson.JsonObject o, String key) {
+		List<List<String>> out = new java.util.ArrayList<>();
+		if (o.has(key)) {
+			for (com.google.gson.JsonElement g : o.getAsJsonArray(key)) {
+				List<String> group = new java.util.ArrayList<>();
+				for (com.google.gson.JsonElement e : g.getAsJsonArray()) {
+					group.add(e.getAsString());
+				}
+				out.add(group);
+			}
+		}
+		return out;
+	}
+
 	static final class Chat implements LawCheck {
+		private static final int FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS;
 		private final List<String> words;
 		private final Pattern regex;
 		private final double capsRatio;
@@ -432,20 +448,68 @@ public final class Checks {
 		private final boolean any;
 		/** Обязательный узор: сообщение без него — нарушение («обязательная улыбка»). */
 		private final Pattern required;
+		/** Сочетание: в сообщении есть совпадение из каждой группы (например, «вождь» + оскорбление). */
+		private final List<Pattern> allOf;
 
-		Chat(List<String> words, String regex, double capsRatio, int minLength, boolean any, String requireRegex) {
-			this.required = requireRegex.isEmpty() ? null
-				: Pattern.compile(requireRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-			this.words = words.stream().map(w -> w.toLowerCase(Locale.ROOT)).toList();
-			this.regex = regex.isEmpty() ? null : Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		Chat(List<String> words, String regex, double capsRatio, int minLength, boolean any, String requireRegex,
+		     List<List<String>> allOf) {
+			this.required = requireRegex.isEmpty() ? null : Pattern.compile(requireRegex, FLAGS);
+			this.words = words.stream().map(Chat::normalize).toList();
+			this.regex = regex.isEmpty() ? null : Pattern.compile(regex, FLAGS);
 			this.capsRatio = capsRatio;
 			this.minLength = minLength;
 			this.any = any;
+			this.allOf = allOf.stream().map(g -> Pattern.compile("(?:" + String.join(")|(?:", g) + ")", FLAGS)).toList();
 		}
 
 		@Override
 		public LawEvent event() {
 			return LawEvent.CHAT;
+		}
+
+		/**
+		 * Для поиска слов: нижний регистр, «ё» → «е», латинские буквы-двойники в русских словах → кириллица
+		 * («вoждь» с латинской o), лишние пробелы схлопнуты.
+		 */
+		static String normalize(String msg) {
+			String lower = msg.toLowerCase(Locale.ROOT).replace('ё', 'е');
+			StringBuilder out = new StringBuilder(lower.length());
+			String[] tokens = lower.split("\\s+");
+			for (String t : tokens) {
+				if (t.isEmpty()) {
+					continue;
+				}
+				boolean cyr = false;
+				for (int i = 0; i < t.length(); i++) {
+					Character.UnicodeBlock b = Character.UnicodeBlock.of(t.charAt(i));
+					if (b == Character.UnicodeBlock.CYRILLIC) {
+						cyr = true;
+						break;
+					}
+				}
+				if (cyr) {
+					t = latinToCyrillic(t);
+				}
+				if (out.length() > 0) {
+					out.append(' ');
+				}
+				out.append(t);
+			}
+			return out.toString();
+		}
+
+		private static final String LATIN = "aeopcxykmtbh3";
+		private static final String CYRILLIC = "аеорсхукмтвнз";
+
+		private static String latinToCyrillic(String t) {
+			char[] c = t.toCharArray();
+			for (int i = 0; i < c.length; i++) {
+				int k = LATIN.indexOf(c[i]);
+				if (k >= 0) {
+					c[i] = CYRILLIC.charAt(k);
+				}
+			}
+			return new String(c);
 		}
 
 		@Override
@@ -460,9 +524,21 @@ public final class Checks {
 			if (required != null && !required.matcher(msg).find()) {
 				return true;
 			}
-			String lower = msg.toLowerCase(Locale.ROOT);
+			String norm = normalize(msg);
 			for (String w : words) {
-				if (lower.contains(w)) {
+				if (norm.contains(w)) {
+					return true;
+				}
+			}
+			if (!allOf.isEmpty()) {
+				boolean all = true;
+				for (Pattern g : allOf) {
+					if (!g.matcher(norm).find()) {
+						all = false;
+						break;
+					}
+				}
+				if (all) {
 					return true;
 				}
 			}

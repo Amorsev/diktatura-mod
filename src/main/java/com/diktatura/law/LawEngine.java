@@ -136,20 +136,12 @@ public final class LawEngine {
 			}
 		});
 
-		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
-			MinecraftServer server = sender.getServer();
-			if (server == null) {
-				return true;
-			}
-			PlayerRecord rec = DiktaturaState.get(server).player(sender);
-			if (rec.timeoutTicks > 0) {
-				sender.sendMessage(Text.translatable("diktatura.timeout.muted", rec.timeoutTicks / 20)
-					.formatted(Formatting.RED), false);
-				return false;
-			}
-			LawContext c = new LawContext(sender, LawEvent.CHAT);
-			c.message = message.getContent().getString();
-			return !fire(c);
+		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->
+			allowChat(sender, message.getContent().getString()));
+		// /me и /say — тоже чат: законы о речи действуют и на них.
+		ServerMessageEvents.ALLOW_COMMAND_MESSAGE.register((message, source, params) -> {
+			ServerPlayerEntity sender = source.getPlayer();
+			return sender == null || allowChat(sender, message.getContent().getString());
 		});
 
 		EntitySleepEvents.START_SLEEPING.register((entity, pos) -> {
@@ -170,6 +162,23 @@ public final class LawEngine {
 			MinecraftServer server = sp.getServer();
 			return server == null || !DiktaturaState.get(server).player(sp).stage.isArrested();
 		});
+	}
+
+	/** Сообщение в чат: таймаут и законы о речи. false — сообщение не отправляется. */
+	private static boolean allowChat(ServerPlayerEntity sender, String text) {
+		MinecraftServer server = sender.getServer();
+		if (server == null) {
+			return true;
+		}
+		PlayerRecord rec = DiktaturaState.get(server).player(sender);
+		if (rec.timeoutTicks > 0) {
+			sender.sendMessage(Text.translatable("diktatura.timeout.muted", rec.timeoutTicks / 20)
+				.formatted(Formatting.RED), false);
+			return false;
+		}
+		LawContext c = new LawContext(sender, LawEvent.CHAT);
+		c.message = text;
+		return !fire(c);
 	}
 
 	/** Действуют ли законы на игрока прямо сейчас. */
