@@ -39,7 +39,7 @@ jobs:
           gh api "repos/${GITHUB_REPOSITORY}/contents/CHANGELOG.md?ref=main" -q .content | base64 -d > CHANGELOG.main.md || true
           awk -v v="$VERSION" '/^## \[/ { p = index($0, "[" v "]") > 0; next } p { print }' CHANGELOG.main.md > notes.md || true
           if [ ! -s notes.md ]; then echo "Версия $VERSION." > notes.md; fi
-          printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужен Fabric API.\n' >> notes.md
+          printf '\nMinecraft 1.21.1, Fabric Loader 0.16+, нужны Fabric API и GeckoLib 4.7.7+.\n' >> notes.md
       - name: Publish release
         run: |
           VERSION="${TAG#v}"
