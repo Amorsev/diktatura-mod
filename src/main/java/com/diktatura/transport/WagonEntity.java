@@ -23,6 +23,8 @@ public class WagonEntity extends Entity {
 	/** Пройденный путь в блоках (только на клиенте, для анимации). */
 	public float distance;
 	public float prevDistance;
+	/** Клиент: направление уже взято из движения (дальше поворот с сервера не нужен). */
+	private boolean headingKnown;
 
 	public WagonEntity(EntityType<? extends WagonEntity> type, World world) {
 		super(type, world);
@@ -83,14 +85,26 @@ public class WagonEntity extends Entity {
 				double nx = getX() + (lerpX - getX()) / lerpSteps;
 				double ny = getY() + (lerpY - getY()) / lerpSteps;
 				double nz = getZ() + (lerpZ - getZ()) / lerpSteps;
-				setYaw(getYaw() + MathHelper.wrapDegrees(lerpYaw - getYaw()) / lerpSteps);
+				if (!headingKnown) {
+					// Пока не поехали — поворот с сервера (при появлении).
+					setYaw(getYaw() + MathHelper.wrapDegrees(lerpYaw - getYaw()) / lerpSteps);
+				}
 				lerpSteps--;
 				setPosition(nx, ny, nz);
 			}
 			prevDistance = distance;
 			double dx = getX() - ox;
 			double dz = getZ() - oz;
-			distance += (float) Math.sqrt(dx * dx + dz * dz);
+			double step = Math.sqrt(dx * dx + dz * dz);
+			distance += (float) step;
+			// Морда — по направлению движения. Поворот считаем на клиенте по пройденному пути: с сервера
+			// он для такой сущности не доходит, и повозка ехала «боком» в ту сторону, куда смотрела при появлении.
+			if (step > 0.02) {
+				float heading = (float) (MathHelper.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0f;
+				float yaw = headingKnown ? getYaw() + MathHelper.wrapDegrees(heading - getYaw()) * 0.35f : heading;
+				headingKnown = true;
+				setYaw(yaw);
+			}
 		} else if (age > 40 && !hasPassengers()) {
 			discard();
 		}

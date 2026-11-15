@@ -111,21 +111,27 @@ public final class TransportSystem {
 
 		Journey j = new Journey(player.getUuid(), dim, target, onArrive, hop, taxi, breakdown,
 			player.getWorld().getRegistryKey(), player.getPos());
-		spawnCart(j, player.getServerWorld(), player.getPos());
-		if (sameDim && j.cart != null) {
-			j.cart.setYaw((float) (MathHelper.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0f);
-		}
+		spawnCart(j, player.getServerWorld(), player.getPos(), sameDim ? yawTo(dx, dz) : player.getYaw());
 		player.startRiding(j.cart, true);
 		journeys.put(player.getUuid(), j);
 	}
 
-	private static void spawnCart(Journey j, ServerWorld world, Vec3d pos) {
+	/** Поворот «мордой» по направлению (dx, dz): 0 — на юг (+Z), как у мобов. */
+	private static float yawTo(double dx, double dz) {
+		return (float) (MathHelper.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0f;
+	}
+
+	/**
+	 * Поворот задаётся до появления в мире: пакет о появлении уходит игрокам сразу, и с ним
+	 * клиент получает начальное направление. Дальше клиент поворачивает повозку по ходу движения.
+	 */
+	private static void spawnCart(Journey j, ServerWorld world, Vec3d pos, float yaw) {
 		WagonEntity cart = j.taxi != null ? com.diktatura.npc.ModEntities.TAXI.create(world)
 			: com.diktatura.npc.ModEntities.WAGON.create(world);
 		if (cart == null) {
 			return;
 		}
-		cart.refreshPositionAndAngles(pos.x, pos.y, pos.z, 0.0f, 0.0f);
+		cart.refreshPositionAndAngles(pos.x, pos.y, pos.z, yaw, 0.0f);
 		cart.addCommandTag(WAGON_TAG);
 		if (cart instanceof TaxiEntity taxi) {
 			taxi.setTaxiClass(j.taxi);
@@ -195,7 +201,7 @@ public final class TransportSystem {
 	private static void step(MinecraftServer server, Journey j, ServerPlayerEntity p) {
 		j.ticks++;
 		if (j.cart == null || j.cart.isRemoved()) {
-			spawnCart(j, p.getServerWorld(), p.getPos());
+			spawnCart(j, p.getServerWorld(), p.getPos(), yawTo(j.target.x - p.getX(), j.target.z - p.getZ()));
 			if (j.cart == null) {
 				arrive(server, j, p);
 				return;
@@ -252,7 +258,7 @@ public final class TransportSystem {
 		if (hd > 1.0E-4) {
 			nx += dx / hd * stepLen;
 			nz += dz / hd * stepLen;
-			yaw = (float) (MathHelper.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0f;
+			yaw = yawTo(dx, dz);
 		}
 		move(j.cart, new Vec3d(nx, ny, nz), yaw);
 		if (j.ticks % 2 == 0) {
@@ -282,9 +288,8 @@ public final class TransportSystem {
 		p.stopRiding();
 		discard(j);
 		Teleports.to(p, target, start.x, start.y, start.z, p.getYaw(), p.getPitch());
-		spawnCart(j, target, start);
+		spawnCart(j, target, start, yawTo(dir.x, dir.z));
 		if (j.cart != null) {
-			j.cart.setYaw((float) (MathHelper.atan2(dir.z, dir.x) * (180.0 / Math.PI)) - 90.0f);
 			p.startRiding(j.cart, true);
 		}
 		j.hopped = true;
