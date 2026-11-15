@@ -1199,5 +1199,6 @@
   "diktatura.poker.no.rebuy": "You can't keep more than %s chips at the table.",
   "diktatura.poker.no.broke": "Buy chips first.",
   "diktatura.poker.no.turn": "It's not your turn.",
-  "diktatura.poker.no.client": "Poker requires the Diktatura mod on the client."
+  "diktatura.poker.no.client": "Poker requires the Diktatura mod on the client.",
+  "entity.diktatura.casino_prop": "State Casino Table"
 }

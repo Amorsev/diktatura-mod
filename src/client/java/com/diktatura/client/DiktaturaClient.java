@@ -54,6 +54,7 @@ public class DiktaturaClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.WAGON, com.diktatura.client.transport.WagonRenderer::new);
 		EntityRendererRegistry.register(ModEntities.TAXI, com.diktatura.client.transport.TaxiRenderer::new);
 		EntityRendererRegistry.register(ModEntities.POKER_TABLE, com.diktatura.client.poker.PokerTableRenderer::new);
+		EntityRendererRegistry.register(ModEntities.CASINO_PROP, com.diktatura.client.casino.CasinoPropRenderer::new);
 		// Дракон госохраны: своя модель поверх ванильной (обычные драконы не меняются).
 		EntityRendererRegistry.register(net.minecraft.entity.EntityType.ENDER_DRAGON, com.diktatura.client.dragon.GuardDragonRenderer::new);
 		net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap.INSTANCE.putBlock(

@@ -269,10 +269,184 @@ def cards_atlas():
     return img
 
 
+# ---------------------------------------------------------------- рулетка, автомат, кости
+
+ROUL_RED = hexc('#B3202A')
+ROUL_BLACK = hexc('#1E1E22')
+ROUL_GREEN = hexc('#2E8B3A')
+SEGMENTS = 16
+
+
+def roulette_wheel():
+    """Колесо рулетки (полный масштаб, лежит на столе): чаша-обод, 16 лунок (зеро, красные нечётные, чёрные чётные),
+    золотая ступица и шарик. Кости: wheel (крутится, в ней лунки seg_k), ball_orbit → ball (бежит по кругу)."""
+    m = Model('roulette_wheel', 3636)
+    m.group('base', None, (0, 0, 0))
+    m.cube('base', 'plate', (-11, 0, -11), (11, 1, 11), wood)
+    for k in range(SEGMENTS):
+        g = m.group(f'rim{k}', 'base', (0, 0, 0), (0, k * 360 / SEGMENTS, 0))
+        m.cube(g, f'rim{k}_c', (-2.5, 1, -12), (2.5, 4, -10), wood)
+    m.group('wheel', None, (0, 0, 0))
+    m.cube('wheel', 'disc', (-6, 0.5, -6), (6, 1.5, 6), solid(WOOD_D, 3))
+    for k in range(SEGMENTS):
+        col = ROUL_GREEN if k == 0 else ROUL_RED if k % 2 == 1 else ROUL_BLACK
+        g = m.group(f'seg{k}', 'wheel', (0, 0, 0), (0, k * 360 / SEGMENTS, 0))
+        y0 = 1.0 + (0.02 if k % 2 else 0.0)
+
+        def pocket(f, col=col):
+            for n in f:
+                f[n].fill(col, 4)
+            f['up'].row(0, GOLD, 1)
+        m.cube(g, f'seg{k}_c', (-1.5, y0, -10), (1.5, y0 + 1, -6), pocket)
+    m.cube('wheel', 'hub', (-2, 1, -2), (2, 4, 2), solid(GOLD, 3, top=shade(GOLD, 1.15)))
+    m.cube('wheel', 'spindle', (-0.5, 4, -0.5), (0.5, 6, 0.5), solid(GOLD_D, 2))
+    m.group('ball_orbit', None, (0, 0, 0))
+    m.group('ball', 'ball_orbit', (0, 2, -8.5))
+    m.cube('ball', 'ball_c', (-0.5, 2, -9), (0.5, 3, -8), solid((245, 245, 240), 2))
+    return m
+
+
+# Символы барабанов (10x8, как в Casino.SYMBOL_ITEMS): звезда, корона, колос, трактор, печать, усы.
+SYMBOL_ART = [
+    (['....##....', '....##....', '##########', '.########.', '..######..', '.###..###.', '.##....##.', '..........'],
+     {'#': GOLD}),
+    (['.#..##..#.', '.#.####.#.', '.########.', '.#r##r##r.', '.########.', '.########.', '..........', '..........'],
+     {'#': GOLD, 'r': ROUL_RED}),
+    (['....#.....', '...###....', '..#.#.#...', '...###....', '..#.#.#...', '...###....', '....#.....', '....#.....'],
+     {'#': hexc('#D8B54A')}),
+    (['..####....', '..#..#....', '.######.r.', '.#######r.', '.########.', '.oo..oooo.', 'oooo.oooo.', '.oo...oo..'],
+     {'#': ROUL_RED, 'r': (60, 60, 60), 'o': (30, 30, 34)}),
+    (['...####...', '..#....#..', '.#.####.#.', '.#.#..#.#.', '.#.####.#.', '..#....#..', '...####...', '..........'],
+     {'#': ROUL_RED}),
+    (['..........', '..........', '.##....##.', '####..####', '##########', '.###..###.', '..........', '..........'],
+     {'#': (30, 26, 24)}),
+]
+REEL_X = (-13, 0, 13)
+REEL_Y = 29
+REEL_Z = 2
+PLATE_W = 10
+PLATE_H = 8
+
+
+def plate_painter(sym):
+    art, pal = SYMBOL_ART[sym]
+
+    def paint(f):
+        for n in f:
+            f[n].fill((240, 236, 222), 2)
+        fr = f['north']
+        for y, row in enumerate(art):
+            for x, ch in enumerate(row):
+                if ch in pal:
+                    fr.set(x, y, pal[ch], 3)
+    return paint
+
+
+def slot_machine():
+    """Автомат «Пятилетка» (полный масштаб): тумба, рама с тремя барабанами по 6 символов, табло со звездой,
+    лампа (lamp_on/lamp_off) и рычаг (lever) слева. Барабан reel_i: пластина plate_i_k повёрнута на -k*60° по X,
+    поэтому поворот барабана на +k*60° (Blockbench) выводит символ k вперёд."""
+    m = Model('slot_machine', 1955, height=256)
+    cab = hexc('#7A1020')
+    m.group('body', None, (0, 0, 0))
+
+    def cabinet(f):
+        for n in f:
+            f[n].fill(cab, 5)
+            f[n].row(0, GOLD, 2)
+        fr = f['north']
+        for x in range(fr.w):
+            fr.set(x, fr.h - 2, GOLD_D, 2)
+        for y in range(4, 12):
+            for x in range(18, 30):
+                fr.set(x, y, shade(cab, 0.7), 3)
+    m.cube('body', 'base', (-24, 0, -8), (24, 18, 8), cabinet)
+    frame = solid(shade(cab, 0.85), 4, top=GOLD)
+    m.cube('body', 'back', (-24, 18, 9), (24, 40, 11), solid((20, 18, 22), 3))
+    m.cube('body', 'pillar_l', (-24, 18, -6), (-21, 40, 9), frame)
+    m.cube('body', 'pillar_r', (21, 18, -6), (24, 40, 9), frame)
+    m.cube('body', 'beam_bottom', (-21, 18, -6), (21, 21, 9), solid(GOLD_D, 3))
+    m.cube('body', 'beam_top', (-21, 37, -6), (21, 40, 9), solid(GOLD_D, 3))
+    for i in (0, 1):
+        m.cube('body', f'divider{i}', (-7 + 13 * i, 21, -5), (-6 + 13 * i, 37, 8), solid((40, 36, 40), 3))
+
+    def sign(f):
+        for n in f:
+            f[n].fill(ROUL_RED, 4)
+        fr = f['north']
+        fr.border(GOLD)
+        star = ['...#...', '..###..', '#######', '.#####.', '.##.##.']
+        for y, row in enumerate(star):
+            for x, ch in enumerate(row):
+                if ch == '#':
+                    fr.set(fr.w // 2 - 3 + x, 2 + y, GOLD, 2)
+        for x in range(3, fr.w - 3):
+            if x % 3 != 0:
+                fr.set(x, fr.h - 2, GOLD, 2)
+    m.cube('body', 'sign', (-20, 40, -2), (20, 50, 6), sign)
+    m.group('lamp_off', 'body', (0, 50, 2))
+    m.cube('lamp_off', 'lamp_off_c', (-2, 50, 0), (2, 54, 4), solid((90, 70, 30), 3))
+    m.group('lamp_on', 'body', (0, 50, 2))
+    m.cube('lamp_on', 'lamp_on_c', (-2, 50, 0), (2, 54, 4), solid((255, 220, 90), 2), inflate=0.1)
+    # Рычаг слева (если смотреть на автомат спереди — справа от игрока).
+    m.group('lever', 'body', (-25, 24, 2))
+    m.cube('lever', 'lever_arm', (-26, 24, 1.5), (-25, 36, 2.5), solid((170, 170, 176), 3))
+    m.cube('lever', 'lever_knob', (-27, 36, 0.5), (-24, 39, 3.5), solid(ROUL_RED, 3, top=shade(ROUL_RED, 1.2)))
+    m.cube('body', 'lever_base', (-26, 22, 0), (-24, 26, 4), solid(GOLD_D, 2))
+    for i, rx in enumerate(REEL_X):
+        reel = m.group(f'reel{i}', None, (rx, REEL_Y, REEL_Z))
+        apothem = 6.93
+        for k in range(6):
+            g = m.group(f'plate{i}_{k}', reel, (rx, REEL_Y, REEL_Z), (-k * 60, 0, 0))
+            z0 = REEL_Z - apothem - 1
+            m.cube(g, f'plate{i}_{k}_c', (rx - PLATE_W / 2, REEL_Y - PLATE_H / 2, z0),
+                   (rx + PLATE_W / 2, REEL_Y + PLATE_H / 2, z0 + 1), plate_painter(k))
+    return m
+
+
+PIPS = {
+    1: [(2, 2)], 2: [(0, 0), (4, 4)], 3: [(0, 0), (2, 2), (4, 4)], 4: [(0, 0), (4, 0), (0, 4), (4, 4)],
+    5: [(0, 0), (4, 0), (2, 2), (0, 4), (4, 4)], 6: [(0, 0), (4, 0), (0, 2), (4, 2), (0, 4), (4, 4)],
+}
+DIE_SPOTS = [(-17.6, -2.4), (-8, 2.4), (9.6, -2.4), (19.2, 2.4)]
+
+
+def die_painter(value, body, pip):
+    sides = [v for v in (2, 3, 4, 5, 1, 6) if v not in (value, 7 - value)]
+
+    def face(fc, v):
+        fc.fill(body, 2)
+        for x, y in PIPS[v]:
+            fc.set(x, y, pip, 1)
+
+    def paint(f):
+        face(f['up'], value)
+        face(f['down'], 7 - value)
+        for n, v in zip(('north', 'east', 'south', 'west'), sides):
+            face(f[n], v)
+    return paint
+
+
+def dice_set():
+    """Четыре кости на столе (белые — игрока, красные — дома). У каждой кости die_i шесть вариантов die_i_v
+    (сверху — очко v); в игре виден один — выпавшее очко. Бросок — анимация animation.dice.throw (из руки крупье)."""
+    m = Model('dice_set', 1066, height=256)
+    m.group('dice', None, (0, 0, 0))
+    for i, (x, z) in enumerate(DIE_SPOTS):
+        body = (240, 238, 230) if i < 2 else ROUL_RED
+        pip = (20, 20, 24) if i < 2 else (245, 245, 240)
+        g = m.group(f'die{i}', 'dice', (x, 2.5, z))
+        for v in range(1, 7):
+            gv = m.group(f'die{i}_{v}', g, (x, 2.5, z))
+            m.cube(gv, f'die{i}_{v}_c', (x - 2.5, 0, z - 2.5), (x + 2.5, 5, z + 2.5), die_painter(v, body, pip))
+    return m
+
+
 if __name__ == '__main__':
-    m = poker_table()
-    m.save()
-    print(m.id, len(m.cubes), 'кубов, UV до y =', m.shelf[1] + m.shelf[2])
+    for fn in (poker_table, roulette_wheel, slot_machine, dice_set):
+        m = fn()
+        m.save()
+        print(m.id, len(m.cubes), 'кубов, UV до y =', m.shelf[1] + m.shelf[2])
     os.makedirs(OUT, exist_ok=True)
     cards_atlas().save(os.path.join(OUT, 'cards.png'))
     print('cards.png')

@@ -21,7 +21,7 @@ import com.diktatura.ui.Hud;
 import com.diktatura.ui.Voice;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.LeverBlock;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.item.Item;
@@ -171,6 +171,7 @@ public final class Casino {
 			for (Table t : Table.values()) {
 				NpcPosts.ensure(server, t.key, t.npcId, o.add(t.post()), t.yaw);
 			}
+			ensureProps(w, o);
 			NpcEntity dealer = NpcPosts.ensure(server, POKER_KEY, "diktatura:poker_dealer", o.add(CasinoBuilding.POKER_DEALER), 0.0f);
 			double[] c = CasinoBuilding.POKER_TABLE;
 			com.diktatura.casino.poker.PokerGame.ensure(w, new net.minecraft.util.math.Vec3d(o.getX() + c[0], o.getY() + c[1],
@@ -386,7 +387,7 @@ public final class Casino {
 		}
 		Vec3d at = switch (table) {
 			case ROULETTE -> new Vec3d(o.getX() + CasinoBuilding.WHEEL[0], o.getY() + 3.4, o.getZ() + CasinoBuilding.WHEEL[2]);
-			case SLOTS -> new Vec3d(o.getX() + 4.5, o.getY() + 4.6, o.getZ() + 2.4);
+			case SLOTS -> new Vec3d(o.getX() + 4.5, o.getY() + 4.75, o.getZ() + 2.3);
 			case DICE -> new Vec3d(o.getX() + 5.0, o.getY() + 3.2, o.getZ() + 8.5);
 		};
 		Text label = Text.empty().append(out.shown()).append("\n")
@@ -417,25 +418,80 @@ public final class Casino {
 		}
 	}
 
-	/** Колесо из 16 секторов (зелёный — зеро, дальше красный/чёрный) и шарик, бегущий навстречу. */
+	/** Стол-модель (колесо, автомат, кости) по виду игры; null — ещё не поставлен. */
+	private static CasinoPropEntity prop(ServerWorld w, CasinoPropEntity.Kind kind) {
+		UUID id = PROP_IDS.get(kind);
+		Entity e = id == null ? null : w.getEntity(id);
+		return e instanceof CasinoPropEntity c && !c.isRemoved() ? c : null;
+	}
+
+	private static final Map<CasinoPropEntity.Kind, UUID> PROP_IDS = new EnumMap<>(CasinoPropEntity.Kind.class);
+
+	/** Где стоят столы-модели (от угла казино) и куда смотрят. */
+	private static double[] propPlace(CasinoPropEntity.Kind kind) {
+		return switch (kind) {
+			case ROULETTE -> new double[]{CasinoBuilding.WHEEL[0], CasinoBuilding.WHEEL[1], CasinoBuilding.WHEEL[2], 0};
+			case SLOTS -> new double[]{CasinoBuilding.SLOTS[0], CasinoBuilding.SLOTS[1], CasinoBuilding.SLOTS[2], 0};
+			case DICE -> new double[]{CasinoBuilding.DICE[0], CasinoBuilding.DICE[1], CasinoBuilding.DICE[2], 180};
+		};
+	}
+
+	/** Поставить столы-модели, если их нет (и убрать лишние). */
+	private static void ensureProps(ServerWorld w, BlockPos o) {
+		for (CasinoPropEntity.Kind kind : CasinoPropEntity.Kind.values()) {
+			double[] p = propPlace(kind);
+			Vec3d at = new Vec3d(o.getX() + p[0], o.getY() + p[1], o.getZ() + p[2]);
+			if (!w.isChunkLoaded((int) Math.floor(at.x) >> 4, (int) Math.floor(at.z) >> 4)) {
+				continue;
+			}
+			CasinoPropEntity keep = null;
+			for (CasinoPropEntity e : w.getEntitiesByClass(CasinoPropEntity.class, new net.minecraft.util.math.Box(at, at).expand(2),
+				e -> e.kind() == kind)) {
+				if (keep == null && e.getPos().squaredDistanceTo(at) < 0.04) {
+					keep = e;
+				} else {
+					e.discard();
+				}
+			}
+			if (keep == null) {
+				keep = com.diktatura.npc.ModEntities.CASINO_PROP.create(w);
+				if (keep == null) {
+					continue;
+				}
+				keep.setKind(kind);
+				keep.refreshPositionAndAngles(at.x, at.y, at.z, (float) p[3], 0.0f);
+				w.spawnEntity(keep);
+			}
+			PROP_IDS.put(kind, keep.getUuid());
+		}
+	}
+
+	/** ПКМ по столу-модели: окно крупье этого стола. */
+	static void openTable(ServerPlayerEntity p, CasinoPropEntity.Kind kind) {
+		Table t = switch (kind) {
+			case ROULETTE -> Table.ROULETTE;
+			case SLOTS -> Table.SLOTS;
+			case DICE -> Table.DICE;
+		};
+		UUID id = DiktaturaState.get(p.getServer()).npcPosts.get(t.key);
+		Entity npc = id == null ? null : p.getServerWorld().getEntity(id);
+		if (npc != null) {
+			NpcInteractions.open(p, npc);
+		}
+	}
+
+	private static void spin(ServerWorld w, CasinoPropEntity.Kind kind, NbtCompound nbt) {
+		CasinoPropEntity e = prop(w, kind);
+		if (e != null) {
+			nbt.putLong("start", w.getTime());
+			e.setSpin(nbt);
+		}
+	}
+
+	/** Рулетка: колесо замедляется, шарик бежит навстречу и ложится в лунку итога (расчёт — в рендере колеса). */
 	private static int spinRoulette(ServerWorld w, BlockPos o, Outcome out) {
 		Vec3d c = new Vec3d(o.getX() + CasinoBuilding.WHEEL[0], o.getY() + CasinoBuilding.WHEEL[1], o.getZ() + CasinoBuilding.WHEEL[2]);
-		Table t = Table.ROULETTE;
-		prop(t, CasinoFx.block(w, c, Blocks.DARK_OAK_PLANKS.getDefaultState(), CasinoFx.ring(0, 0, 0, 1.45f, 0.06f, 1.45f)));
-		DisplayEntity hub = CasinoFx.block(w, c, Blocks.GOLD_BLOCK.getDefaultState(), CasinoFx.ring(0, 0, 0.06f, 0.28f, 0.14f, 0.28f));
-		prop(t, hub);
-		List<DisplayEntity> segs = new ArrayList<>();
-		float step = (float) (Math.PI * 2 / SEGMENTS);
-		for (int i = 0; i < SEGMENTS; i++) {
-			BlockState st = (i == 0 ? Blocks.LIME_CONCRETE : i % 2 == 1 ? Blocks.RED_CONCRETE : Blocks.BLACK_CONCRETE).getDefaultState();
-			DisplayEntity e = CasinoFx.block(w, c, st, CasinoFx.ring(i * step, 0.52f, 0.06f, 0.2f, 0.05f, 0.2f));
-			segs.add(e);
-			prop(t, e);
-		}
-		DisplayEntity ball = CasinoFx.block(w, c, Blocks.QUARTZ_BLOCK.getDefaultState(), CasinoFx.ring(0, 0.62f, 0.12f, 0.09f, 0.09f, 0.09f));
-		prop(t, ball);
-
-		// Сектор итога: зеро — 0, красное — нечётный, чёрное — чётный (не 0).
+		// Лунка итога: зеро — 0, красное — нечётная, чёрное — чётная (не 0).
 		Random rnd = w.getRandom();
 		int seg;
 		if (out.number() == 0) {
@@ -445,112 +501,47 @@ public final class Casino {
 		} else {
 			seg = 2 + 2 * rnd.nextInt(SEGMENTS / 2 - 1);
 		}
-		int total = 66;
-		int dt = 3;
-		int steps = total / dt;
-		// Колесо: замедляется; шарик бежит навстречу и останавливается на нужном секторе.
-		float[] wheel = new float[steps + 1];
-		for (int k = 1; k <= steps; k++) {
-			float speed = (float) Math.toRadians(42.0 * (1.0 - (double) k / steps) + 3.0);
-			wheel[k] = wheel[k - 1] + speed;
+		int total = ROULETTE_TICKS;
+		NbtCompound nbt = new NbtCompound();
+		nbt.putInt("seg", seg);
+		nbt.putInt("dur", total);
+		spin(w, CasinoPropEntity.Kind.ROULETTE, nbt);
+		for (int k = 3; k < total; k += Math.max(2, k / 6)) {
+			Tasks.schedule(w.getServer(), k, () ->
+				w.playSound(null, c.x, c.y, c.z, SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(), SoundCategory.BLOCKS, 0.6f, 1.6f));
 		}
-		float ballEnd = wheel[steps] + seg * step;
-		for (int k = 1; k <= steps; k++) {
-			int kk = k;
-			double left = 1.0 - (double) k / steps;
-			float ballA = (float) (ballEnd + Math.PI * 6 * left * left);
-			Tasks.schedule(w.getServer(), k * dt - dt, () -> {
-				for (int i = 0; i < SEGMENTS; i++) {
-					CasinoFx.animate(segs.get(i), CasinoFx.ring(wheel[kk] + i * step, 0.52f, 0.06f, 0.2f, 0.05f, 0.2f), dt);
-				}
-				CasinoFx.animate(ball, CasinoFx.ring(ballA, kk >= steps - 2 ? 0.52f : 0.62f, kk >= steps - 2 ? 0.11f : 0.12f,
-					0.09f, 0.09f, 0.09f), dt);
-				if (kk % Math.max(1, kk / 6) == 0) {
-					w.playSound(null, c.x, c.y, c.z, SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(), SoundCategory.BLOCKS, 0.6f, 1.6f);
-				}
-			});
-		}
+		Tasks.schedule(w.getServer(), total - 2, () ->
+			w.playSound(null, c.x, c.y, c.z, SoundEvents.BLOCK_BAMBOO_HIT, SoundCategory.BLOCKS, 0.8f, 1.4f));
 		w.playSound(null, c.x, c.y, c.z, SoundEvents.BLOCK_GRINDSTONE_USE, SoundCategory.BLOCKS, 0.5f, 1.6f);
 		return total + 6;
 	}
 
-	/** Три барабана перед экраном автомата: крутятся и останавливаются по одному. */
+	/** Автомат: рычаг, лампа мигает, три барабана останавливаются по одному на символах итога. */
 	private static int spinSlots(ServerWorld w, BlockPos o, Outcome out) {
-		Table t = Table.SLOTS;
-		BlockPos lever = o.add(CasinoBuilding.LEVER);
-		BlockState lv = w.getBlockState(lever);
-		if (lv.isOf(Blocks.LEVER)) {
-			w.setBlockState(lever, lv.with(LeverBlock.POWERED, true));
-			w.playSound(null, lever, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 1f, 0.6f);
+		Vec3d m = new Vec3d(o.getX() + CasinoBuilding.SLOTS[0], o.getY() + 2.5, o.getZ() + CasinoBuilding.SLOTS[2]);
+		NbtCompound nbt = new NbtCompound();
+		nbt.putIntArray("reels", out.reels());
+		nbt.putBoolean("win", out.payout() > 0);
+		spin(w, CasinoPropEntity.Kind.SLOTS, nbt);
+		w.playSound(null, m.x, m.y, m.z, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 1f, 0.6f);
+		for (int tick = 4; tick <= SLOT_STOPS[2]; tick += 4) {
+			Tasks.schedule(w.getServer(), tick, () -> w.playSound(null, m.x, m.y, m.z, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(),
+				SoundCategory.BLOCKS, 0.4f, 0.8f + w.getRandom().nextFloat()));
 		}
-		BlockPos lamp = o.add(4, 4, 1);
-		BlockState lampState = w.getBlockState(lamp);
-		if (lampState.isOf(Blocks.REDSTONE_LAMP)) {
-			w.setBlockState(lamp, lampState.with(net.minecraft.block.RedstoneLampBlock.LIT, true), net.minecraft.block.Block.NOTIFY_LISTENERS);
-		}
-		Random rnd = w.getRandom();
-		DisplayEntity[] reels = new DisplayEntity[3];
 		for (int i = 0; i < 3; i++) {
-			Vec3d pos = new Vec3d(o.getX() + CasinoBuilding.REELS_X[i], o.getY() + CasinoBuilding.REELS_Y, o.getZ() + CasinoBuilding.REELS_Z);
-			reels[i] = CasinoFx.item(w, pos, new ItemStack(SYMBOL_ITEMS[rnd.nextInt(SYMBOLS)]), 0.7f);
-			prop(t, reels[i]);
+			float pitch = 0.8f + i * 0.3f;
+			Tasks.schedule(w.getServer(), SLOT_STOPS[i], () -> w.playSound(null, m.x, m.y, m.z,
+				SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.BLOCKS, 0.8f, pitch));
 		}
-		int[] stops = {24, 38, 52};
-		for (int tick = 2; tick <= stops[2]; tick += 2) {
-			int now = tick;
-			Tasks.schedule(w.getServer(), tick, () -> {
-				for (int i = 0; i < 3; i++) {
-					if (now < stops[i]) {
-						CasinoFx.setItem(w, reels[i], new ItemStack(SYMBOL_ITEMS[w.getRandom().nextInt(SYMBOLS)]));
-					} else if (now == stops[i]) {
-						CasinoFx.setItem(w, reels[i], new ItemStack(SYMBOL_ITEMS[out.reels()[i]]));
-						w.playSound(null, lamp, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.BLOCKS, 0.8f, 0.8f + i * 0.3f);
-					}
-				}
-				if (now % 4 == 0) {
-					w.playSound(null, lamp, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 0.4f, 0.8f + w.getRandom().nextFloat());
-				}
-			});
-		}
-		Tasks.schedule(w.getServer(), stops[2] + 4, () -> {
-			BlockState l = w.getBlockState(lever);
-			if (l.isOf(Blocks.LEVER)) {
-				w.setBlockState(lever, l.with(LeverBlock.POWERED, false));
-			}
-			BlockState lm = w.getBlockState(lamp);
-			if (lm.isOf(Blocks.REDSTONE_LAMP)) {
-				w.setBlockState(lamp, lm.with(net.minecraft.block.RedstoneLampBlock.LIT, false), net.minecraft.block.Block.NOTIFY_LISTENERS);
-			}
-		});
-		return stops[2] + 8;
+		return SLOT_STOPS[2] + 8;
 	}
 
-	/** Крупье бросает четыре кости через стол: белые — ваши, красные — дома. Кувыркаются и падают. */
+	/** Кости: крупье бросает четыре кости (белые — ваши, красные — дома), они кувыркаются и ложатся очками итога. */
 	private static int throwDice(ServerWorld w, BlockPos o, Outcome out) {
-		Table t = Table.DICE;
-		Random rnd = w.getRandom();
 		Vec3d hand = new Vec3d(o.getX() + 5.5, o.getY() + 2.9, o.getZ() + 9.3);
-		double[][] land = {{3.9, 8.35}, {4.5, 8.65}, {5.6, 8.35}, {6.2, 8.65}};
-		for (int n = 0; n < 4; n++) {
-			final int i = n;
-			Vec3d spot = new Vec3d(o.getX() + land[i][0], o.getY() + 2.07, o.getZ() + land[i][1]);
-			Vec3d from = hand.subtract(spot);
-			BlockState st = (i < 2 ? Blocks.WHITE_CONCRETE : Blocks.RED_CONCRETE).getDefaultState();
-			float s = 0.22f;
-			DisplayEntity die = CasinoFx.block(w, spot, st, cube((float) from.x, (float) from.y, (float) from.z, 0, 0, s));
-			prop(t, die);
-			float spinA = (float) (Math.PI * (2 + rnd.nextInt(3)));
-			float spinB = (float) (Math.PI * (1 + rnd.nextInt(3)));
-			Vec3d peak = from.multiply(0.5).add(0, 0.9, 0);
-			Tasks.schedule(w.getServer(), 1, () -> CasinoFx.animate(die, cube((float) peak.x, (float) peak.y, (float) peak.z, spinA * 0.5f, spinB * 0.5f, s), 7));
-			Tasks.schedule(w.getServer(), 8, () -> CasinoFx.animate(die, cube(0, 0.18f, 0, spinA * 0.9f, spinB * 0.9f, s), 6));
-			Tasks.schedule(w.getServer(), 14, () -> CasinoFx.animate(die, cube(0, 0, 0, spinA, spinB, s), 4));
-			// Над каждой костью — её очко.
-			int value = out.dice()[i];
-			Vec3d label = spot.add(0, 0.55, 0);
-			Tasks.schedule(w.getServer(), 20, () -> prop(t, CasinoFx.text(w, label,
-				Text.literal(String.valueOf(value)).formatted(i < 2 ? Formatting.WHITE : Formatting.RED, Formatting.BOLD))));
-		}
+		NbtCompound nbt = new NbtCompound();
+		nbt.putIntArray("dice", out.dice());
+		spin(w, CasinoPropEntity.Kind.DICE, nbt);
 		w.playSound(null, hand.x, hand.y, hand.z, SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, SoundCategory.BLOCKS, 1f, 0.7f);
 		Tasks.schedule(w.getServer(), 14, () -> w.playSound(null, hand.x, hand.y - 0.8, hand.z - 0.8,
 			SoundEvents.BLOCK_BONE_BLOCK_HIT, SoundCategory.BLOCKS, 1f, 1.4f));
@@ -559,11 +550,8 @@ public final class Casino {
 		return 30;
 	}
 
-	/** Кубик со сдвигом (dx, dy, dz) от точки падения и поворотом; повороты кратны 90° к концу. */
-	private static net.minecraft.util.math.AffineTransformation cube(float dx, float dy, float dz, float a, float b, float s) {
-		Matrix4f m = new Matrix4f().translate(dx, dy + s / 2, dz).rotateX(a).rotateZ(b).scale(s).translate(-0.5f, -0.5f, -0.5f);
-		return CasinoFx.matrix(m);
-	}
+	private static final int ROULETTE_TICKS = CasinoPropEntity.ROULETTE_TICKS;
+	private static final int[] SLOT_STOPS = CasinoPropEntity.SLOT_STOPS;
 
 	// ================================================================== тексты
 

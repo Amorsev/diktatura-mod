@@ -370,6 +370,28 @@ def poker_table():
     return [{'name': 'animation.poker_table.shuffle', 'length': 1.6, 'loop': False, 'bones': shuffle}]
 
 
+def dice_set():
+    """Кости: крупье бросает их из руки (с юга, где он стоит) — летят дугой, кувыркаются и падают на места."""
+    CYCLES['dice_set'] = (0, 1.0)
+    hand = (8, 13.4, 12.8)
+    spots = [(-17.6, -2.4), (-8, 2.4), (9.6, -2.4), (19.2, 2.4)]
+    bones = {}
+    for i, (x, z) in enumerate(spots):
+        dx, dy, dz = hand[0] - x, hand[1], hand[2] - z
+        d = 0.04 * i
+        bones[f'die{i}'] = {
+            'position': [k(0, dx, dy, dz), k(0.05 + d, dx, dy, dz), k(0.35 + d, dx * 0.5, dy + 12, dz * 0.5),
+                         k(0.65 + d, 0, 3, 0), k(0.75 + d, 0, 0, 0), k(0.82 + d, 0, 1, 0), k(0.9 + d, 0, 0, 0)],
+            'rotation': [k(0), k(0.05 + d), k(0.65 + d, 540 + 90 * i, 0, 270), k(0.9 + d, 720, 0, 360)],
+        }
+    return [{'name': 'animation.dice.throw', 'length': 1.1, 'loop': False, 'bones': bones}]
+
+
+def static_prop(name, bone):
+    CYCLES[name] = (0, 1.0)
+    return [{'name': f'animation.{name}.idle', 'length': 1.0, 'loop': True, 'bones': {bone: {'rotation': [k(0)]}}}]
+
+
 SPECS = {
     # Эконом: заднее колесо r=6, 3 оборота за 0.65 с ≈ 10.9 блока/с (номинал 0.55 блока/тик).
     'taxi_economy': taxi('taxi_economy', ['horse'],
@@ -387,6 +409,9 @@ SPECS = {
     'mimic': mimic(),
     'runaway_ore': runaway_ore(),
     'poker_table': poker_table(),
+    'dice_set': dice_set(),
+    'roulette_wheel': static_prop('roulette_wheel', 'base'),
+    'slot_machine': static_prop('slot_machine', 'body'),
 }
 
 if __name__ == '__main__':

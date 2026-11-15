@@ -29,19 +29,18 @@ public final class CasinoBuilding {
 	public static final int SIZE_Y = 7;
 	public static final int SIZE_Z = 11;
 	private static final int GAP = 6;
-	public static final int VERSION = 3;
+	public static final int VERSION = 4;
 	/** Крупье рулетки (за столом у восточной стены). */
 	public static final BlockPos CROUPIER = new BlockPos(9, 1, 5);
 	/** Смотритель автомата (справа от машины у северной стены). */
 	public static final BlockPos SLOTS_OPERATOR = new BlockPos(7, 1, 1);
 	/** Крупье костей (за столом у южной стены). */
 	public static final BlockPos DICE_CROUPIER = new BlockPos(5, 1, 9);
-	/** Центр колеса рулетки (на сукне). */
-	public static final double[] WHEEL = {8.5, 2.07, 5.5};
-	/** Барабаны автомата (перед экраном), x каждого и общая высота/глубина. */
-	public static final double[] REELS_X = {3.5, 4.5, 5.5};
-	public static final double REELS_Y = 2.5;
-	public static final double REELS_Z = 2.2;
+	/** Колесо рулетки (на сукне стола), автомат «Пятилетка» (у северной стены) и кости (на столе у южной стены) —
+	 * модели GeckoLib ({@link CasinoPropEntity}): точка установки от угла казино. */
+	public static final double[] WHEEL = {8.5, 2.0625, 5.5};
+	public static final double[] SLOTS = {4.5, 1.0, 1.5};
+	public static final double[] DICE = {5.0, 2.0625, 8.5};
 	/** Центр покерного стола (сущность стола) и пост крупье покера (к северу от стола, лицом на юг). */
 	public static final double[] POKER_TABLE = {14.5, 1.0, 5.5};
 	public static final BlockPos POKER_DEALER = new BlockPos(14, 1, 3);
@@ -116,22 +115,16 @@ public final class CasinoBuilding {
 				world.setBlockState(o.add(0, y, z), air, flags | Block.FORCE_STATE | Block.SKIP_DROPS);
 			}
 		}
-		// Стол рулетки: зелёное сукно на плитах (колесо появляется во время игры).
+		// Стол рулетки: зелёное сукно на плитах (колесо — модель, ставит казино).
 		BlockState slab = Blocks.DARK_OAK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP);
 		for (int z = 3; z <= 7; z++) {
 			world.setBlockState(o.add(8, 1, z), slab, flags);
 			world.setBlockState(o.add(8, 2, z), Blocks.GREEN_CARPET.getDefaultState(), flags);
 		}
-		// Большой автомат у северной стены: корпус, экран с тремя барабанами, золотой верх, рычаг.
+		// Большой автомат у северной стены — модель (ставит казино); здесь только подиум под ним.
 		for (int x = 3; x <= 5; x++) {
-			world.setBlockState(o.add(x, 1, 1), Blocks.IRON_BLOCK.getDefaultState(), flags);
-			world.setBlockState(o.add(x, 2, 1), Blocks.BLACK_CONCRETE.getDefaultState(), flags);
-			world.setBlockState(o.add(x, 3, 1), Blocks.GOLD_BLOCK.getDefaultState(), flags);
+			world.setBlockState(o.add(x, 0, 1), Blocks.GOLD_BLOCK.getDefaultState(), flags);
 		}
-		world.setBlockState(o.add(4, 4, 1), Blocks.REDSTONE_LAMP.getDefaultState(), flags);
-		world.setBlockState(o.add(LEVER), Blocks.LEVER.getDefaultState()
-			.with(net.minecraft.block.LeverBlock.FACE, net.minecraft.block.enums.BlockFace.WALL)
-			.with(net.minecraft.block.LeverBlock.FACING, Direction.EAST), flags);
 		// Ещё пара маленьких автоматов для красоты (у входа).
 		for (int z : new int[] {1, SIZE_Z - 2}) {
 			world.setBlockState(o.add(1, 1, z), Blocks.IRON_BLOCK.getDefaultState(), flags);

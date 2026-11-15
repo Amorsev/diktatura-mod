@@ -1261,5 +1261,6 @@
   "diktatura.poker.no.rebuy": "Больше %s фишек за столом держать нельзя.",
   "diktatura.poker.no.broke": "Сначала докупите фишки.",
   "diktatura.poker.no.turn": "Сейчас не ваш ход.",
-  "diktatura.poker.no.client": "Для покера нужен мод «Диктатура» на клиенте."
+  "diktatura.poker.no.client": "Для покера нужен мод «Диктатура» на клиенте.",
+  "entity.diktatura.casino_prop": "Стол госказино"
 }
