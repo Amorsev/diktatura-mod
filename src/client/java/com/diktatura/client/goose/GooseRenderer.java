@@ -2,73 +2,109 @@ package com.diktatura.client.goose;
 
 import com.diktatura.Diktatura;
 import com.diktatura.goose.GooseEntity;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.data.EntityModelData;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-/** Рендер гусей: общая модель, своя текстура у дикого и служебного, предмет в клюве. */
-public class GooseRenderer<T extends GooseEntity> extends MobEntityRenderer<T, GooseModel<T>> {
-	public static final EntityModelLayer LAYER = new EntityModelLayer(Diktatura.id("goose"), "main");
-
-	private final Identifier texture;
-
+/**
+ * Рендер гусей на GeckoLib: общая модель и анимации, своя текстура у дикого и служебного, предмет в клюве,
+ * голова поворачивается за взглядом (поверх анимации). Гусята — в 0.55 размера.
+ */
+public class GooseRenderer<T extends GooseEntity> extends GeoEntityRenderer<T> {
 	public GooseRenderer(EntityRendererFactory.Context ctx, String textureName) {
-		super(ctx, new GooseModel<>(ctx.getPart(LAYER)), 0.4f);
-		this.texture = Diktatura.id("textures/entity/goose/" + textureName + ".png");
-		this.addFeature(new HeldItem<>(this));
-	}
-
-	public static void registerLayer() {
-		EntityModelLayerRegistry.registerModelLayer(LAYER, GooseModel::texturedModelData);
+		super(ctx, new Model<>(Diktatura.id("textures/entity/goose/" + textureName + ".png")));
+		this.shadowRadius = 0.4f;
+		addRenderLayer(new HeldItem<>(this));
 	}
 
 	@Override
-	public Identifier getTexture(T entity) {
-		return texture;
+	public void render(T e, float yaw, float tickDelta, MatrixStack m, VertexConsumerProvider vcp, int light) {
+		if (e.isBaby()) {
+			m.push();
+			m.scale(0.55f, 0.55f, 0.55f);
+			super.render(e, yaw, tickDelta, m, vcp, light);
+			m.pop();
+		} else {
+			super.render(e, yaw, tickDelta, m, vcp, light);
+		}
 	}
 
-	@Override
-	protected void scale(T entity, MatrixStack matrices, float amount) {
-		if (entity.isBaby()) {
-			matrices.scale(0.55f, 0.55f, 0.55f);
+	static final class Model<T extends GooseEntity> extends GeoModel<T> {
+		private static final Identifier GEO = Diktatura.id("geo/entity/goose.geo.json");
+		private static final Identifier ANIM = Diktatura.id("animations/entity/goose.animation.json");
+		private final Identifier texture;
+
+		Model(Identifier texture) {
+			this.texture = texture;
+		}
+
+		@Override
+		public Identifier getModelResource(T e) {
+			return GEO;
+		}
+
+		@Override
+		public Identifier getTextureResource(T e) {
+			return texture;
+		}
+
+		@Override
+		public Identifier getAnimationResource(T e) {
+			return ANIM;
+		}
+
+		@Override
+		public void setCustomAnimations(T e, long instanceId, AnimationState<T> state) {
+			if (e.isHissing()) {
+				return; // в позе шипения шея и голова заданы анимацией
+			}
+			EntityModelData data = state.getData(DataTickets.ENTITY_MODEL_DATA);
+			if (data == null) {
+				return;
+			}
+			GeoBone neck = getAnimationProcessor().getBone("neck");
+			GeoBone head = getAnimationProcessor().getBone("head");
+			if (neck != null) {
+				neck.setRotY(neck.getRotY() + data.netHeadYaw() * MathHelper.RADIANS_PER_DEGREE * 0.7f);
+			}
+			if (head != null) {
+				head.setRotX(head.getRotX() + data.headPitch() * MathHelper.RADIANS_PER_DEGREE * 0.6f);
+			}
 		}
 	}
 
 	/** Украденный (или конфискованный) предмет в клюве. */
-	static class HeldItem<T extends GooseEntity> extends FeatureRenderer<T, GooseModel<T>> {
-		HeldItem(FeatureRendererContext<T, GooseModel<T>> ctx) {
-			super(ctx);
+	static final class HeldItem<T extends GooseEntity> extends BlockAndItemGeoLayer<T> {
+		HeldItem(GooseRenderer<T> renderer) {
+			super(renderer, (bone, e) -> "head".equals(bone.getName()) && e.hasHeld() ? e.getHeld() : null, (bone, e) -> null);
 		}
 
 		@Override
-		public void render(MatrixStack matrices, VertexConsumerProvider vcp, int light, T e, float limbAngle,
-		                   float limbDistance, float tickDelta, float age, float headYaw, float headPitch) {
-			ItemStack stack = e.getHeld();
-			if (stack.isEmpty()) {
-				return;
-			}
-			GooseModel<T> m = getContextModel();
-			matrices.push();
-			m.neck().rotate(matrices);
-			m.head().rotate(matrices);
-			matrices.translate(0, -0.06, -0.42);
-			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
-			matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(45));
-			matrices.scale(0.55f, 0.55f, 0.55f);
-			MinecraftClient.getInstance().getItemRenderer().renderItem(e, stack, ModelTransformationMode.GROUND, false,
-				matrices, vcp, e.getWorld(), light, OverlayTexture.DEFAULT_UV, e.getId());
-			matrices.pop();
+		protected ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, T e) {
+			return ModelTransformationMode.GROUND;
+		}
+
+		@Override
+		protected void renderStackForBone(MatrixStack m, GeoBone bone, ItemStack stack, T e, VertexConsumerProvider vcp,
+		                                  float tickDelta, int light, int overlay) {
+			// От опоры головы — к кончику клюва.
+			m.translate(0, 2.5 / 16.0, -7.0 / 16.0);
+			m.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+			m.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(45));
+			m.scale(0.55f, 0.55f, 0.55f);
+			super.renderStackForBone(m, bone, stack, e, vcp, tickDelta, light, overlay);
 		}
 	}
 }

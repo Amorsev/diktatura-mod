@@ -13,12 +13,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Общая часть гусей: предмет в клюве, шипение, гогот и «раскрытый клюв» для модели.
  * Дикий гусь ({@link WildGooseEntity}) ворует, служебный ({@link CorruptedGooseEntity}) — конфискует.
+ *
+ * <p>Модель и анимации — GeckoLib ({@code geo/entity/goose.geo.json}, {@code animations/entity/goose.animation.json};
+ * генераторы {@code blockbench/gen_goose.py} и {@code blockbench/gl_anims.py}): ходьба вперевалку, покой,
+ * шипение, бег с добычей и гогот.
  */
-public abstract class GooseEntity extends AnimalEntity {
+public abstract class GooseEntity extends AnimalEntity implements GeoEntity {
+	private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.goose.walk");
+	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.goose.idle");
+	private static final RawAnimation HISS = RawAnimation.begin().thenLoop("animation.goose.hiss");
+	private static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.goose.run");
+	private static final RawAnimation HONK = RawAnimation.begin().thenPlay("animation.goose.honk");
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 	private static final TrackedData<ItemStack> HELD = DataTracker.registerData(GooseEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<Boolean> HISSING = DataTracker.registerData(GooseEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte STATUS_HONK = 101;
@@ -82,6 +99,37 @@ public abstract class GooseEntity extends AnimalEntity {
 		} else {
 			super.handleStatus(status);
 		}
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "body", 4, state -> {
+			state.getController().setAnimationSpeed(1.0);
+			if (isHissing()) {
+				return state.setAndContinue(HISS);
+			}
+			if (state.isMoving()) {
+				if (hasHeld()) {
+					return state.setAndContinue(RUN);
+				}
+				// Шаг чаще, когда гусь идёт быстрее.
+				state.getController().setAnimationSpeed(0.6 + Math.min(1.0, state.getLimbSwingAmount()) * 1.2);
+				return state.setAndContinue(WALK);
+			}
+			return state.setAndContinue(IDLE);
+		}));
+		// Гогот — отдельно: клюв раскрывается поверх любой позы.
+		controllers.add(new AnimationController<>(this, "beak", 2, state -> {
+			if (mouthOpenTicks > 0 && !isHissing()) {
+				return state.setAndContinue(HONK);
+			}
+			return PlayState.STOP;
+		}));
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
 	}
 
 	@Override

@@ -27,7 +27,9 @@ NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_cro
         'employer', 'licensor', 'recipient', 'prisoner']
 ITEMS = ['scepter', 'megaphone', 'slipper', 'law_book']
 # Модели GeckoLib (повозка, кареты такси): python import_models.py --geo <id> …
-GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business']
+GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business', 'goose']
+# Модели GeckoLib со своими текстурами в другом месте (у гуся — textures/entity/goose/*.png, их не трогаем).
+OWN_TEXTURES = {'goose'}
 
 
 def method_body(java):
@@ -112,7 +114,8 @@ def import_geo(ids, src=os.path.join(HERE, 'export')):
     for i in ids:
         shutil.copy(os.path.join(src, i + '.geo.json'), os.path.join(RES, 'geo/entity', i + '.geo.json'))
         shutil.copy(os.path.join(src, i + '.animation.json'), os.path.join(RES, 'animations/entity', i + '.animation.json'))
-        shutil.copy(os.path.join(HERE, 'out', i + '.png'), os.path.join(RES, 'textures/entity', i + '.png'))
+        if i not in OWN_TEXTURES:
+            shutil.copy(os.path.join(HERE, 'out', i + '.png'), os.path.join(RES, 'textures/entity', i + '.png'))
         shutil.copy(os.path.join(src, i + '.bbmodel'), os.path.join(HERE, 'models', i + '.bbmodel'))
     print('ok:', len(ids), 'моделей GeckoLib')
 

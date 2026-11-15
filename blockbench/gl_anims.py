@@ -97,6 +97,59 @@ def wagon():
     return [{'name': 'animation.wagon.roll', 'length': length, 'loop': True, 'bones': roll}]
 
 
+def k(t, x=0, y=0, z=0, interp='catmullrom'):
+    return [t, x, y, z, interp]
+
+
+def goose():
+    """Гусь: ходьба вперевалку, покой (оглядывается, виляет хвостом), шипение, бег с добычей (машет крыльями), гогот."""
+    L = 0.6
+    walk = {
+        'left_leg': {'rotation': [k(0, 35), k(L / 2, -35), k(L, 35)]},
+        'right_leg': {'rotation': [k(0, -35), k(L / 2, 35), k(L, -35)]},
+        'body': {'rotation': [k(0, 0, 0, 6), k(L / 2, 0, 0, -6), k(L, 0, 0, 6)]},
+        'neck': {'rotation': [k(0, 0, 0, 3.5), k(L / 4, -5, 0, 0), k(L / 2, 0, 0, -3.5), k(3 * L / 4, -5, 0, 0), k(L, 0, 0, 3.5)]},
+        'tail': {'rotation': [k(0, 0, 8, 0), k(L / 2, 0, -8, 0), k(L, 0, 8, 0)]},
+        'left_wing': {'rotation': [k(0, 0, 0, -3), k(L / 2, 0, 0, 0), k(L, 0, 0, -3)]},
+        'right_wing': {'rotation': [k(0, 0, 0, 0), k(L / 2, 0, 0, 3), k(L, 0, 0, 0)]},
+    }
+    idle = {
+        'neck': {'rotation': [k(0), k(1.0, -3, 12), k(2.2, 2, -10), k(3.2, 0, 0), k(4.0)]},
+        'tail': {'rotation': [k(0), k(3.2), k(3.35, 0, 16), k(3.5, 0, -16), k(3.65, 0, 10), k(3.8), k(4.0)]},
+        'body': {'rotation': [k(0), k(2.0, -1.5), k(4.0)]},
+    }
+    H = 0.5
+    hiss = {
+        'neck': {'rotation': [k(0, -60), k(H / 2, -63), k(H, -60)]},
+        'head': {'rotation': [k(0, 50), k(H / 2, 53), k(H, 50)]},
+        'jaw': {'rotation': [k(0, -28), k(H / 2, -36), k(H, -28)]},
+        'left_wing': {'rotation': [k(0, 0, 0, -25), k(H / 2, 0, 0, -34), k(H, 0, 0, -25)]},
+        'right_wing': {'rotation': [k(0, 0, 0, 25), k(H / 2, 0, 0, 34), k(H, 0, 0, 25)]},
+        'body': {'rotation': [k(0, -6), k(H, -6)]},
+    }
+    R = 0.36
+    run = {
+        'left_leg': {'rotation': [k(0, 45), k(R / 2, -45), k(R, 45)]},
+        'right_leg': {'rotation': [k(0, -45), k(R / 2, 45), k(R, -45)]},
+        'body': {'rotation': [k(0, -8, 0, 5), k(R / 2, -8, 0, -5), k(R, -8, 0, 5)]},
+        'neck': {'rotation': [k(0, -22), k(R / 2, -26), k(R, -22)]},
+        'left_wing': {'rotation': [k(0, 0, 0, -5), k(R / 4, 0, 0, -70), k(R / 2, 0, 0, -5), k(3 * R / 4, 0, 0, -70), k(R, 0, 0, -5)]},
+        'right_wing': {'rotation': [k(0, 0, 0, 5), k(R / 4, 0, 0, 70), k(R / 2, 0, 0, 5), k(3 * R / 4, 0, 0, 70), k(R, 0, 0, 5)]},
+    }
+    honk = {
+        'jaw': {'rotation': [k(0), k(0.08, -32), k(0.3, -32), k(0.4)]},
+        'neck': {'rotation': [k(0), k(0.1, 10), k(0.3, 8), k(0.4)]},
+    }
+    CYCLES['goose'] = (0, L)
+    return [
+        {'name': 'animation.goose.walk', 'length': L, 'loop': True, 'bones': walk},
+        {'name': 'animation.goose.idle', 'length': 4.0, 'loop': True, 'bones': idle},
+        {'name': 'animation.goose.hiss', 'length': H, 'loop': True, 'bones': hiss},
+        {'name': 'animation.goose.run', 'length': R, 'loop': True, 'bones': run},
+        {'name': 'animation.goose.honk', 'length': 0.4, 'loop': False, 'bones': honk},
+    ]
+
+
 SPECS = {
     # Эконом: заднее колесо r=6, 3 оборота за 0.65 с ≈ 10.9 блока/с (номинал 0.55 блока/тик).
     'taxi_economy': taxi('taxi_economy', ['horse'],
@@ -110,6 +163,7 @@ SPECS = {
                           [('wheel_rear_left', 7, 5), ('wheel_rear_right', 7, 5),
                            ('wheel_front_left', 5, 7), ('wheel_front_right', 5, 7)], 0.49),
     'wagon': wagon(),
+    'goose': goose(),
 }
 
 if __name__ == '__main__':
