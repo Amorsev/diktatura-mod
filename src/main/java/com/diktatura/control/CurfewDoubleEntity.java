@@ -4,6 +4,7 @@ import com.diktatura.economy.Economy;
 import com.diktatura.goose.ModSounds;
 import com.diktatura.network.UiPayloads.AlertKind;
 import com.diktatura.ui.Hud;
+import com.diktatura.anim.HumanoidAnims;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -31,6 +32,10 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import org.joml.Vector3f;
 
 import java.util.Optional;
@@ -42,7 +47,10 @@ import java.util.UUID;
  * Задержали двойника — премия. На рассвете уходит.
  * Механика по мотивам двойника Кровавой луны из мода-референса (MIT, © 2026 Gr1tW4lk).
  */
-public class CurfewDoubleEntity extends HostileEntity {
+public class CurfewDoubleEntity extends HostileEntity implements GeoEntity {
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+	/** Клиент: рука уже машет (чтобы удар анимировался один раз на взмах). */
+	private boolean swinging;
 	private static final TrackedData<Optional<UUID>> OWNER = DataTracker.registerData(CurfewDoubleEntity.class,
 		TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final DustParticleEffect RED = new DustParticleEffect(new Vector3f(0.6f, 0f, 0f), 0.8f);
@@ -112,6 +120,7 @@ public class CurfewDoubleEntity extends HostileEntity {
 	@Override
 	public void tick() {
 		super.tick();
+		swinging = HumanoidAnims.tickSwing(this, swinging);
 		if (this.getWorld().isClient) {
 			return;
 		}
@@ -194,5 +203,15 @@ public class CurfewDoubleEntity extends HostileEntity {
 	@Override
 	public boolean canImmediatelyDespawn(double distanceSquared) {
 		return false;
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		HumanoidAnims.register(this, controllers);
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
 	}
 }

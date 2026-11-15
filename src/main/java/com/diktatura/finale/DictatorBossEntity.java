@@ -1,6 +1,7 @@
 package com.diktatura.finale;
 
 import com.diktatura.item.ModItems;
+import com.diktatura.anim.HumanoidAnims;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -19,12 +20,19 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Вождь в финальном бою (фаза 2): встал с трона, в руке тапок, в другой — книга законов.
  * Умереть не может: на последних 5% здоровья объявляет «ничью по-диктаторски».
  */
-public class DictatorBossEntity extends HostileEntity {
+public class DictatorBossEntity extends HostileEntity implements GeoEntity {
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+	/** Клиент: рука уже машет (чтобы удар анимировался один раз на взмах). */
+	private boolean swinging;
 	/** Двойник вождя (приём «размножение указом»): падает с одного удара. */
 	public boolean decoy;
 	private long lastCannonLine;
@@ -49,6 +57,7 @@ public class DictatorBossEntity extends HostileEntity {
 	@Override
 	public void tick() {
 		super.tick();
+		swinging = HumanoidAnims.tickSwing(this, swinging);
 		if (!getWorld().isClient && wieldTicks > 0 && --wieldTicks == 0) {
 			equipStack(EquipmentSlot.MAINHAND, new ItemStack(ModItems.SCEPTER));
 		}
@@ -160,5 +169,15 @@ public class DictatorBossEntity extends HostileEntity {
 	@Override
 	public boolean cannotDespawn() {
 		return true;
+	}
+
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		HumanoidAnims.register(this, controllers);
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return geoCache;
 	}
 }

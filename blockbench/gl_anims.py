@@ -289,6 +289,35 @@ def npc():
                      + [k(1.2, 95, 0, 10), k(1.4, 40, 0, 6, 'linear'), k(1.7)]},
         'head': {'rotation': [k(0), k(0.2, -12), k(1.4, -12), k(1.7)]},
     }
+    # Удар (вождь-босс скипетром, двойник — оружием оригинала): замах вверх и рубящий взмах вниз.
+    attack = {
+        'right_arm': {'rotation': [k(0), k(0.12, 150, 0, 8), k(0.2, 150, 0, 8), k(0.32, 25, 0, -6, 'linear'), k(0.55)]},
+        'body': {'rotation': [k(0), k(0.12, 4, 12, 0), k(0.32, -6, -10, 0), k(0.55)]},
+        'left_arm': {'rotation': [k(0), k(0.12, -15, 0, -6), k(0.32, 20, 0, -4), k(0.55)]},
+    }
+
+    # Присед — как у игрока: корпус наклонён, руки вдоль корпуса, ноги отставлены назад, всё чуть ниже.
+    def crouch(t, legs=0.0, arms=0.0):
+        return {
+            'body': [k(t, -28.6)], 'body@p': [k(t, 0, -3.2, 0)],
+            'head@p': [k(t, 0, -4.2, 0)],
+            'right_arm': [k(t, -23 + arms)], 'left_arm': [k(t, -23 - arms)],
+            'right_arm@p': [k(t, 0, -3.2, 0)], 'left_arm@p': [k(t, 0, -3.2, 0)],
+            'right_leg': [k(t, legs)], 'left_leg': [k(t, -legs)],
+            'right_leg@p': [k(t, 0, -0.2, 4)], 'left_leg@p': [k(t, 0, -0.2, 4)],
+        }
+
+    def frames(*poses):
+        bones = {}
+        for pose in poses:
+            for key, ks in pose.items():
+                bone, ch = (key.split('@')[0], 'position') if key.endswith('@p') else (key, 'rotation')
+                bones.setdefault(bone, {}).setdefault(ch, []).extend(ks)
+        return bones
+
+    S = 1.2
+    sneak = frames(crouch(0), crouch(2.0))
+    sneak_walk = frames(crouch(0, 22, 8), crouch(S / 2, -22, -8), crouch(S, 22, 8))
     CYCLES['npc'] = (0, W)
     anims = [
         {'name': 'animation.npc.idle', 'length': 4.0, 'loop': True, 'bones': idle},
@@ -299,6 +328,9 @@ def npc():
         {'name': 'animation.npc.spin', 'length': 1.5, 'loop': False, 'bones': spin},
         {'name': 'animation.npc.lever', 'length': 1.2, 'loop': False, 'bones': lever},
         {'name': 'animation.npc.shake', 'length': 1.7, 'loop': False, 'bones': shake},
+        {'name': 'animation.npc.attack', 'length': 0.55, 'loop': False, 'bones': attack},
+        {'name': 'animation.npc.sneak', 'length': 2.0, 'loop': True, 'bones': sneak},
+        {'name': 'animation.npc.sneak_walk', 'length': S, 'loop': True, 'bones': sneak_walk},
     ]
     return anims
 
@@ -329,9 +361,10 @@ if __name__ == '__main__':
     # NPC: одна и та же анимация для всех; шапка (hat) — дочерняя кость головы, поворачивается вместе с ней.
     # Кости, которых у NPC нет (cape есть только у вождя), gl_build.js пропускает.
     shared = npc()
-    for id_ in NPCS:
+    # Двойник комендантского часа — модель игрока (gen_player.py) с теми же анимациями.
+    for id_ in NPCS + ['player_wide', 'player_slim']:
         with open(os.path.join(OUT, id_ + '.anims.json'), 'w', encoding='utf-8') as f:
-            json.dump({'id': id_, 'animations': shared, 'reparent': [['hat', 'head']], 'optional': ['cape']},
+            json.dump({'id': id_, 'animations': shared, 'reparent': [['hat', 'head']], 'optional': ['cape', 'hat']},
                       f, ensure_ascii=False)
     for id_, anims in SPECS.items():
         dist, length = CYCLES[id_]
