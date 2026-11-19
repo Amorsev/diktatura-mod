@@ -716,8 +716,39 @@ def poker_dealer():
     m.cube('hat', 'hair_top', (-4, 31, -4), (4, 32, 4), solid(hair, 3), inflate=0.3)
     return m
 
+
+def treasurer():
+    """Казначей кассы микрозаймов: бутылочно-зелёный жилет, зелёный козырёк счетовода, нарукавные подвязки, счёты."""
+    m = Model('treasurer', 107)
+    vest = hexc('#2F4A3A')
+    hair = hexc('#3A2A1C')
+    base_body(
+        m,
+        head_painter(hair, eyes=(50, 70, 50), mustache=hexc('#2A1C12'), hair_rows=1, side_hair=True,
+                     brows=shade(hair, 0.7)),
+        torso_painter(WHITE, shirt=WHITE, tie=GOLD, lapels=False, open_collar=False, extra=lambda f: _vest(f, vest)),
+        arm_painter(WHITE, cuff=WHITE, extra=lambda f: [f[n].row(4, BLACK) for n in SIDES]),
+        arm_painter(WHITE, cuff=WHITE, extra=lambda f: [f[n].row(4, BLACK) for n in SIDES]),
+        leg_painter(hexc('#22302A'), shoes=hexc('#1A1410')),
+        leg_painter(hexc('#22302A'), shoes=hexc('#1A1410')),
+    )
+    green = hexc('#3FA05A')
+    # Козырёк счетовода: ободок вокруг головы и прозрачно-зелёный навес над глазами.
+    m.cube('hat', 'visor_band', (-4, 29.5, -4), (4, 30.5, 4), solid(shade(green, 0.8), 3), inflate=0.3)
+    m.cube('hat', 'visor', (-4.5, 30, -7), (4.5, 31, -4), solid(green, 4, top=shade(green, 1.15)))
+    # Счёты на груди: деревянная рамка, три ряда костяшек.
+    wood = hexc('#6A4426')
+
+    def beads(fr):
+        for y, c in ((1, RED), (2, WHITE), (3, BLACK)):
+            for x in range(1, fr.w - 1):
+                fr.set(x, y, c if x % 2 else shade(wood, 1.2), 1)
+    m.cube('body', 'abacus', (-3, 13, -4.5), (3, 18, -3.5), solid(wood, 4, front=beads))
+    m.cube('body', 'pen', (2, 21, -2.6), (3, 24, -1.6), solid(BLACK, 1, top=GOLD))
+    return m
+
 ALL = [dictator, tax_inspector, customs, courier, croupier, dice_croupier, slots_operator, employer, licensor,
-       recipient, prisoner, poker_dealer]
+       recipient, prisoner, poker_dealer, treasurer]
 
 if __name__ == '__main__':
     for fn in ALL:

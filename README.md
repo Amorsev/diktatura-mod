@@ -291,6 +291,17 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 официальный и фактический шанс. Выигрыш облагается налогом, ставок в час не больше лимита.
 Настройки — `data/diktatura/diktatura/casino.json`.
 
+## Касса микрозаймов
+
+У входа в госказино стоит казначей товарищ Процентов. Он выдаёт займ в трудоднях (суммы на выбор),
+после подписи договора. На долг каждый кредитный день начисляются сложные проценты (7 %). Кредитный день —
+24 000 тиков, которые идут, только пока должник в сети. Погасить можно трудоднями или сдать ценный предмет
+из руки по оценке ценности (берётся ровно столько штук, сколько нужно; сдачи касса не выдаёт).
+Долг и его потолок видны в HUD. Один займ за раз.
+Настройки — `data/diktatura/diktatura/loans.json`: `amounts` (суммы), `rate_percent`, `day_ticks`,
+`item_rate` (единиц ценности за трудодень); `ceiling`, `rebase`, `cycles`, `amnesty_stone`,
+`amnesty_cooldown_days`, `collector_minutes`, `seize_radius` — для коллекторов и конфискации (следующие сборки).
+
 ## Лицензии
 
 Пять лицензий продаёт товарищ Печаткин (лицензионный отдел в доме госучреждений), за трудодни:
@@ -374,6 +385,7 @@ GitHub Actions (`.github/workflows/build.yml`) собирает мод посл�
 - `/diktatura office` — кто из чиновников на месте; `/diktatura office open | close <employer|licensor> | tp | rebuild` — для операторов
 - `/diktatura casino tp | rebuild` — к госказино, перестроить его
 - `/diktatura bureau tax | courier | customs | ad | cows | anvils | aid | cold | sneeze | cavein` — вызвать ведомство или механику прямо сейчас
+- `/diktatura loan` — свой займ; `/diktatura loan <игрок> [debt <сумма> | day | clear]` — долг игрока, начислить проценты сейчас, закрыть займ
 - `/diktatura license` — свои лицензии; `/diktatura license give | revoke <игрок> <id>` — выдать или отозвать
 - `/diktatura npc list | spawn <id> | dictator` — список НПС, поставить НПС на своё место, проверить вождя на троне
 - `/diktatura finale guard_down | start | stop | reset` — снять охрану, сразу начать бой с вождём, остановить его, вернуть охрану

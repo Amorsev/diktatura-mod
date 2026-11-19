@@ -14,7 +14,7 @@ public record StatusPayload(int loyalty, int fear, int stage, int sentenceSecond
                             int decreeSeconds, boolean rebellion, int minigame, int progress, int goal,
                             int event, int eventSeconds, int blindSide, List<String> laws,
                             int balance, Text jobTitle, int jobProgress, int jobGoal, int jobSeconds,
-                            boolean jobHasTarget, int jobX, int jobZ) implements CustomPayload {
+                            boolean jobHasTarget, int jobX, int jobZ, int debt, int debtLimit) implements CustomPayload {
 	public static final Id<StatusPayload> ID = new Id<>(Diktatura.id("status"));
 	public static final PacketCodec<RegistryByteBuf, StatusPayload> CODEC = PacketCodec.of(StatusPayload::write, StatusPayload::read);
 
@@ -44,6 +44,8 @@ public record StatusPayload(int loyalty, int fear, int stage, int sentenceSecond
 		buf.writeBoolean(jobHasTarget);
 		buf.writeInt(jobX);
 		buf.writeInt(jobZ);
+		buf.writeVarInt(debt);
+		buf.writeVarInt(debtLimit);
 	}
 
 	private static StatusPayload read(RegistryByteBuf buf) {
@@ -73,8 +75,10 @@ public record StatusPayload(int loyalty, int fear, int stage, int sentenceSecond
 		boolean jobHasTarget = buf.readBoolean();
 		int jobX = buf.readInt();
 		int jobZ = buf.readInt();
+		int debt = buf.readVarInt();
+		int debtLimit = buf.readVarInt();
 		return new StatusPayload(loyalty, fear, stage, sentence, timeout, decree, rebellion, minigame, progress, goal,
-			event, eventSeconds, blindSide, laws, balance, jobTitle, jobProgress, jobGoal, jobSeconds, jobHasTarget, jobX, jobZ);
+			event, eventSeconds, blindSide, laws, balance, jobTitle, jobProgress, jobGoal, jobSeconds, jobHasTarget, jobX, jobZ, debt, debtLimit);
 	}
 
 	@Override

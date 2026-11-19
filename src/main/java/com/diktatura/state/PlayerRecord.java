@@ -54,6 +54,18 @@ public final class PlayerRecord {
 	public int visited;
 	/** Текущая работа с биржи (null — без работы). */
 	public NbtCompound job;
+	/** Касса микрозаймов: долг в сотых долях трудодня (0 — займа нет). */
+	public long debt;
+	/** Базовая сумма текущего цикла займа (трудодни): от неё считается потолок долга. */
+	public int loanBase;
+	/** Тики до следующего кредитного дня (идут только онлайн) и сколько кредитных дней прошло. */
+	public int loanDayTicks;
+	public int loanDays;
+	/** Номер цикла (сколько раз долг уже доходил до потолка). */
+	public int loanCycle;
+	/** Для отчёта: выплачено (сотые доли) и наибольший долг (сотые доли). */
+	public long loanPaid;
+	public long loanMax;
 
 	public PlayerRecord(int loyalty) {
 		this.loyalty = loyalty;
@@ -97,6 +109,13 @@ public final class PlayerRecord {
 		if (job != null) {
 			n.put("job", job);
 		}
+		n.putLong("debt", debt);
+		n.putInt("loanBase", loanBase);
+		n.putInt("loanDayTicks", loanDayTicks);
+		n.putInt("loanDays", loanDays);
+		n.putInt("loanCycle", loanCycle);
+		n.putLong("loanPaid", loanPaid);
+		n.putLong("loanMax", loanMax);
 		n.putInt("minigame", minigame);
 		n.putInt("progress", progress);
 		n.putBoolean("pardoned", pardoned);
@@ -139,6 +158,13 @@ public final class PlayerRecord {
 		if (n.contains("job")) {
 			r.job = n.getCompound("job");
 		}
+		r.debt = n.getLong("debt");
+		r.loanBase = n.getInt("loanBase");
+		r.loanDayTicks = n.getInt("loanDayTicks");
+		r.loanDays = n.getInt("loanDays");
+		r.loanCycle = n.getInt("loanCycle");
+		r.loanPaid = n.getLong("loanPaid");
+		r.loanMax = n.getLong("loanMax");
 		r.minigame = n.contains("minigame") ? n.getInt("minigame") : -1;
 		r.progress = n.getInt("progress");
 		r.pardoned = n.getBoolean("pardoned");

@@ -37,6 +37,9 @@ public final class ClientState {
 	public static boolean jobHasTarget;
 	public static int jobX;
 	public static int jobZ;
+	/** Долг в кассе микрозаймов (0 — займа нет) и его потолок. */
+	public static int debt;
+	public static int debtLimit;
 	/** Все загруженные законы и отменённые указами (пакет LawList). */
 	public static List<String> allLaws = List.of();
 	public static List<String> repealedLaws = List.of();
@@ -68,6 +71,8 @@ public final class ClientState {
 		jobHasTarget = p.jobHasTarget();
 		jobX = p.jobX();
 		jobZ = p.jobZ();
+		debt = p.debt();
+		debtLimit = p.debtLimit();
 	}
 
 	static void updateLaws(UiPayloads.LawList p) {

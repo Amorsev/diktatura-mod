@@ -110,6 +110,7 @@ public final class Network {
 			event == null ? -1 : event.ordinal(), EventSystem.activeSeconds(), EventSystem.blindSide(p.getUuid()), laws,
 			rec.trudodni, jobTitle, Jobs.progress(rec), Jobs.goal(rec), Jobs.secondsLeft(rec),
 			jobTarget != null && jobDef != null && jobDef.type() == JobRegistry.Type.COURIER,
-			jobTarget == null ? 0 : jobTarget.getX(), jobTarget == null ? 0 : jobTarget.getZ()));
+			jobTarget == null ? 0 : jobTarget.getX(), jobTarget == null ? 0 : jobTarget.getZ(),
+			com.diktatura.loan.Treasury.debt(rec), com.diktatura.loan.Treasury.limit(rec)));
 	}
 }

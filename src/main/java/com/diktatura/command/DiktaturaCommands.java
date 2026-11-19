@@ -158,6 +158,26 @@ public final class DiktaturaCommands {
 									"diktatura.money.reason.admin", "", true);
 								return money(c.getSource(), p);
 							}))))
+				.then(literal("loan")
+					.executes(c -> loan(c.getSource(), c.getSource().getPlayerOrThrow()))
+					.then(argument("player", EntityArgumentType.player()).requires(s -> s.hasPermissionLevel(2))
+						.executes(c -> loan(c.getSource(), EntityArgumentType.getPlayer(c, "player")))
+						.then(literal("debt").then(argument("amount", IntegerArgumentType.integer(0, 1_000_000))
+							.executes(c -> {
+								ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+								com.diktatura.loan.Treasury.setDebt(p, IntegerArgumentType.getInteger(c, "amount"));
+								return loan(c.getSource(), p);
+							})))
+						.then(literal("day").executes(c -> {
+							ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+							com.diktatura.loan.Treasury.accrue(p);
+							return loan(c.getSource(), p);
+						}))
+						.then(literal("clear").executes(c -> {
+							ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+							com.diktatura.loan.Treasury.clear(p);
+							return loan(c.getSource(), p);
+						}))))
 				.then(literal("bureau").requires(s -> s.hasPermissionLevel(2))
 					.then(literal("tax").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.TAX)))
 					.then(literal("courier").executes(c -> bureauVisit(c, com.diktatura.bureau.Visits.Kind.COURIER)))
@@ -485,6 +505,19 @@ public final class DiktaturaCommands {
 		com.diktatura.npc.NpcRegistry.apply(npc);
 		p.getServerWorld().spawnEntity(npc);
 		src.sendFeedback(() -> Text.translatable("diktatura.cmd.npc.spawned", id), true);
+		return 1;
+	}
+
+	/** Займ в кассе микрозаймов: долг, потолок, кредитные дни. */
+	private static int loan(ServerCommandSource src, ServerPlayerEntity p) {
+		PlayerRecord rec = DiktaturaState.get(src.getServer()).player(p);
+		if (!com.diktatura.loan.Treasury.hasLoan(rec)) {
+			src.sendFeedback(() -> Text.translatable("diktatura.loan.cmd.none", p.getDisplayName()), false);
+			return 1;
+		}
+		src.sendFeedback(() -> Text.translatable("diktatura.loan.cmd.info", p.getDisplayName(),
+			com.diktatura.loan.Treasury.debt(rec), com.diktatura.loan.Treasury.limit(rec), rec.loanBase, rec.loanDays,
+			com.diktatura.loan.Treasury.minutesToDay(rec), rec.loanCycle).formatted(Formatting.GOLD), false);
 		return 1;
 	}
 

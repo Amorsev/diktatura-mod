@@ -21,7 +21,7 @@ ROOT = os.path.dirname(HERE)
 RES = os.path.join(ROOT, 'src/main/resources/assets/diktatura')
 
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
-        'employer', 'licensor', 'recipient', 'poker_dealer']
+        'employer', 'licensor', 'recipient', 'poker_dealer', 'treasurer']
 ITEMS = ['scepter', 'megaphone', 'slipper', 'law_book']
 # Модели GeckoLib (повозка, кареты такси): python import_models.py --geo <id> …
 GEO = ['wagon', 'taxi_economy', 'taxi_comfort', 'taxi_business', 'goose', 'mimic', 'runaway_ore', 'player_wide', 'player_slim', 'poker_table', 'roulette_wheel', 'slot_machine', 'dice_set']

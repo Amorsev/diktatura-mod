@@ -73,6 +73,7 @@ public class Diktatura implements ModInitializer {
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new JobRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LicenseRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new com.diktatura.casino.CasinoSettings.ReloadListener());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new com.diktatura.loan.LoanSettings.ReloadListener());
 		LawEngine.registerEvents();
 		Dictator.registerEvents();
 		Jobs.registerEvents();
@@ -80,6 +81,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.license.LicensedActivities.registerEvents();
 		com.diktatura.office.Offices.registerEvents();
 		com.diktatura.casino.Casino.registerEvents();
+		com.diktatura.loan.Treasury.registerEvents();
 		com.diktatura.bureau.Visits.registerEvents();
 		com.diktatura.bureau.Captcha.registerEvents();
 		com.diktatura.control.Enforcers.registerEvents();
@@ -152,6 +154,7 @@ public class Diktatura implements ModInitializer {
 		com.diktatura.office.Offices.tick(s);
 		com.diktatura.casino.Casino.tick(s);
 		com.diktatura.casino.poker.PokerGame.tick(s);
+		com.diktatura.loan.Treasury.tick(s);
 		com.diktatura.bureau.Visits.tick(s);
 		com.diktatura.bureau.Weather.tick(s);
 		com.diktatura.bureau.Propaganda.tick(s);

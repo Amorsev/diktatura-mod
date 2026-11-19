@@ -230,7 +230,7 @@ def runaway_ore():
 
 
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
-        'employer', 'licensor', 'recipient', 'poker_dealer']
+        'employer', 'licensor', 'recipient', 'poker_dealer', 'treasurer']
 
 
 def npc():

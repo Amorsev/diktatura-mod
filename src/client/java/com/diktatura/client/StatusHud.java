@@ -34,7 +34,7 @@ public final class StatusHud {
 		int y = 4;
 
 		// --- Гражданин
-		int ph = 55;
+		int ph = ClientState.debt > 0 ? 65 : 55;
 		Ui.panel(ctx, x, y, W, ph, loyaltyColor(ClientState.loyalty));
 		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.ui.panel.citizen"), x + PAD + 2, y + 4, Ui.MUTED);
 		int ly = y + 15;
@@ -46,6 +46,12 @@ public final class StatusHud {
 		ly += 15;
 		ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.balance", ClientState.balance), x + PAD + 2, ly,
 			ClientState.balance < 0 ? 0xFFFF7070 : 0xFFFFD27F);
+		if (ClientState.debt > 0) {
+			ly += 10;
+			boolean near = ClientState.debtLimit > 0 && ClientState.debt * 5 >= ClientState.debtLimit * 4;
+			ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.debt", ClientState.debt, ClientState.debtLimit),
+				x + PAD + 2, ly, near && Ui.blink(500) ? 0xFFFF2222 : 0xFFFF7070);
+		}
 		y += ph + 3;
 
 		// --- Статус (только если есть что показать)
