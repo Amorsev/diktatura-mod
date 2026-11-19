@@ -49,8 +49,10 @@ public final class StatusHud {
 		if (ClientState.debt > 0) {
 			ly += 10;
 			boolean near = ClientState.debtLimit > 0 && ClientState.debt * 5 >= ClientState.debtLimit * 4;
-			ctx.drawTextWithShadow(tr, Text.translatable("diktatura.hud.debt", ClientState.debt, ClientState.debtLimit),
-				x + PAD + 2, ly, near && Ui.blink(500) ? 0xFFFF2222 : 0xFFFF7070);
+			Text debt = Text.translatable(ClientState.debtFrozen ? "diktatura.hud.debt.frozen" : "diktatura.hud.debt",
+				ClientState.debt, ClientState.debtLimit);
+			ctx.drawTextWithShadow(tr, debt, x + PAD + 2, ly,
+				ClientState.debtFrozen ? 0xFF8FD0FF : near && Ui.blink(500) ? 0xFFFF2222 : 0xFFFF7070);
 		}
 		y += ph + 3;
 

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "diktatura:block/address_plate"
+    },
+    "facing=east": {
+      "model": "diktatura:block/address_plate",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "diktatura:block/address_plate",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "diktatura:block/address_plate",
+      "y": 270
+    }
+  }
+}

@@ -40,6 +40,8 @@ public final class ClientState {
 	/** Долг в кассе микрозаймов (0 — займа нет) и его потолок. */
 	public static int debt;
 	public static int debtLimit;
+	/** Должник вне зоны государственного кредита: проценты не идут. */
+	public static boolean debtFrozen;
 	/** Все загруженные законы и отменённые указами (пакет LawList). */
 	public static List<String> allLaws = List.of();
 	public static List<String> repealedLaws = List.of();
@@ -73,6 +75,7 @@ public final class ClientState {
 		jobZ = p.jobZ();
 		debt = p.debt();
 		debtLimit = p.debtLimit();
+		debtFrozen = p.debtFrozen();
 	}
 
 	static void updateLaws(UiPayloads.LawList p) {

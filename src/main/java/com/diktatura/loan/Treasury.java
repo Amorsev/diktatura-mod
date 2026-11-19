@@ -29,16 +29,15 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Касса микрозаймов «Казначейство» у входа в госказино. Казначей выдаёт займ в трудоднях,
- * на долг каждый кредитный день начисляются сложные проценты ({@link LoanSettings#ratePercent()}).
- * Кредитный день идёт, только пока должник в сети. Погасить можно трудоднями или сдать предмет
- * по оценке ценности (сдачи касса не выдаёт). Долг хранится в сотых долях трудодня.
+ * Касса микрозаймов «Казначейство» — отдельное здание у подножия горы ({@link TreasuryBuilding}).
+ * Казначей выдаёт займ в трудоднях только прописанным ({@link Registration}); на долг каждый кредитный день
+ * начисляются сложные проценты ({@link LoanSettings#ratePercent()}). Кредитный день идёт, только пока должник
+ * в сети и в зоне государственного кредита. Погасить можно трудоднями или сдать предмет по оценке ценности
+ * (сдачи касса не выдаёт). Долг хранится в сотых долях трудодня.
  */
 public final class Treasury {
 	public static final String TREASURER_ID = "diktatura:treasurer";
 	public static final String POST_KEY = "treasurer";
-	/** Пост казначея: площадка перед входом в казино (от угла казино), лицом на запад. */
-	public static final BlockPos POST = new BlockPos(-2, 1, 3);
 
 	/** Какую сумму игрок выбрал и ещё не подписал. */
 	private static final Map<UUID, Integer> PENDING = new HashMap<>();
@@ -49,6 +48,21 @@ public final class Treasury {
 
 	public static void registerEvents() {
 		NpcInteractions.register("treasurer", new TreasurerHandler());
+		// Казначей, оказавшийся не на своём посту (например, старый у казино из 1.0.2-beta.1), уходит.
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (entity instanceof NpcEntity npc && TREASURER_ID.equals(npc.npcId())) {
+				com.diktatura.law.LawEngine.defer(() -> {
+					MinecraftServer server = world.getServer();
+					if (server == null || npc.isRemoved()) {
+						return;
+					}
+					UUID posted = DiktaturaState.get(server).npcPosts.get(POST_KEY);
+					if (posted != null && !posted.equals(npc.getUuid())) {
+						npc.discard();
+					}
+				});
+			}
+		});
 	}
 
 	// ================================================================== долг
@@ -71,7 +85,7 @@ public final class Treasury {
 	public static boolean grant(ServerPlayerEntity p, int amount) {
 		DiktaturaState state = DiktaturaState.get(p.getServer());
 		PlayerRecord rec = state.player(p);
-		if (hasLoan(rec) || amount <= 0 || rec.stage != Stage.FREE) {
+		if (hasLoan(rec) || amount <= 0 || rec.stage != Stage.FREE || !Registration.hasAddress(rec)) {
 			return false;
 		}
 		rec.debt = amount * 100L;
@@ -203,13 +217,15 @@ public final class Treasury {
 			return;
 		}
 		DiktaturaState state = DiktaturaState.get(server);
-		if (state.casinoGenerated) {
-			NpcPosts.ensure(server, POST_KEY, TREASURER_ID, state.casinoOrigin.add(POST), 90.0f);
+		TreasuryBuilding.ensureGenerated(server);
+		if (state.treasuryGenerated) {
+			NpcPosts.ensure(server, POST_KEY, TREASURER_ID, state.treasuryOrigin.add(TreasuryBuilding.POST),
+				TreasuryBuilding.POST_YAW);
 		}
 		int day = LoanSettings.get().dayTicks();
 		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
 			PlayerRecord rec = state.player(p);
-			if (!hasLoan(rec)) {
+			if (!hasLoan(rec) || !Registration.inZone(p)) {
 				continue;
 			}
 			rec.loanDayTicks += 20;
@@ -259,11 +275,23 @@ public final class Treasury {
 			Text line = d != null ? d.phrase(LAST_PHRASE.getOrDefault(player.getUuid(), 0)) : Text.empty();
 			String rate = rate(cfg.ratePercent());
 			info.add(Text.translatable("diktatura.job.balance", rec.trudodni));
+			boolean registered = Registration.hasAddress(rec);
+			if (registered) {
+				BlockPos a = Registration.address(rec);
+				info.add(Text.translatable("diktatura.loan.info.address", a.getX(), a.getY(), a.getZ()));
+			} else {
+				info.add(Text.translatable("diktatura.loan.info.no_address", Registration.BED_RADIUS).formatted(Formatting.GOLD));
+				boolean hasPlate = player.getInventory().count(LoanBlocks.ADDRESS_PLATE_ITEM) > 0;
+				actions.add(new UiPayloads.NpcAction("plate", Text.translatable("diktatura.loan.get_plate"), !hasPlate));
+			}
 			Integer pending = PENDING.get(player.getUuid());
 			if (hasLoan(rec)) {
 				int debt = debt(rec);
 				info.add(Text.translatable("diktatura.loan.info.debt", debt, limit(rec)).formatted(Formatting.RED));
 				info.add(Text.translatable("diktatura.loan.info.day", rate, minutesToDay(rec), rec.loanDays));
+				if (!Registration.inZone(player)) {
+					info.add(Text.translatable("diktatura.loan.info.frozen").formatted(Formatting.AQUA));
+				}
 				int hand = handValue(player);
 				if (hand > 0) {
 					info.add(Text.translatable("diktatura.loan.info.hand", player.getMainHandStack().getName(), hand));
@@ -293,8 +321,9 @@ public final class Treasury {
 			} else {
 				boolean free = rec.stage == Stage.FREE;
 				info.add(Text.translatable(free ? "diktatura.loan.info.offer" : "diktatura.loan.info.arrested", rate));
+				info.add(Text.translatable("diktatura.loan.info.zone", cfg.zoneRadius()));
 				for (int a : cfg.amounts()) {
-					actions.add(new UiPayloads.NpcAction("take:" + a, Text.translatable("diktatura.loan.take", a), free));
+					actions.add(new UiPayloads.NpcAction("take:" + a, Text.translatable("diktatura.loan.take", a), free && registered));
 				}
 			}
 			actions.add(new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
@@ -315,13 +344,20 @@ public final class Treasury {
 				} catch (NumberFormatException e) {
 					return true;
 				}
-				if (!hasLoan(rec) && LoanSettings.get().amounts().contains(amount)) {
+				if (!hasLoan(rec) && Registration.hasAddress(rec) && LoanSettings.get().amounts().contains(amount)) {
 					PENDING.put(uuid, amount);
 				}
 				return true;
 			}
 			if ("cancel".equals(action)) {
 				PENDING.remove(uuid);
+				return true;
+			}
+			if ("plate".equals(action)) {
+				if (!Registration.hasAddress(rec) && player.getInventory().count(LoanBlocks.ADDRESS_PLATE_ITEM) == 0) {
+					player.getInventory().offerOrDrop(new ItemStack(LoanBlocks.ADDRESS_PLATE_ITEM));
+					say(npc, "npc.diktatura.treasurer.plate", Registration.BED_RADIUS);
+				}
 				return true;
 			}
 			if ("sign".equals(action)) {

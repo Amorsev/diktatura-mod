@@ -160,6 +160,32 @@ public final class DiktaturaCommands {
 							}))))
 				.then(literal("loan")
 					.executes(c -> loan(c.getSource(), c.getSource().getPlayerOrThrow()))
+					.then(literal("bank").requires(s -> s.hasPermissionLevel(2))
+						.then(literal("tp").executes(c -> {
+							ServerPlayerEntity p = c.getSource().getPlayerOrThrow();
+							MinecraftServer server = c.getSource().getServer();
+							com.diktatura.loan.TreasuryBuilding.ensureGenerated(server);
+							DiktaturaState st = DiktaturaState.get(server);
+							if (!st.treasuryGenerated) {
+								c.getSource().sendError(Text.translatable("diktatura.loan.cmd.no_bank"));
+								return 0;
+							}
+							BlockPos e = st.treasuryOrigin.add(com.diktatura.loan.TreasuryBuilding.ENTRANCE);
+							Teleports.to(p, server.getOverworld(), e.getX() + 0.5, e.getY(), e.getZ() + 0.5, 180.0f, 0.0f);
+							c.getSource().sendFeedback(() -> Text.translatable("diktatura.loan.cmd.tp"), false);
+							return 1;
+						}))
+						.then(literal("rebuild").executes(c -> {
+							MinecraftServer server = c.getSource().getServer();
+							DiktaturaState st = DiktaturaState.get(server);
+							if (!st.treasuryGenerated) {
+								com.diktatura.loan.TreasuryBuilding.ensureGenerated(server);
+							} else {
+								com.diktatura.loan.TreasuryBuilding.build(server.getOverworld(), st.treasuryOrigin);
+							}
+							c.getSource().sendFeedback(() -> Text.translatable("diktatura.loan.cmd.rebuilt"), true);
+							return 1;
+						})))
 					.then(argument("player", EntityArgumentType.player()).requires(s -> s.hasPermissionLevel(2))
 						.executes(c -> loan(c.getSource(), EntityArgumentType.getPlayer(c, "player")))
 						.then(literal("debt").then(argument("amount", IntegerArgumentType.integer(0, 1_000_000))
@@ -511,6 +537,9 @@ public final class DiktaturaCommands {
 	/** Займ в кассе микрозаймов: долг, потолок, кредитные дни. */
 	private static int loan(ServerCommandSource src, ServerPlayerEntity p) {
 		PlayerRecord rec = DiktaturaState.get(src.getServer()).player(p);
+		BlockPos addr = com.diktatura.loan.Registration.address(rec);
+		src.sendFeedback(() -> addr == null ? Text.translatable("diktatura.loan.cmd.no_address", p.getDisplayName())
+			: Text.translatable("diktatura.loan.cmd.address", p.getDisplayName(), addr.toShortString()), false);
 		if (!com.diktatura.loan.Treasury.hasLoan(rec)) {
 			src.sendFeedback(() -> Text.translatable("diktatura.loan.cmd.none", p.getDisplayName()), false);
 			return 1;

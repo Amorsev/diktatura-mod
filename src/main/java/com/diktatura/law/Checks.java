@@ -67,6 +67,7 @@ public final class Checks {
 			case "riding" -> new Riding(Matchers.entities(o));
 			case "craft" -> new Craft(Matchers.items(o));
 			case "poker_bluff" -> new Always(LawEvent.POKER_BLUFF);
+			case "debt_unregistered" -> new Simple(com.diktatura.loan.Registration::unregisteredDebtor);
 			default -> throw new IllegalArgumentException("Неизвестный тип проверки: " + type);
 		};
 	}

@@ -53,6 +53,10 @@ public final class DiktaturaState extends PersistentState {
 	/** Финальный бой: дракон госохраны повержен, вождь без защиты (можно вызвать на бой). */
 	public boolean guardDown;
 	public BlockPos casinoOrigin = BlockPos.ORIGIN;
+	/** Здание кассы микрозаймов «Казначейство» (с 1.0.2): у подножия горы. */
+	public boolean treasuryGenerated;
+	public BlockPos treasuryOrigin = BlockPos.ORIGIN;
+	public int treasuryVersion;
 	public final boolean[] officeOpen = new boolean[2];
 	public final int[] officeTicks = new int[2];
 
@@ -126,6 +130,9 @@ public final class DiktaturaState extends PersistentState {
 		nbt.putBoolean("capitalSwept", capitalSwept);
 		nbt.putBoolean("guardDown", guardDown);
 		nbt.putLong("casinoOrigin", casinoOrigin.asLong());
+		nbt.putBoolean("treasuryGenerated", treasuryGenerated);
+		nbt.putLong("treasuryOrigin", treasuryOrigin.asLong());
+		nbt.putInt("treasuryVersion", treasuryVersion);
 		for (int i = 0; i < officeOpen.length; i++) {
 			nbt.putBoolean("officeOpen" + i, officeOpen[i]);
 			nbt.putInt("officeTicks" + i, officeTicks[i]);
@@ -187,6 +194,9 @@ public final class DiktaturaState extends PersistentState {
 		s.capitalSwept = nbt.getBoolean("capitalSwept");
 		s.guardDown = nbt.getBoolean("guardDown");
 		s.casinoOrigin = BlockPos.fromLong(nbt.getLong("casinoOrigin"));
+		s.treasuryGenerated = nbt.getBoolean("treasuryGenerated");
+		s.treasuryOrigin = BlockPos.fromLong(nbt.getLong("treasuryOrigin"));
+		s.treasuryVersion = nbt.getInt("treasuryVersion");
 		for (int i = 0; i < s.officeOpen.length; i++) {
 			s.officeOpen[i] = nbt.getBoolean("officeOpen" + i);
 			s.officeTicks[i] = nbt.getInt("officeTicks" + i);

@@ -9,5 +9,6 @@
   "amnesty_stone": 320,
   "amnesty_cooldown_days": 3,
   "collector_minutes": 10,
-  "seize_radius": 10
+  "seize_radius": 10,
+  "zone_radius": 256
 }

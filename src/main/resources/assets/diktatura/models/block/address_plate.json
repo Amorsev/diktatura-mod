@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "plate": "diktatura:block/address_plate",
+    "particle": "diktatura:block/address_plate"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        4,
+        15
+      ],
+      "to": [
+        14,
+        12,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            4,
+            14,
+            12
+          ],
+          "texture": "#plate"
+        },
+        "south": {
+          "uv": [
+            2,
+            4,
+            14,
+            12
+          ],
+          "texture": "#plate",
+          "cullface": "south"
+        },
+        "east": {
+          "uv": [
+            0,
+            4,
+            1,
+            12
+          ],
+          "texture": "#plate"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            1,
+            12
+          ],
+          "texture": "#plate"
+        },
+        "up": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#plate"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            14,
+            1
+          ],
+          "texture": "#plate"
+        }
+      }
+    }
+  ]
+}

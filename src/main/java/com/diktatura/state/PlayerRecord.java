@@ -66,6 +66,9 @@ public final class PlayerRecord {
 	/** Для отчёта: выплачено (сотые доли) и наибольший долг (сотые доли). */
 	public long loanPaid;
 	public long loanMax;
+	/** Прописка (табличка «Адрес должника»): измерение ("" — не прописан) и позиция таблички. */
+	public String addrDim = "";
+	public long addrPos;
 
 	public PlayerRecord(int loyalty) {
 		this.loyalty = loyalty;
@@ -116,6 +119,8 @@ public final class PlayerRecord {
 		n.putInt("loanCycle", loanCycle);
 		n.putLong("loanPaid", loanPaid);
 		n.putLong("loanMax", loanMax);
+		n.putString("addrDim", addrDim);
+		n.putLong("addrPos", addrPos);
 		n.putInt("minigame", minigame);
 		n.putInt("progress", progress);
 		n.putBoolean("pardoned", pardoned);
@@ -165,6 +170,8 @@ public final class PlayerRecord {
 		r.loanCycle = n.getInt("loanCycle");
 		r.loanPaid = n.getLong("loanPaid");
 		r.loanMax = n.getLong("loanMax");
+		r.addrDim = n.getString("addrDim");
+		r.addrPos = n.getLong("addrPos");
 		r.minigame = n.contains("minigame") ? n.getInt("minigame") : -1;
 		r.progress = n.getInt("progress");
 		r.pardoned = n.getBoolean("pardoned");

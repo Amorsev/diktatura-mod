@@ -67,6 +67,7 @@ public class Diktatura implements ModInitializer {
 		ModItems.register();
 		com.diktatura.control.ModControl.register();
 		com.diktatura.job.RoyalBlocks.register();
+		com.diktatura.loan.LoanBlocks.register();
 		Network.registerPayloads();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new LawRegistry.ReloadListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new NpcRegistry.ReloadListener());

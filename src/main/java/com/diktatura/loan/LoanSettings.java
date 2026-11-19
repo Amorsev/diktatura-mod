@@ -29,13 +29,14 @@ import java.util.Optional;
  * @param amnestyCooldownDays кредитных дней без новых займов после амнистии (этап D)
  * @param collectorMinutes не чаще чем раз в столько минут приходят коллекторы (этап C)
  * @param seizeRadius     радиус изъятия приставами с анимацией (этап D)
+ * @param zoneRadius      радиус зоны государственного кредита вокруг столицы: за ней проценты не идут
  */
 public record LoanSettings(List<Integer> amounts, double ratePercent, int dayTicks, double itemRate, int ceiling,
                            int rebase, int cycles, int amnestyStone, int amnestyCooldownDays, int collectorMinutes,
-                           int seizeRadius) {
+                           int seizeRadius, int zoneRadius) {
 	public static final Identifier FILE = Diktatura.id("diktatura/loans.json");
 	public static final LoanSettings DEFAULT = new LoanSettings(List.of(10, 25, 50, 100), 7.0, 24000, 32.0, 5, 3, 5,
-		320, 3, 10, 10);
+		320, 3, 10, 10, 256);
 
 	private static volatile LoanSettings current = DEFAULT;
 
@@ -66,7 +67,8 @@ public record LoanSettings(List<Integer> amounts, double ratePercent, int dayTic
 			Math.max(1, Json.i(o, "amnesty_stone", DEFAULT.amnestyStone())),
 			Math.max(0, Json.i(o, "amnesty_cooldown_days", DEFAULT.amnestyCooldownDays())),
 			Math.max(1, Json.i(o, "collector_minutes", DEFAULT.collectorMinutes())),
-			Math.max(1, Math.min(32, Json.i(o, "seize_radius", DEFAULT.seizeRadius()))));
+			Math.max(1, Math.min(32, Json.i(o, "seize_radius", DEFAULT.seizeRadius()))),
+			Math.max(16, Json.i(o, "zone_radius", DEFAULT.zoneRadius())));
 	}
 
 	public static final class ReloadListener implements SimpleSynchronousResourceReloadListener {
