@@ -230,7 +230,7 @@ def runaway_ore():
 
 
 NPCS = ['dictator', 'tax_inspector', 'customs', 'courier', 'croupier', 'dice_croupier', 'slots_operator',
-        'employer', 'licensor', 'recipient', 'poker_dealer', 'treasurer']
+        'employer', 'licensor', 'recipient', 'poker_dealer', 'treasurer', 'collector', 'collector_vip']
 
 
 def npc():
@@ -337,6 +337,30 @@ def npc():
         'body': {'rotation': [k(0), k(0.25, -8, 6, 0), k(0.6, -8, -10, 0), k(1.0)]},
     }
 
+    # Коллекторы: стук в дверь, угроза пальцем, «деньги на бочку» (ладонь вперёд, другая рука в бок),
+    # удар печатью (замах и хлопок вниз — приставы и опись).
+    knock = {
+        'right_arm': {'rotation': [k(0), k(0.2, 90, 0, -4)] + [k(0.2 + 0.15 * i, 72 if i % 2 else 92, 0, -4) for i in range(1, 7)]
+                      + [k(1.3)]},
+        'body': {'rotation': [k(0), k(0.2, -4), k(1.1, -4), k(1.3)]},
+    }
+    threaten = {
+        'right_arm': {'rotation': [k(0), k(0.2, 120, 0, 0)] + [k(0.2 + 0.12 * i, 120, 0, 12 if i % 2 else -12) for i in range(1, 8)]
+                      + [k(1.3, 120, 0, 0), k(1.5)]},
+        'head': {'rotation': [k(0), k(0.2, 6), k(0.5, -4), k(0.8, 6), k(1.1, -4), k(1.5)]},
+        'body': {'rotation': [k(0), k(0.2, -5), k(1.3, -5), k(1.5)]},
+    }
+    demand = {
+        'right_arm': {'rotation': [k(0), k(0.25, 80, -10, 0), k(1.3, 80, -10, 0), k(1.6)]},
+        'left_arm': {'rotation': [k(0), k(0.25, -10, 0, -35), k(1.3, -10, 0, -35), k(1.6)]},
+        'head': {'rotation': [k(0), k(0.25, -6, 0, 6), k(1.3, -6, 0, 6), k(1.6)]},
+    }
+    stamp = {
+        'right_arm': {'rotation': [k(0), k(0.3, 160, 0, 6), k(0.45, 160, 0, 6), k(0.55, 45, 0, 0, 'linear'), k(0.9, 45, 0, 0), k(1.1)]},
+        'body': {'rotation': [k(0), k(0.3, 6), k(0.55, -10), k(0.9, -10), k(1.1)]},
+        'left_arm': {'rotation': [k(0), k(0.3, 40, 0, 10), k(0.9, 40, 0, 10), k(1.1)]},
+    }
+
     S = 1.2
     sneak = frames(crouch(0), crouch(2.0))
     sneak_walk = frames(crouch(0, 22, 8), crouch(S / 2, -22, -8), crouch(S, 22, 8))
@@ -357,6 +381,10 @@ def npc():
         {'name': 'animation.npc.deal', 'length': 0.55, 'loop': False, 'bones': deal},
         {'name': 'animation.npc.flip', 'length': 0.6, 'loop': False, 'bones': flip},
         {'name': 'animation.npc.push', 'length': 1.0, 'loop': False, 'bones': push},
+        {'name': 'animation.npc.knock', 'length': 1.3, 'loop': False, 'bones': knock},
+        {'name': 'animation.npc.threaten', 'length': 1.5, 'loop': False, 'bones': threaten},
+        {'name': 'animation.npc.demand', 'length': 1.6, 'loop': False, 'bones': demand},
+        {'name': 'animation.npc.stamp', 'length': 1.1, 'loop': False, 'bones': stamp},
     ]
     return anims
 

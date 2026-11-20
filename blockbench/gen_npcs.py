@@ -747,8 +747,57 @@ def treasurer():
     m.cube('body', 'pen', (2, 21, -2.6), (3, 24, -1.6), solid(BLACK, 1, top=GOLD))
     return m
 
+
+def collector():
+    """Коллектор группы взыскания: чёрная кожанка, кепка-восьмиклинка, тёмные очки, золотая цепь, папка с делами."""
+    m = Model('collector', 117)
+    leather = hexc('#1E1C20')
+    hair = hexc('#2A2220')
+    base_body(
+        m,
+        head_painter(hair, eyes=(40, 40, 40), hair_rows=1, side_hair=False, glasses=(16, 16, 20),
+                     brows=shade(hair, 0.6), beard=None),
+        torso_painter(leather, shirt=hexc('#3A3A44'), open_collar=True, lapels=True, buttons=hexc('#5A5A60'),
+                      extra=lambda f: [f['north'].set(x, 1, GOLD, 1) for x in (2, 3, 4, 5)]),
+        arm_painter(leather, hand_rows=3),
+        arm_painter(leather, hand_rows=3),
+        leg_painter(hexc('#2A2E3A'), shoes=(18, 16, 18), stripe=hexc('#E0E0E0')),
+        leg_painter(hexc('#2A2E3A'), shoes=(18, 16, 18), stripe=hexc('#E0E0E0')),
+    )
+    cap = hexc('#3A3A3E')
+    m.cube('hat', 'cap', (-4.5, 30, -4.5), (4.5, 33, 4.5), solid(cap, 5, top=shade(cap, 1.15)))
+    m.cube('hat', 'cap_visor', (-4, 30, -6.5), (4, 31, -4.5), solid(shade(cap, 0.7), 3))
+    # Золотая цепь поверх кожанки и папка «ДЕЛО» под мышкой.
+    m.cube('body', 'chain', (-3, 21, -2.6), (3, 22, -1.6), solid(GOLD, 3))
+    m.cube('left_arm', 'folder', (-9, 12, -3), (-8, 18, 3), solid(hexc('#C8A86A'), 4,
+           front=lambda fr: fr.row(2, hexc('#7A2A1E'))))
+    return m
+
+
+def collector_vip():
+    """VIP-коллектор: чёрный костюм, белая рубашка, тёмные очки, наушник с проводом, дубинка на поясе."""
+    m = Model('collector_vip', 127)
+    suit = hexc('#141418')
+    hair = hexc('#1A1612')
+    base_body(
+        m,
+        head_painter(hair, eyes=(30, 30, 30), hair_rows=1, side_hair=False, glasses=(10, 10, 12), brows=shade(hair, 0.5)),
+        torso_painter(suit, shirt=WHITE, tie=(10, 10, 12), buttons=hexc('#303038')),
+        arm_painter(suit, cuff=WHITE),
+        arm_painter(suit, cuff=WHITE),
+        leg_painter(suit, shoes=(8, 8, 10)),
+        leg_painter(suit, shoes=(8, 8, 10)),
+    )
+    # Стрижка «площадка», наушник с витым проводом, дубинка на поясе, значок на лацкане.
+    m.cube('hat', 'flat_top', (-4, 31.5, -4), (4, 32.5, 4), solid(hair, 3), inflate=0.2)
+    m.cube('head', 'earpiece', (4, 26, 0), (5, 28, 1), solid((230, 230, 230), 1))
+    m.cube('body', 'earpiece_wire', (3, 18, 1), (4, 24, 2), solid((220, 220, 220), 1))
+    m.cube('body', 'baton', (-6, 6, -1), (-5, 14, 0), solid((40, 40, 46), 3, top=(70, 70, 76)))
+    m.cube('body', 'badge', (-3, 21, -2.6), (-2, 22, -1.6), solid(GOLD, 1))
+    return m
+
 ALL = [dictator, tax_inspector, customs, courier, croupier, dice_croupier, slots_operator, employer, licensor,
-       recipient, prisoner, poker_dealer, treasurer]
+       recipient, prisoner, poker_dealer, treasurer, collector, collector_vip]
 
 if __name__ == '__main__':
     for fn in ALL:

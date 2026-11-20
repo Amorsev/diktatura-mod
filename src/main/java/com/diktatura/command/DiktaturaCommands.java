@@ -199,6 +199,14 @@ public final class DiktaturaCommands {
 							com.diktatura.loan.Treasury.accrue(p);
 							return loan(c.getSource(), p);
 						}))
+						.then(literal("collectors").executes(c -> {
+							ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
+							if (!com.diktatura.loan.Collectors.start(p)) {
+								c.getSource().sendError(Text.translatable("diktatura.loan.cmd.no_collectors"));
+								return 0;
+							}
+							return 1;
+						}))
 						.then(literal("clear").executes(c -> {
 							ServerPlayerEntity p = EntityArgumentType.getPlayer(c, "player");
 							com.diktatura.loan.Treasury.clear(p);

@@ -90,7 +90,7 @@ public final class Registration {
 		rec.addrPos = pos.asLong();
 		state.markDirty();
 		// Переезд: старая табличка снимается (адрес уже новый, поэтому снятие не считается выпиской).
-		if (old != null && !old.equals(pos) && world.isChunkLoaded(old) && world.getBlockState(old).isOf(LoanBlocks.ADDRESS_PLATE)) {
+		if (old != null && !old.equals(pos) && world.isChunkLoaded(old.getX() >> 4, old.getZ() >> 4) && world.getBlockState(old).isOf(LoanBlocks.ADDRESS_PLATE)) {
 			world.breakBlock(old, false);
 		}
 		Hud.alert(p, AlertKind.GOOD, Text.translatable("diktatura.address.registered"),

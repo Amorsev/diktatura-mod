@@ -1,0 +1,11 @@
+{
+  "name": "npc.diktatura.collector",
+  "role": "npc.diktatura.collector.role",
+  "accent": "#7A1E1E",
+  "phrase_prefix": "npc.diktatura.collector.say.",
+  "phrase_count": 6,
+  "sound": "minecraft:entity.vindicator.ambient",
+  "pitch": 0.9,
+  "scale": 1.0,
+  "speed": 0.32
+}

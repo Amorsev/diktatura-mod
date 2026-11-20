@@ -69,6 +69,14 @@ public final class PlayerRecord {
 	/** Прописка (табличка «Адрес должника»): измерение ("" — не прописан) и позиция таблички. */
 	public String addrDim = "";
 	public long addrPos;
+	/** Тики до следующего визита коллекторов (идут онлайн у должника), -1 — не задан. */
+	public int collectorTicks = -1;
+	/** Для отчёта: сколько раз приходила группа взыскания. */
+	public int collectorVisits;
+	/** Кредитный день, в который последний раз предъявлялась справка о бедности (-1 — не предъявлялась). */
+	public int certificateDay = -1;
+	/** Чёрный список заёмщиков: до какого игрового времени мира займы не выдаются (после банкротства). */
+	public long blacklistUntil;
 
 	public PlayerRecord(int loyalty) {
 		this.loyalty = loyalty;
@@ -121,6 +129,10 @@ public final class PlayerRecord {
 		n.putLong("loanMax", loanMax);
 		n.putString("addrDim", addrDim);
 		n.putLong("addrPos", addrPos);
+		n.putInt("collectorTicks", collectorTicks);
+		n.putInt("collectorVisits", collectorVisits);
+		n.putInt("certificateDay", certificateDay);
+		n.putLong("blacklistUntil", blacklistUntil);
 		n.putInt("minigame", minigame);
 		n.putInt("progress", progress);
 		n.putBoolean("pardoned", pardoned);
@@ -172,6 +184,10 @@ public final class PlayerRecord {
 		r.loanMax = n.getLong("loanMax");
 		r.addrDim = n.getString("addrDim");
 		r.addrPos = n.getLong("addrPos");
+		r.collectorTicks = n.contains("collectorTicks") ? n.getInt("collectorTicks") : -1;
+		r.collectorVisits = n.getInt("collectorVisits");
+		r.certificateDay = n.contains("certificateDay") ? n.getInt("certificateDay") : -1;
+		r.blacklistUntil = n.getLong("blacklistUntil");
 		r.minigame = n.contains("minigame") ? n.getInt("minigame") : -1;
 		r.progress = n.getInt("progress");
 		r.pardoned = n.getBoolean("pardoned");

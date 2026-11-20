@@ -39,8 +39,9 @@ public final class Treasury {
 	public static final String TREASURER_ID = "diktatura:treasurer";
 	public static final String POST_KEY = "treasurer";
 
-	/** Какую сумму игрок выбрал и ещё не подписал. */
+	/** Какую сумму игрок выбрал и ещё не подписал (0 — выбрал банкротство). */
 	private static final Map<UUID, Integer> PENDING = new HashMap<>();
+	private static final int BANKRUPT = 0;
 	private static final Map<UUID, Integer> LAST_PHRASE = new HashMap<>();
 
 	private Treasury() {
@@ -85,7 +86,8 @@ public final class Treasury {
 	public static boolean grant(ServerPlayerEntity p, int amount) {
 		DiktaturaState state = DiktaturaState.get(p.getServer());
 		PlayerRecord rec = state.player(p);
-		if (hasLoan(rec) || amount <= 0 || rec.stage != Stage.FREE || !Registration.hasAddress(rec)) {
+		if (hasLoan(rec) || amount <= 0 || rec.stage != Stage.FREE || !Registration.hasAddress(rec)
+			|| blacklistMinutes(p.getServer(), rec) > 0) {
 			return false;
 		}
 		rec.debt = amount * 100L;
@@ -95,6 +97,9 @@ public final class Treasury {
 		rec.loanCycle = 0;
 		rec.loanPaid = 0;
 		rec.loanMax = rec.debt;
+		rec.certificateDay = -1;
+		rec.collectorVisits = 0;
+		rec.collectorTicks = Collectors.periodTicks();
 		state.markDirty();
 		Economy.add(p, amount, "diktatura.money.reason.loan", "", true);
 		return true;
@@ -120,6 +125,74 @@ public final class Treasury {
 		if (rec.debt <= 0) {
 			close(p, rec);
 		}
+	}
+
+	/** Списать часть долга (опись коллекторов): не больше долга. Возвращает, сколько трудодней списано. */
+	public static int writeOff(ServerPlayerEntity p, int trudodni) {
+		PlayerRecord rec = DiktaturaState.get(p.getServer()).player(p);
+		int worth = Math.min(trudodni, debt(rec));
+		if (worth > 0) {
+			reduce(p, rec, worth * 100L);
+		}
+		return Math.max(0, worth);
+	}
+
+	/** Штраф к долгу в процентах (неявка, сопротивление взысканию), не меньше 1 трудодня. Возвращает трудодни. */
+	public static int penalty(ServerPlayerEntity p, double percent) {
+		DiktaturaState state = DiktaturaState.get(p.getServer());
+		PlayerRecord rec = state.player(p);
+		if (!hasLoan(rec)) {
+			return 0;
+		}
+		long add = Math.max(100, (long) Math.ceil(rec.debt * percent / 100.0));
+		rec.debt += add;
+		rec.loanMax = Math.max(rec.loanMax, rec.debt);
+		state.markDirty();
+		return (int) ((add + 99) / 100);
+	}
+
+	/** Сколько минут ещё в чёрном списке заёмщиков (0 — не в списке). */
+	public static int blacklistMinutes(MinecraftServer server, PlayerRecord rec) {
+		long left = rec.blacklistUntil - server.getOverworld().getTime();
+		return left <= 0 ? 0 : (int) Math.max(1, (left + 1199) / 1200);
+	}
+
+	/**
+	 * Банкротство: всё имущество из инвентаря (кроме книги законов) изымается, положительный счёт трудодней
+	 * обнуляется, долг списан, лояльность −10, чёрный список заёмщиков на {@link LoanSettings#blacklistDays()} дней.
+	 */
+	public static void bankrupt(ServerPlayerEntity p) {
+		MinecraftServer server = p.getServer();
+		DiktaturaState state = DiktaturaState.get(server);
+		PlayerRecord rec = state.player(p);
+		if (!hasLoan(rec)) {
+			return;
+		}
+		var inv = p.getInventory();
+		int items = 0;
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack st = inv.getStack(i);
+			if (!st.isEmpty() && !st.isOf(com.diktatura.item.ModItems.LAW_BOOK)) {
+				items += st.getCount();
+				inv.setStack(i, ItemStack.EMPTY);
+			}
+		}
+		if (rec.trudodni > 0) {
+			Economy.add(p, -rec.trudodni, "diktatura.money.reason.bankrupt", "", false);
+		}
+		Collectors.cancel(p);
+		int debt = debt(rec);
+		rec.debt = 0;
+		rec.loanBase = 0;
+		rec.loanDayTicks = 0;
+		rec.loanCycle = 0;
+		rec.collectorTicks = -1;
+		rec.blacklistUntil = server.getOverworld().getTime() + (long) LoanSettings.get().blacklistDays() * LoanSettings.get().dayTicks();
+		state.markDirty();
+		com.diktatura.loyalty.LoyaltySystem.change(p, -10);
+		Hud.alert(p, AlertKind.DANGER, Text.translatable("diktatura.loan.bankrupt.done"),
+			Text.translatable("diktatura.loan.bankrupt.done.hint", items, debt, LoanSettings.get().blacklistDays()), 10);
+		Hud.alertAll(server, AlertKind.INFO, Text.translatable("diktatura.loan.bankrupt.all", p.getDisplayName()), Text.empty(), 6);
 	}
 
 	/** Сдать предмет из руки в счёт долга: берётся ровно столько штук, сколько нужно, сдачи нет. */
@@ -285,13 +358,22 @@ public final class Treasury {
 				actions.add(new UiPayloads.NpcAction("plate", Text.translatable("diktatura.loan.get_plate"), !hasPlate));
 			}
 			Integer pending = PENDING.get(player.getUuid());
-			if (hasLoan(rec)) {
+			if (hasLoan(rec) && pending != null && pending == BANKRUPT) {
+				line = Text.translatable("diktatura.loan.bankrupt.line");
+				info.add(Text.translatable("diktatura.loan.bankrupt.terms.0").formatted(Formatting.RED));
+				info.add(Text.translatable("diktatura.loan.bankrupt.terms.1"));
+				info.add(Text.translatable("diktatura.loan.bankrupt.terms.2", cfg.blacklistDays()));
+				actions.add(new UiPayloads.NpcAction("bankrupt_ok", Text.translatable("diktatura.loan.bankrupt.confirm"), true));
+				actions.add(new UiPayloads.NpcAction("cancel", Text.translatable("diktatura.loan.cancel"), true));
+			} else if (hasLoan(rec)) {
 				int debt = debt(rec);
 				info.add(Text.translatable("diktatura.loan.info.debt", debt, limit(rec)).formatted(Formatting.RED));
 				info.add(Text.translatable("diktatura.loan.info.day", rate, minutesToDay(rec), rec.loanDays));
 				if (!Registration.inZone(player)) {
 					info.add(Text.translatable("diktatura.loan.info.frozen").formatted(Formatting.AQUA));
 				}
+				info.add(Text.translatable(Collectors.visiting(player.getUuid()) ? "diktatura.loan.info.collectors_now"
+					: "diktatura.loan.info.collectors", Collectors.minutesToVisit(rec)));
 				int hand = handValue(player);
 				if (hand > 0) {
 					info.add(Text.translatable("diktatura.loan.info.hand", player.getMainHandStack().getName(), hand));
@@ -310,7 +392,8 @@ public final class Treasury {
 					? "diktatura.loan.pay_all" : "diktatura.loan.pay_part", all), all > 0));
 				actions.add(new UiPayloads.NpcAction("item", Text.translatable("diktatura.loan.pay_item",
 					Math.min(hand, debt)), hand > 0));
-			} else if (pending != null) {
+				actions.add(new UiPayloads.NpcAction("bankrupt", Text.translatable("diktatura.loan.bankrupt"), true));
+			} else if (pending != null && pending != BANKRUPT) {
 				line = Text.translatable("diktatura.loan.confirm.line");
 				info.add(Text.translatable("diktatura.loan.confirm.sum", pending));
 				info.add(Text.translatable("diktatura.loan.confirm.rate", rate));
@@ -322,8 +405,13 @@ public final class Treasury {
 				boolean free = rec.stage == Stage.FREE;
 				info.add(Text.translatable(free ? "diktatura.loan.info.offer" : "diktatura.loan.info.arrested", rate));
 				info.add(Text.translatable("diktatura.loan.info.zone", cfg.zoneRadius()));
+				int black = blacklistMinutes(player.getServer(), rec);
+				if (black > 0) {
+					info.add(Text.translatable("diktatura.loan.info.blacklist", black).formatted(Formatting.DARK_RED));
+				}
 				for (int a : cfg.amounts()) {
-					actions.add(new UiPayloads.NpcAction("take:" + a, Text.translatable("diktatura.loan.take", a), free && registered));
+					actions.add(new UiPayloads.NpcAction("take:" + a, Text.translatable("diktatura.loan.take", a),
+						free && registered && black == 0));
 				}
 			}
 			actions.add(new UiPayloads.NpcAction("client:close", Text.translatable("diktatura.npc.leave"), true));
@@ -344,13 +432,30 @@ public final class Treasury {
 				} catch (NumberFormatException e) {
 					return true;
 				}
-				if (!hasLoan(rec) && Registration.hasAddress(rec) && LoanSettings.get().amounts().contains(amount)) {
+				if (!hasLoan(rec) && Registration.hasAddress(rec) && amount > 0 && LoanSettings.get().amounts().contains(amount)) {
 					PENDING.put(uuid, amount);
 				}
 				return true;
 			}
 			if ("cancel".equals(action)) {
 				PENDING.remove(uuid);
+				return true;
+			}
+			if ("bankrupt".equals(action)) {
+				if (hasLoan(rec)) {
+					PENDING.put(uuid, BANKRUPT);
+				}
+				return true;
+			}
+			if ("bankrupt_ok".equals(action)) {
+				Integer pend = PENDING.remove(uuid);
+				if (pend != null && pend == BANKRUPT && hasLoan(rec)) {
+					bankrupt(player);
+					say(npc, "npc.diktatura.treasurer.bankrupt");
+					if (npc instanceof NpcEntity n) {
+						n.gesture(NpcEntity.WRITE);
+					}
+				}
 				return true;
 			}
 			if ("plate".equals(action)) {
@@ -362,7 +467,7 @@ public final class Treasury {
 			}
 			if ("sign".equals(action)) {
 				Integer amount = PENDING.remove(uuid);
-				if (amount != null && grant(player, amount)) {
+				if (amount != null && amount > 0 && grant(player, amount)) {
 					say(npc, "npc.diktatura.treasurer.signed", amount);
 					if (npc instanceof NpcEntity n) {
 						n.gesture(NpcEntity.WRITE);
